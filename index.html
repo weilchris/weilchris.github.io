@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <title>Chris Weil</title>
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Chris Weil, an award-winning German filmmaker and artist based in Italy, creates feature documentaries, arthouse films, and experimental cinema, showcasing exceptional storytelling and creativity.">
+    <meta name="keywords" content="Chris Weil, filmmaker, film director, artist, exhibitions, art, film, documentary, movies">
+    <meta name="author" content="Chris Weil">
+    <!-- Favicon -->
+    <link rel="icon" href="./images/chris-weil.webp" type="image/webp">
+    <!-- Open Graph Meta Tags (Facebook, WhatsApp, Signal, WeChat, Telegram) -->
+    <meta property="og:title" content="Chris Weil">
+    <meta property="og:description" content="Filmmaker & Artist">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chrisweil.com">
+    <meta property="og:image" content="https://chrisweil.com/images/chris-weil.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <!-- Twitter Card Meta Tags (Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chris Weil">
+    <meta name="twitter:description" content="Filmmaker & Artist">
+    <meta name="twitter:url" content="https://chrisweil.com">
+    <meta name="twitter:image" content="https://chrisweil.com/images/chris-weil.jpg">
+    <!-- Stylesheets, scripts, and other resources go here -->
+    <link rel="stylesheet" type="text/css" href="./css/uikit.css" />
+    <link rel="stylesheet" type="text/css" href="./css/custom.css" />
+    <script src="./js/uikit.js"></script>
+    <script src="./js/uikit-icons.js"></script>
+    <style>
+      /* General Resets */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        color: #ffffff;
+        background-color: transparent;
+        overflow: hidden;
+      }
+
+      body {
+        position: relative;
+        overflow-y: auto;
+        /* Allow vertical scrolling for content */
+        overflow-x: hidden;
+        /* Prevent horizontal scrolling */
+      }
+
+      /* Video Background */
+      .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        background-color: black;
+        /* Prevent white flashes */
+      }
+
+      /* Main Content Container */
+      .uk-container {
+        position: relative;
+        z-index: 1;
+        /* Ensures content appears above the video */
+        padding-bottom: 80px;
+        /* Avoid overlap with sticky elements */
+        min-height: 100vh;
+        /* Ensure content fills the viewport */
+        overflow: hidden;
+        /* Prevent unintEnded scroll behavior */
+      }
+
+      /* Accordion Styles */
+      .accordion-item {
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 10px;
+      }
+
+      .accordion-item>a {
+        padding: 15px 25px;
+        overflow: hidden;
+        text-align: right;
+      }
+
+      @media (max-width: 768px) {
+      .accordion-item > a {
+        padding: 15px 25px;
+        overflow: hidden;
+        text-align: left;
+       }
+      }
+
+      .uk-accordion-content {
+        padding: 25px;
+        background-color: rgba(255, 255, 255);
+        border-radius: 15px;
+        overflow: hidden;
+      }
+
+      /* Call-to-Action Button */
+      .cta-button {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+      }
+    </style>
+
+<!-- Schema org URL -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Chris Weil"
+      }
+    </script>
+
+<!-- Schema org URL End -->
+
+<!-- Schema org Person -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Chris Weil",
+  "birthDate": "1988-03-02",
+  "birthPlace": {
+    "@type": "Place",
+    "name": "Bad Nauheim",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "Germany"
+    }
+  },
+  "jobTitle": "Film Director",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "Artoldo Pictures"
+  },
+  "sameAs": [
+    "https://www.artoldo.com",
+    "https://www.imdb.com/search/title/?companies=co0630949"
+  ],
+  "filmography": [
+    {
+      "@type": "TVSeries",
+      "name": "C. G. Jung on Alchemy",
+      "datePublished": "2023",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Black Sudo Rising",
+      "datePublished": "2022",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Prampolini-Menarini Express",
+      "datePublished": "2022",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "The Luther Blissett Legacy",
+      "datePublished": "2022",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Dio No No War",
+      "datePublished": "2022",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Plant X",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "VE®NICE69",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Play Rec: For Film",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Night Terror",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Hauntology of the Retrodromomania",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "PegaSOMOSh",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Frammenti di una Festa Furiosa",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Taxidrome",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Glitching Offshore",
+      "datePublished": "2021",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Mascara Cartridge Déjà War",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Butterfly 360°",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Synecdoche Turin",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "H(o)me(o)pa®t(h)y",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Queen of the Luna Parking",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "AT MOre SPHERES",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Temporally",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Speed",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Vespertilio Spillover",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Timor Panicus",
+      "datePublished": "2020",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "MicroGnosing",
+      "datePublished": "2019",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Super Vario Birds",
+      "datePublished": "2019",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "WhimSeaCall - Nocturnal Sea",
+      "datePublished": "2019",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "CarOuzel",
+      "datePublished": "2018",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Super Sauber",
+      "datePublished": "2018",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Paleo Impulse",
+      "datePublished": "2018",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "Ugo Dossi - Art and Space",
+      "datePublished": "2017",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    },
+    {
+      "@type": "Movie",
+      "name": "The Ritman Library: Amsterdam",
+      "datePublished": "2017",
+      "director": [
+        {
+          "@type": "Person",
+          "name": "Chris Weil"
+        },
+        {
+          "@type": "Person",
+          "name": "Sara Ferro"
+        }
+      ]
+    }
+  ],
+  "artwork": [
+    {
+      "@type": "VisualArtwork",
+      "name": "Achtung Banditen",
+      "dateCreated": "2020",
+      "creator": {
+        "@type": "Organization",
+        "name": "Artoldo",
+        "members": [
+          {
+            "@type": "Person",
+            "name": "Chris Weil"
+          },
+          {
+            "@type": "Person",
+            "name": "Sara Ferro"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "VisualArtwork",
+      "name": "kaltcaldo",
+      "dateCreated": "2023",
+      "creator": {
+        "@type": "Organization",
+        "name": "Artoldo",
+        "members": [
+          {
+            "@type": "Person",
+            "name": "Chris Weil"
+          },
+          {
+            "@type": "Person",
+            "name": "Sara Ferro"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "VisualArtwork",
+      "name": "The Virtual Journey of the Mask",
+      "dateCreated": "2024",
+      "creator": {
+        "@type": "Organization",
+        "name": "Artoldo",
+        "members": [
+          {
+            "@type": "Person",
+            "name": "Chris Weil"
+          },
+          {
+            "@type": "Person",
+            "name": "Sara Ferro"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "VisualArtwork",
+      "name": "Zoroaster Superstar",
+      "dateCreated": "2023",
+      "creator": {
+        "@type": "Organization",
+        "name": "Artoldo",
+        "members": [
+          {
+            "@type": "Person",
+            "name": "Chris Weil"
+          },
+          {
+            "@type": "Person",
+            "name": "Sara Ferro"
+          }
+        ]
+      }
+    }
+  ]
+}
+</script>
+
+<!-- Schema org Person End -->
+
+<!-- Lightbox -->
+
+<script>   
+    UIkit.mixin({
+        data: {
+            delayControls: 86400000
+        }
+    }, 'lightbox');
+</script>
+
+  </head>
+  <body>
+<!-- Video Background -->
+
+    <video class="video-background" src="./images/video.mp4" autoplay loop muted playsinline></video>
+
+<!-- Video Background End -->
+
+<!-- Content Section -->
+
+    <div class="uk-container">
+
+      <!-- Header Section -->
+
+      <header class="uk-text-center uk-padding">
+        <h1 class="uk-heading-xlarge uk-text-thin uk-animation-slide-top" style="color: white; text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);">Chris Weil</h1>
+        <h2 class="uk-heading-medium uk-text-thin uk-animation-slide-bottom" style="color: white; text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);">Filmmaker & Artist</h2>
+      </header>
+
+      <!-- Header Section End -->
+
+      <!-- Accordion -->
+
+      <section>
+        <ul uk-accordion="multiple: false; collapsible: true">
+
+          <!-- Accordion Item 1 -->
+
+          <li class="accordion-item uk-card uk-card-default uk-box-shadow-hover-small uk-animation-fade">
+            <a class="uk-accordion-title uk-text-large uk-text-lighter uk-text-bolder" href="#">Awards</a>
+            <div class="uk-accordion-content uk-dropcap uk-text-large uk-text-lighter">
+
+<!-- Awards -->
+
+<div class="uk-overflow-hidden">
+           
+<div class="uk-flex uk-flex-center uk-flex-middle uk-text-center uk-position-relative uk-visible-toggle uk-light" tabindex="-1" uk-slider autoplay="true" autoplay-interval="5000" pause-on-hover="true">
+
+    <ul class="uk-slider-items uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-3@l" style="cursor:grab;">
+
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">No<br>Weapon<br>World</span><br>
+                        <span class="uk-text-lighter">Venice 2024</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Max Sir<br>International<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Costa Rica 2024</span>
+			</div>         
+		</div>
+        </li>     
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">BLA24<br>University<br>Library</span><br>
+                        <span class="uk-text-lighter">Genoa 2024</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Religiographies<br>Vol. 3, No. 1<br>Cini Foundation</span><br>
+                        <span class="uk-text-lighter">Venice 2024</span>
+			</div>         
+		</div>
+        </li>           
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">CES GENS LA<br>Galerie AVM<br>Montmatre</span><br>
+                        <span class="uk-text-lighter">Paris 2024</span>
+			</div>         
+		</div>
+        </li>       
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+               <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Star Cinema<br>DECENTRALAND<br>Metaverse</span><br>
+                        <span class="uk-text-lighter">USA 2024</span>
+			</div>           
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+               <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">ProToPost<br>International</span><br>
+                        <span class="uk-text-lighter">Italy 2023</span>
+			</div>
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Winner</span><br>
+                        <span class="uk-text-large uk-text-bold">Lift-Off<br>Audience<br>Award</span><br>
+                        <span class="uk-text-lighter">London 2023</span>
+			</div>
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">InnuEndo<br>International<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Italy 2023</span>
+			</div>
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Ros<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Alicante 2023</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Hermetic<br>International<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Italy 2023</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">- 20 di mare -<br>Galata Museo<br>del Mare</span><br>
+                        <span class="uk-text-lighter">Genoa 2023</span>
+			</div>            
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Nominee</span><br>
+                        <span class="uk-text-large uk-text-bold">Festival<br>del Cinema<br>di Cefalù</span><br>
+                        <span class="uk-text-lighter">Sicily 2023</span>
+			</div>           
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">Biennale<br>le Latitudini<br>dell’arte</span><br>
+                        <span class="uk-text-lighter">Berlin 2023</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">- Otium -<br>Terme di Como<br>Romana</span><br>
+                        <span class="uk-text-lighter">Italy 2023</span>
+			</div>          
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Solo Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">ATB Gallery<br>Associazione<br>Culturale</span><br>
+                        <span class="uk-text-lighter">Turin 2023</span>
+			</div>           
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">Iran<br>Germany<br>Italy</span><br>
+                        <span class="uk-text-lighter">2023</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Lift-Off<br>Global<br>Network</span><br>
+                        <span class="uk-text-lighter">London 2022</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Submission</span><br>
+                        <span class="uk-text-large uk-text-bold">- 7DFPS -<br>Game Jam</span><br>
+                        <span class="uk-text-lighter">2022</span>
+			</div>    
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Submission</span><br>
+                        <span class="uk-text-large uk-text-bold">- Game Off -<br>Game Jam</span><br>
+                        <span class="uk-text-lighter">2022</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">The Lift-Off<br>Sessions</span><br>
+                        <span class="uk-text-lighter">London 2022</span>
+			</div>        
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">MOSAIC<br>on Paper</span><br>
+                        <span class="uk-text-lighter">Amsterdam 2022</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Semi-Finalist</span><br>
+                        <span class="uk-text-large uk-text-bold">ESMoA<br>Video Art<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">USA 2022</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Solo Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">- THE GALLERY -<br>Metaverse<br>Decentraland</span><br>
+                        <span class="uk-text-lighter">USA 2022</span>
+			</div>           
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">LABOCINE</span><br>
+                        <span class="uk-text-lighter">New York 2022</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Winner</span><br>
+                        <span class="uk-text-large uk-text-bold">Venus<br>Community<br>Awards</span><br>
+                        <span class="uk-text-lighter">Istanbul 2022</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">- FLIGHT -<br>Mostra<br>Internazionale<br>del Cinema</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>          
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Star Cinema<br>DECENTRALAND<br>Metaverse</span><br>
+                        <span class="uk-text-lighter">USA 2022</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">One Earth<br>Awards</span><br>
+                        <span class="uk-text-lighter">India 2022</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">mim</span><br>
+                        <span class="uk-text-lighter">Munich 2022</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Breed Art<br>Studios</span><br>
+                        <span class="uk-text-lighter">Amsterdam 2022</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Estensioni<br>Oltre<br>Lo Spazio</span><br>
+                        <span class="uk-text-lighter">Carrara 2022</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Palazzo<br>Doria Tursi</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>          
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">LABA<br>Accademia di<br>Belle Arti</span><br>
+                        <span class="uk-text-lighter">Brescia 2022</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Galata Museo<br>del Mare</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">La Fabbrica<br>del Vedere</span><br>
+                        <span class="uk-text-lighter">Venice 2022</span>
+			</div>  
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-medium uk-text-bold">CasermArcheologica<br>Sansepolcro</span><br>
+                        <span class="uk-text-lighter">Italy 2022</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Spazio 46</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-medium uk-text-bold">AdAC<br>Archivio D'arte<br>Contemporanea<br>Università degli<br>Studi Di Genova</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>        
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">Segrete<br>Tracce di<br>Memoria</span><br>
+                        <span class="uk-text-lighter">Genoa 2022</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Castello<br>d’Albertis<br>Code War</span><br>
+                        <span class="uk-text-lighter">Genoa 2021</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">GutterCast</span><br>
+                        <span class="uk-text-lighter">2021</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">CONCRETO</span><br>
+                        <span class="uk-text-lighter">Turin 2021</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Façade<br>Video Festival</span><br>
+                        <span class="uk-text-lighter">Plovdiv 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Showcased at</span><br>
+                        <span class="uk-text-large uk-text-bold">International<br>Summer<br>Academy of<br>Fine Arts</span><br>
+                        <span class="uk-text-lighter">Salzburg 2021</span>
+			</div>        
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Solo Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">Palazzo Ducale<br>Etherea<br>Art Gallery</span><br>
+                        <span class="uk-text-lighter">Genoa 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">- MAKE8ELIEVE -<br>Night Terrors</span><br>
+                        <span class="uk-text-lighter">2021</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">GRRL Telephone<br>Photo + Video<br>Exhibit</span><br>
+                        <span class="uk-text-lighter">Berlin 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Finalist</span><br>
+                        <span class="uk-text-large uk-text-bold">Sezze<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Italy 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">International<br>Nature<br>Film Festival<br>Gödöllő</span><br>
+                        <span class="uk-text-lighter">Hungary 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-medium uk-text-bold">FINNOF<br>International<br>Festival of<br>New Nonfiction<br>Narratives</span><br>
+                        <span class="uk-text-lighter">Argentina 2021</span>
+			</div>        
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Featured on</span><br>
+                        <span class="uk-text-large uk-text-bold">Arte<br>Laguna<br>World</span><br>
+                        <span class="uk-text-lighter">2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Semi-Finalist</span><br>
+                        <span class="uk-text-large uk-text-bold">Festival<br>del Cinema<br>di Cefalù</span><br>
+                        <span class="uk-text-lighter">Sicily 2021</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Invited Artist</span><br>
+                        <span class="uk-text-large uk-text-bold">Centrale<br>Festival<br>Around</span><br>
+                        <span class="uk-text-lighter">Italy 2021</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">ROMAN SUSAN<br>Streetlight</span><br>
+                        <span class="uk-text-lighter">Chicago 2021</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-medium uk-text-bold">Itsliquid<br>International<br>Art Fair<br>Palazzo<br>Albrizzi-Capello</span><br>
+                        <span class="uk-text-lighter">Venice 2021</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-medium uk-text-bold">Contemporary<br>Venice<br>The Room<br>Contemporary<br>Art Space</span><br>
+                        <span class="uk-text-lighter">Venice 2021</span>
+			</div>       
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">New Generation<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Serbia 2020</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">MINK FESTIVAL<br>A Zoo of<br>the Pandemic</span><br>
+                        <span class="uk-text-lighter">Greece 2020</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Showcased on</span><br>
+                        <span class="uk-text-medium uk-text-bold">Trinity<br>Square Video<br>the Imaginary and<br>the Synchronous</span><br>
+                        <span class="uk-text-lighter">Toronto 2020</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Featured on</span><br>
+                        <span class="uk-text-large uk-text-bold">Magmart<br>International<br>Video Art<br>Festival</span><br>
+                        <span class="uk-text-lighter">Naples 2020</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">ChippEndale<br>Studio<br>Nello Spazio<br>Fa Freddo</span><br>
+                        <span class="uk-text-lighter">Milan 2020</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Portobello<br>Film Festival<br>Muse Gallery</span><br>
+                        <span class="uk-text-lighter">London 2020</span>
+			</div>        
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">TAM<br>Torrance<br>Art Museum<br>- Darkroom -</span><br>
+                        <span class="uk-text-lighter">Los Angeles 2020</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">New Media Fest</span><br>
+                        <span class="uk-text-lighter">Cologne 2020</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Finalist</span><br>
+                        <span class="uk-text-large uk-text-bold">Lisbon Film<br>REndezvous</span><br>
+                        <span class="uk-text-lighter">Portugal 2020</span>
+			</div>    
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Group Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">CICA Museum<br>Experimental<br>Film and Video</span><br>
+                        <span class="uk-text-lighter">Seoul 2020</span>
+			</div>          
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Solo Exhibition</span><br>
+                        <span class="uk-text-large uk-text-bold">Palazzo<br>Albrizzi<br>Capello</span><br>
+                        <span class="uk-text-lighter">Venice 2020</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Wotisart<br>Magazine 35</span><br>
+                        <span class="uk-text-lighter">London 2020</span>
+			</div>         
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">The Lift-Off<br>Sessions</span><br>
+                        <span class="uk-text-lighter">London 2020</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-medium uk-text-bold">ART AND PSYCHE<br>CONFERENCE IV<br>Pacifica Graduate<br>Institute</span><br>
+                        <span class="uk-text-lighter">Santa Barbara 2019</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Darkroom<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">London 2019</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">The Lift-Off<br>Sessions</span><br>
+                        <span class="uk-text-lighter">London 2019</span>
+			</div>         
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Teatro Bloser</span><br>
+                        <span class="uk-text-lighter">Genoa 2018</span>
+			</div>        
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Alexandre<br>Trauner<br>ART / Film<br>Festival</span><br>
+                        <span class="uk-text-lighter">Szolnok 2018</span>
+			</div>      
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Nominee</span><br>
+                        <span class="uk-text-large uk-text-bold">Best Film</span><br>
+                        <span class="uk-text-lighter">AIFF 2018</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Nominee</span><br>
+                        <span class="uk-text-large uk-text-bold">Best Story</span><br>
+                        <span class="uk-text-lighter">AIFF 2018</span>
+			</div>      
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Nominee</span><br>
+                        <span class="uk-text-large uk-text-bold">Best Director<br>of a Feature<br>Documentary</span><br>
+                        <span class="uk-text-lighter">AIFF 2018</span>
+			</div>   
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Nominee</span><br>
+                        <span class="uk-text-large uk-text-bold">Scientific<br>Educational<br>Award</span><br>
+                        <span class="uk-text-lighter">AIFF 2018</span>
+			</div>       
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Amsterdam<br>International<br>Filmmaker<br>Festival</span><br>
+                        <span class="uk-text-lighter">AIFF 2018</span>
+			</div>  
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Cosmopolis<br>Film Awards</span><br>
+                        <span class="uk-text-lighter">Rome 2017</span>
+			</div> 
+		</div>
+        </li>
+	<li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Special Screening</span><br>
+                        <span class="uk-text-large uk-text-bold">Oerol</span><br>
+                        <span class="uk-text-lighter">Terschelling 2017</span>
+			</div>     
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">DOCfeed<br>Documentary<br>Festival</span><br>
+                        <span class="uk-text-lighter">Eindhoven 2017</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">Miami<br>IndepEndent<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">2017</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">ARFF Berlin<br>International<br>Awards</span><br>
+                        <span class="uk-text-lighter">2017</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Winner</span><br>
+                        <span class="uk-text-large uk-text-bold">Best Project<br>MedFF</span><br>
+                        <span class="uk-text-lighter">Siracusa 2016</span>
+			</div>
+		</div>
+        </li>
+        <li>
+            <img src="./images/laurel.png" width="400" height="600" alt="">
+                <div class="uk-position-center uk-panel uk-position-z-index-negative" style="cursor:grab;">
+                	<div class="uk-width-medium uk-text-uppercase uk-text-center" style="color:black">
+                        <span>Official Selection</span><br>
+                        <span class="uk-text-large uk-text-bold">International<br>Monthly<br>Film Festival</span><br>
+                        <span class="uk-text-lighter">Copenhagen 2016</span>
+			</div>
+		</div>
+        </li>
+    </ul>
+
+</div>
+
+</div>
+
+<!-- Awards End -->
+
+            </div>
+          </li>
+
+          <!-- Accordion Item 2 -->
+
+          <li class="accordion-item uk-card uk-card-default uk-box-shadow-hover-small uk-animation-fade">
+            <a class="uk-accordion-title uk-text-large uk-text-lighter uk-text-bolder" href="#">Biography</a>
+
+<!-- Biography -->
+
+            <div class="uk-accordion-content uk-dropcap uk-text-large uk-text-lighter">
+
+
+<span uk-lightbox><a href="./images/chris-weil.jpg"><img class="uk-align-center uk-align-left@m uk-margin-remove-adjacent uk-border-rounded" src="./images/chris-weil.webp" width="400" height="200" alt="Chris Weil"></a></span>
+<p>Chris Weil (*March 2, 1988, Bad Nauheim) is a German filmmaker and multimedia artist, who currently lives and works in Italy. After graduating as a Film & Video Editor in 2011 at the ARD.ZDF Media Academy in association with the Bayerischer Rundfunk and the IHK, Christian Tobias Weil starts video editing for the German public broadcasting stations (ARD and BR).</p>
+  
+<p>In 2015, Chris Weil moves to Italy and, in collaboration with <span uk-lightbox><a href="https://ferrosara.github.io/" data-type="iframe">Sara Ferro</a></span>, founds the creative directors collective <span uk-lightbox><a href="https://artoldo.github.io/" data-type="iframe">ARTOLDO</a></span>. The collective produces a diverse range of works, including Arthouse movies, Feature Documentaries, Experimental Films, Moving Images Arts, Video Art, and Virtual Reality experiences. <br>Notable works are <span uk-lightbox><a href="https://artoldo.github.io/jung" data-type="iframe">C. G. Jung on Alchemy</a></span> (2023), <span uk-lightbox><a href="https://artoldo.github.io/ugodossi" data-type="iframe">Ugo Dossi</a></span> (2017), and <span uk-lightbox><a href="https://artoldo.github.io/ritmanlibrary" data-type="iframe">The Ritman Library</a></span> (2017), alongside interactive art installations such as <span uk-lightbox><a href="https://redmagicblue.github.io/achtung-banditen" data-type="iframe">Achtung Banditen</a></span> and <span uk-lightbox><a href="https://artoldo.github.io/kaltcaldo" data-type="iframe">kaltcaldo</a></span> or <span uk-lightbox><a href="https://artoldo.com/mcqueen" data-type="iframe">The Virtual Journey of the Mask</a></span> and <span uk-lightbox><a href="https://artoldo.github.io/zoroaster" data-type="iframe">Zoroaster Superstar</a></span>, which are showcased in solo and group <span uk-lightbox><a href="https://artoldo.github.io/exhibitions.html" data-type="iframe">exhibitions</a></span>.</p>
+
+</div>
+
+<!-- Biography End -->
+
+          </li>
+
+          <!-- Accordion Item 3 -->
+
+          <li class="accordion-item uk-card uk-card-default uk-box-shadow-hover-small uk-animation-fade">
+            <a class="uk-accordion-title uk-text-large uk-text-lighter uk-text-bolder" href="#">Filmography</a>
+
+<!-- Filmography -->
+
+            <div class="uk-accordion-content uk-text-large uk-text-lighter">
+<p>
+        <b>2023:</b> C. G. Jung on Alchemy
+    </p>
+    <p>
+        <b>2022:</b> Black Sudo Rising, Prampolini-Menarini Express, 
+        The Luther Blissett Legacy, Dio No No War
+    </p>
+    <p>
+        <b>2021:</b> Plant X, VE®NICE69, Play Rec: For Film, Night Terror, 
+        Hauntology of the Retrodromomania, PegaSOMOSh, Frammenti di una Festa Furiosa, 
+        Taxidrome, Glitching Offshore
+    </p>
+    <p>
+        <b>2020:</b> Mascara Cartridge Déjà War, Butterfly 360°, Synecdoche Turin, 
+        H(o)me(o)pa®t(h)y, Queen of the Luna Parking, AT MOre SPHERES, 
+        Temporally, Speed, Vespertilio Spillover, Timor Panicus
+    </p>
+    <p>
+        <b>2019:</b> MicroGnosing, Super Vario Birds, WhimSeaCall - Nocturnal Sea
+    </p>
+    <p>
+        <b>2018:</b> CarOuzel, Super Sauber, Paleo Impulse
+    </p>
+    <p>
+        <b>2017:</b> Ugo Dossi - Art and Space, The Ritman Library: Amsterdam
+    </p>
+            </div>
+
+<!-- Filmography End -->
+
+          </li>
+        </ul>
+      </section>
+
+<!-- Content Section End-->
+
+
+<!-- Sticky Call to Action Button -->
+
+      <div class="cta-button">
+        <a href="mailto:hello@chrisweil.com" class="uk-button uk-button-primary uk-button-large uk-border-rounded uk-box-shadow-medium uk-animation-scale-up">Get in Touch</a>
+      </div>
+    </div>
+
+<!-- Sticky Call to Action Button End -->
+
+  </body>
+</html>
