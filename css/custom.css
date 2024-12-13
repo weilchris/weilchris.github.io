@@ -336,8 +336,8 @@ color: #fff;
   box-sizing: border-box;
   width: 50px;
   height: 50px;
-  background: rgba(255, 255, 255, 0.5);
-  color: rgba(000, 000, 000, 1.0);
+  background: #AD9A00;
+  color: white;
   border-radius: 100%;
   /* 1 */
   display: inline-flex;
