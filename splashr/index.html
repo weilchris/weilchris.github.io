@@ -1431,6 +1431,9 @@ function createZombie(){
     zombie.userData.legs =
         [leg1, leg2];
 
+    zombie.userData.head = head;
+    zombie.userData.hp = 100;
+
     scene.add(zombie);
 
     zombies.push(zombie);
@@ -1823,7 +1826,7 @@ if(keys['d'] || keys['arrowright']){
             camera.position.z < -MAP_SIZE ? MAP_SIZE :
             camera.position.z;
 
-        fade.style.background = "#ff0000";
+        fade.style.background = "#fff";
         fade.style.opacity = 1;
 
         setTimeout(()=>{
@@ -1896,22 +1899,49 @@ if(keys['d'] || keys['arrowright']){
 
             const zombie = zombies[z];
 
-            if(
-                bullet.position.distanceTo(
-                    zombie.position
-                ) < 1.4
-            ){
+            const headWorldPos = new THREE.Vector3();
+            zombie.userData.head.getWorldPosition(headWorldPos);
 
-                scene.remove(zombie);
+            const headshot =
+                bullet.position.distanceTo(headWorldPos) < 0.7;
 
-                zombies.splice(z,1);
+            const bodyshot =
+                bullet.position.distanceTo(zombie.position) < 1.4;
+
+            if(headshot){
+
+                zombie.userData.hp -= 100;
 
                 scene.remove(bullet);
+                bullets.splice(i,1);
 
+                score += 50;
+                scoreEl.textContent = score;
+
+                showPickupMessage(
+                    "HEADSHOT +50",
+                    "#ffcc00"
+                );
+
+                playTone(1200,0.08,"square",0.04);
+
+                if(zombie.userData.hp <= 0){
+
+                    scene.remove(zombie);
+                    zombies.splice(z,1);
+                }
+
+                break;
+            }
+
+            else if(bodyshot){
+
+                zombie.userData.hp -= 40;
+
+                scene.remove(bullet);
                 bullets.splice(i,1);
 
                 score += 10;
-
                 scoreEl.textContent = score;
 
                 showPickupMessage(
@@ -1920,6 +1950,12 @@ if(keys['d'] || keys['arrowright']){
                 );
 
                 playTone(880,0.06,"square",0.03);
+
+                if(zombie.userData.hp <= 0){
+
+                    scene.remove(zombie);
+                    zombies.splice(z,1);
+                }
 
                 break;
             }
@@ -2149,7 +2185,7 @@ for(let i = collectibles.length - 1; i >= 0; i--){
             scoreEl.textContent = score;
 
             showPickupMessage(
-                "SPLASH BOMB! +" + killed + " KILLS",
+                "SPLASH BOMB! +" + killed + " HITS",
                 "#44ff44"
             );
 
