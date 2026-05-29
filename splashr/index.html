@@ -41,7 +41,7 @@ canvas{
 
 #hud{
     position:absolute;
-    top:100px;
+    top:10px;
     left:10px;
 
     color:white;
@@ -58,9 +58,18 @@ canvas{
 
     line-height:1.5;
 
-    backdrop-filter:blur(0px);
+}
 
-    text-shadow:0 0px 0px black;
+/* Mobile only */
+
+@media (max-width: 768px) {
+
+    #hud{
+
+        top:60px;
+
+    }
+
 }
 
 #message{
@@ -88,6 +97,18 @@ canvas{
 
 #message p{
     font-size:24px;
+}
+
+/* Mobile only */
+
+@media (max-width: 768px) {
+
+    #message p{
+
+        font-size:14px;
+
+    }
+
 }
 
 #newGameBtn{
@@ -196,6 +217,22 @@ canvas{
     border:0px solid white;
 
     z-index:30;
+}
+
+/* Mobile only */
+
+@media (max-width: 768px) {
+
+    #radar{
+
+    right:5px;
+    top:5px;
+
+    width:40px;
+    height:40px;
+
+    }
+
 }
 
 @media (max-width:900px){
