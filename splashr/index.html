@@ -1635,6 +1635,8 @@ function endGame(title,text){
 
     gameOver = true;
 
+    document.getElementById('crosshair').style.display = 'none';
+
     playTone(220,0.3,"sawtooth",0.08);
 
     setTimeout(()=>{
@@ -1654,24 +1656,29 @@ function endGame(title,text){
 // NEW GAME
 //////////////////////////////////////////////////////////
 
-document
-.getElementById('newGameBtn')
+const newGameBtn =
+    document.getElementById('newGameBtn');
 
-.addEventListener('click', ()=>{
+newGameBtn.addEventListener('click', ()=>{
 
-    zombies.forEach(z=>scene.remove(z));
+    //////////////////////////////////////////////////////
+    // CLEAR WORLD
+    //////////////////////////////////////////////////////
 
-    bullets.forEach(b=>scene.remove(b));
-
-    collectibles.forEach(c=>scene.remove(c));
+    zombies.forEach(z => scene.remove(z));
+    bullets.forEach(b => scene.remove(b));
+    collectibles.forEach(c => scene.remove(c));
 
     zombies.length = 0;
     bullets.length = 0;
     collectibles.length = 0;
 
+    //////////////////////////////////////////////////////
+    // RESET STATS
+    //////////////////////////////////////////////////////
+
     score = 0;
     health = 100;
-
     ammo = 30;
 
     timeLeft = 60;
@@ -1679,24 +1686,79 @@ document
     currentLevel = 0;
 
     gameOver = false;
+    paused = false;
+    teleporting = false;
+
+    //////////////////////////////////////////////////////
+    // RESET PLAYER
+    //////////////////////////////////////////////////////
 
     camera.position.set(0,2,5);
 
+    yaw = 0;
+    pitch = 0;
+
+    //////////////////////////////////////////////////////
+    // RESET HUD
+    //////////////////////////////////////////////////////
+
     scoreEl.textContent = score;
-
     healthEl.textContent = health;
-
     ammoEl.textContent = ammo;
-
     timeEl.textContent = timeLeft;
-
     levelEl.textContent = 1;
+
+    threatEl.textContent = "LOW";
+    threatEl.style.color = "#66ff66";
+
+    //////////////////////////////////////////////////////
+    // RESTORE CROSSHAIR
+    //////////////////////////////////////////////////////
+
+    document.getElementById('crosshair').style.display = 'block';
+
+    //////////////////////////////////////////////////////
+    // HIDE GAME OVER SCREEN
+    //////////////////////////////////////////////////////
+
+    message.style.display = 'none';
+
+    //////////////////////////////////////////////////////
+    // RESET VISUALS
+    //////////////////////////////////////////////////////
+
+    fade.style.opacity = 0;
+    fade.style.background = "black";
+
+    //////////////////////////////////////////////////////
+    // REBUILD WORLD
+    //////////////////////////////////////////////////////
 
     buildWorld();
 
+    //////////////////////////////////////////////////////
+    // RESTART SPAWNER
+    //////////////////////////////////////////////////////
+
     startSpawner();
 
-    message.style.display = 'none';
+});
+
+//////////////////////////////////////////////////////////
+// ENTER = NEW GAME
+//////////////////////////////////////////////////////////
+
+window.addEventListener('keydown', e => {
+
+    if(
+        gameOver &&
+        e.key === 'Enter'
+    ){
+
+        e.preventDefault();
+
+        newGameBtn.click();
+    }
 });
 
 //////////////////////////////////////////////////////////
@@ -1733,7 +1795,14 @@ function animate(){
 
     const delta = clock.getDelta();
 
+    if(gameOver){
+
+        renderer.render(scene,camera);
+        return;
+    }
+
     if(paused || teleporting){
+
         renderer.render(scene,camera);
         return;
     }
