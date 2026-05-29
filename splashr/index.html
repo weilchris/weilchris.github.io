@@ -14,7 +14,8 @@
 
 <style>
 
-html, body{
+html,
+body{
 
     margin:0;
     overflow:hidden;
@@ -40,7 +41,9 @@ canvas{
 }
 
 #hud{
+
     position:absolute;
+
     top:10px;
     left:10px;
 
@@ -50,26 +53,13 @@ canvas{
 
     font-size:18px;
 
-    background:rgba(0,0,0,0.0);
+    background:rgba(0,0,0,0);
 
     padding:12px;
 
     border-radius:12px;
 
     line-height:1.5;
-
-}
-
-/* Mobile only */
-
-@media (max-width: 768px) {
-
-    #hud{
-
-        top:60px;
-
-    }
-
 }
 
 #message{
@@ -91,24 +81,14 @@ canvas{
 }
 
 #message h1{
+
     font-size:54px;
     margin:0 0 20px;
 }
 
 #message p{
+
     font-size:24px;
-}
-
-/* Mobile only */
-
-@media (max-width: 768px) {
-
-    #message p{
-
-        font-size:14px;
-
-    }
-
 }
 
 #newGameBtn{
@@ -135,6 +115,7 @@ canvas{
 }
 
 #newGameBtn:hover{
+
     transform:scale(1.05);
 }
 
@@ -214,51 +195,10 @@ canvas{
 
     background:rgba(0,0,0,0.2);
 
-    border:0px solid white;
+    border:0 solid white;
 
     z-index:30;
 }
-
-/* Mobile only */
-
-@media (max-width: 768px) {
-
-    #radar{
-
-    right:5px;
-    top:5px;
-
-    width:40px;
-    height:40px;
-
-    }
-
-}
-
-@media (max-width:900px){
-
-    #hud{
-        font-size:15px;
-    }
-
-    #message h1{
-        font-size:38px;
-    }
-
-    #message p{
-        font-size:20px;
-    }
-
-    #newGameBtn{
-        font-size:20px;
-    }
-
-    #radar{
-        width:110px;
-        height:110px;
-    }
-}
-
 
 #pickupMessage{
 
@@ -281,9 +221,79 @@ canvas{
 
     transition:opacity 0.3s;
 
-    text-shadow:0 0px 0px black;
+    text-shadow:0 0 0 black;
 
     pointer-events:none;
+}
+
+/* Tablet */
+
+@media (max-width:900px){
+
+    #hud{
+        font-size:15px;
+    }
+
+    #message h1{
+        font-size:38px;
+    }
+
+    #message p{
+        font-size:20px;
+    }
+
+    #newGameBtn{
+        font-size:20px;
+    }
+
+    #radar{
+        width:90px;
+        height:90px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width:768px){
+
+    #hud{
+        top:60px;
+        font-size:14px;
+    }
+
+    #message h1{
+        font-size:32px;
+    }
+
+    #message p{
+        font-size:14px;
+    }
+
+    #newGameBtn{
+        font-size:18px;
+        padding:14px 24px;
+    }
+
+    #radar{
+
+        right:8px;
+        top:8px;
+
+        width:64px;
+        height:64px;
+    }
+
+    #pickupMessage{
+        font-size:18px;
+        bottom:20px;
+    }
+}
+
+@media (max-width:768px){
+
+    #pickupMessage{
+        font-size:12px;
+    }
 }
 
 </style>
@@ -1002,6 +1012,8 @@ let reloading = false;
 let timeLeft = 60;
 
 let gameOver = false;
+let paused = false;
+let teleporting = false;
 
 //////////////////////////////////////////////////////////
 // CONTROLS
@@ -1038,9 +1050,21 @@ document.addEventListener(
 
 window.addEventListener('keydown', e=>{
 
-    keys[e.key.toLowerCase()] = true;
+    const k = e.key.toLowerCase();
 
-    if(e.key.toLowerCase() === 'r'){
+    keys[k] = true;
+
+    if(k === 'p'){
+
+        paused = !paused;
+
+        showPickupMessage(
+            paused ? "GAME PAUSED" : "GAME RESUMED",
+            paused ? "#ffff44" : "#44ff44"
+        );
+    }
+
+    if(k === 'r'){
 
         reload();
     }
@@ -1706,6 +1730,11 @@ function animate(){
 
     const delta = clock.getDelta();
 
+    if(paused || teleporting){
+        renderer.render(scene,camera);
+        return;
+    }
+
     camera.rotation.order = 'YXZ';
 
     camera.rotation.y = yaw;
@@ -1733,37 +1762,29 @@ function animate(){
         new THREE.Vector3(0,1,0)
     );
 
-    if(keys['w']){
+if(keys['w'] || keys['arrowup']){
+    camera.position.add(
+        forward.clone().multiplyScalar(speed)
+    );
+}
 
-        camera.position.add(
-            forward.clone()
-            .multiplyScalar(speed)
-        );
-    }
+if(keys['s'] || keys['arrowdown']){
+    camera.position.add(
+        forward.clone().multiplyScalar(-speed)
+    );
+}
 
-    if(keys['s']){
+if(keys['a'] || keys['arrowleft']){
+    camera.position.add(
+        right.clone().multiplyScalar(speed)
+    );
+}
 
-        camera.position.add(
-            forward.clone()
-            .multiplyScalar(-speed)
-        );
-    }
-
-    if(keys['a']){
-
-        camera.position.add(
-            right.clone()
-            .multiplyScalar(speed)
-        );
-    }
-
-    if(keys['d']){
-
-        camera.position.add(
-            right.clone()
-            .multiplyScalar(-speed)
-        );
-    }
+if(keys['d'] || keys['arrowright']){
+    camera.position.add(
+        right.clone().multiplyScalar(-speed)
+    );
+}
 
     if(isMobile){
 
@@ -1780,66 +1801,59 @@ function animate(){
     handleGamepad(delta);
 
     //////////////////////////////////////////////////////
-    // MAP WRAP
+    // MAP WRAP + DAMAGE
     //////////////////////////////////////////////////////
 
-    let wrapped = false;
+    if(!teleporting && (
+        camera.position.x > MAP_SIZE ||
+        camera.position.x < -MAP_SIZE ||
+        camera.position.z > MAP_SIZE ||
+        camera.position.z < -MAP_SIZE
+    )){
 
-    if(camera.position.x > MAP_SIZE){
+        teleporting = true;
 
-        camera.position.x = -MAP_SIZE;
+        const targetX =
+            camera.position.x > MAP_SIZE ? -MAP_SIZE :
+            camera.position.x < -MAP_SIZE ? MAP_SIZE :
+            camera.position.x;
 
-        wrapped = true;
-    }
+        const targetZ =
+            camera.position.z > MAP_SIZE ? -MAP_SIZE :
+            camera.position.z < -MAP_SIZE ? MAP_SIZE :
+            camera.position.z;
 
-    if(camera.position.x < -MAP_SIZE){
+        fade.style.background = "#ff0000";
+        fade.style.opacity = 1;
 
-        camera.position.x = MAP_SIZE;
+        setTimeout(()=>{
 
-        wrapped = true;
-    }
+            camera.position.x = targetX;
+            camera.position.z = targetZ;
 
-    if(camera.position.z > MAP_SIZE){
+            health = Math.max(0, health - 25);
+            healthEl.textContent = health;
 
-        camera.position.z = -MAP_SIZE;
+            showPickupMessage("-25 HEALTH", "#ff2222");
 
-        wrapped = true;
-    }
-
-    if(camera.position.z < -MAP_SIZE){
-
-        camera.position.z = MAP_SIZE;
-
-        wrapped = true;
-    }
-
-    if(wrapped){
-
-        //////////////////////////////////////////////////
-        // temporary color displacement
-        //////////////////////////////////////////////////
-
-        scene.background =
-            new THREE.Color().setHSL(
-                Math.random(),
-                0.45,
-                0.35
-            );
-
-        if(ground){
-
-            ground.material.color =
-                new THREE.Color().setHSL(
-                    Math.random(),
-                    0.35,
-                    0.3
+            if(health <= 0){
+                endGame(
+                    "GAME OVER",
+                    "You reached Level " + (currentLevel + 1)
                 );
-        }
+            }
 
-        triggerSkyDip();
+            fade.style.opacity = 0;
+
+            setTimeout(()=>{
+                fade.style.background = "black";
+                teleporting = false;
+            },1000);
+
+        },1000);
     }
 
-    //////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
     // GUN BOB
     //////////////////////////////////////////////////////
 
@@ -1934,6 +1948,8 @@ function animate(){
                 zombie.userData.speed
             )
         );
+
+        zombie.position.y = 0;
 
         zombie.lookAt(
             camera.position.x,
@@ -2133,7 +2149,7 @@ for(let i = collectibles.length - 1; i >= 0; i--){
             scoreEl.textContent = score;
 
             showPickupMessage(
-                "SPLASH BOMB! +" + killed + " HITS",
+                "SPLASH BOMB! +" + killed + " KILLS",
                 "#44ff44"
             );
 
