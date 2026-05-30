@@ -119,7 +119,7 @@ select{
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:53px; line-height:1;
+    font-size:76px; line-height:1;
     font-family:"Noto Sans Symbols 2","Segoe UI Symbol","Arial Unicode MS",serif;
     cursor:pointer;
 }
@@ -683,7 +683,7 @@ chess.reset();
 selected=null;
 legal=[];
 
-document.getElementById("grade").addEventListener("change",()=>{trainingGrade=document.getElementById("grade").value;trainingIndex=0;newGame();updateTrainer();updateProgress();});
+document.getElementById("grade").addEventListener("change",()=>{trainingIndex=0;updateTrainer();newGame();});
 
 document.getElementById("difficulty").addEventListener("change",()=>{
     newGame();
@@ -694,7 +694,7 @@ draw();
 }
 
 
-document.getElementById("grade").addEventListener("change",()=>{trainingGrade=document.getElementById("grade").value;trainingIndex=0;newGame();updateTrainer();updateProgress();});
+document.getElementById("grade").addEventListener("change",()=>{trainingIndex=0;updateTrainer();newGame();});
 
 document.getElementById("difficulty").addEventListener("change",()=>{
     newGame();
