@@ -556,17 +556,38 @@ if(!gameStarted) return;
 if(chess.in_checkmate()) return;
 
 if(chess.turn()==="w"){
-whiteTime=Math.max(0,whiteTime-1);
-if(whiteTime===0){
-alert("Time expired. Red wins.");
-clearInterval(clockTimer);
-}
+
+    whiteTime=Math.max(0,whiteTime-1);
+
+    if(whiteTime===0){
+
+        clearInterval(clockTimer);
+
+        showModal(
+            "Time Expired",
+            "The Red Lodge prevails by time.",
+            "New Ritual",
+            "Close",
+            ()=>{ newGame(); }
+        );
+    }
+
 }else{
-blackTime=Math.max(0,blackTime-1);
-if(blackTime===0){
-alert("Time expired. Blue wins.");
-clearInterval(clockTimer);
-}
+
+    blackTime=Math.max(0,blackTime-1);
+
+    if(blackTime===0){
+
+        clearInterval(clockTimer);
+
+        showModal(
+            "Time Expired",
+            "The Blue Lodge prevails by time.",
+            "New Ritual",
+            "Close",
+            ()=>{ newGame(); }
+        );
+    }
 }
 
 updateClocks();
@@ -908,8 +929,8 @@ else black+=v;
 });
 
 document.getElementById("score").innerHTML=
-"<b>White (Blue):</b> "+white+
-"<br><b>Black (Red):</b> "+black+
+"<b>Blue:</b> "+white+
+"<br><b>Red:</b> "+black+
 "<br><br><b>Difference:</b> "+(white-black);
 }
 
@@ -941,7 +962,91 @@ draw();
 updateTrainer();
 </script>
   
-  
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const lodgeThoughts = [
+        // Main elegant ones
+        "The Lodge Deliberates…",
+        "Ceremony in Progress…",
+        "The Architect Reflects…",
+        "Ritual Engine Thinking…",
+        "The Master Confers…",
+        "Egregore Processing…",
+        "The Rite Computes…",
+        "Inner Chamber Active…",
+        // Ritual / masonic
+        "Lodge Master Thinking…",
+        "Ceremony Master Thinking…",
+        "The Worshipful Engine Reflects…",
+        "The Master is in Council…",
+        "The Lodge Computes…",
+        "The Rite Continues…",
+        "The Chair Contemplates…",
+        "The Gavel Pauses…",
+        "The Apprentice Calculates…",
+        "The Lodge is Silent…",
+        "The Architect Thinking…",
+        "The Square and Compass Align…",
+        "The Ritual Processes…",
+        "The Degree Unfolds…",
+        // Esoteric / weird
+        "Grandmaster Processing…",
+        "The Machine Confers…",
+        "The Oracle Deliberates…",
+        "The Inner Chamber Computes…",
+        "Acéphale Deliberating…",
+        "The Hidden Hand Calculates…",
+        "Ludic Rite in Progress…",
+        "The Black Lodge Reflects…",
+        "Procedural Ritual Executing…",
+        "Symbolic Engine Active…",
+        "The Archive Murmurs…",
+        "Sacred Geometry Loading…",
+        // Humorous
+        "The Lodge is Gossiping…",
+        "Summoning Move…",
+        "Consulting the Ancient Minutes…",
+        "Bribing the Apprentice…",
+        "Rotating the Compass…",
+        "Polishing the Apron…",
+        "Checking the Sacred Angles…",
+        "Initiating Degree.exe…"
+    ];
+    function replaceThinkingText() {
+        const elements = document.querySelectorAll("*");
+        elements.forEach(el => {
+            if (
+                el.children.length === 0 &&
+                typeof el.innerText === "string"
+            ) {
+                const text = el.innerText.trim();
+                if (
+                    text === "AI thinking" ||
+                    text === "AI thinking..." ||
+                    text === "Ai thinking" ||
+                    text === "Ai thinking..."
+                ) {
+                    const randomText =
+                        lodgeThoughts[
+                            Math.floor(Math.random() * lodgeThoughts.length)
+                        ];
+                    el.innerText = randomText;
+                }
+            }
+        });
+    }
+    // Initial replacement
+    replaceThinkingText();
+    // Watch for dynamic updates
+    const observer = new MutationObserver(() => {
+        replaceThinkingText();
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
   
 </body>
 </html>
