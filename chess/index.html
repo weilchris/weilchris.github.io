@@ -1,4 +1,4 @@
-<!-- Version: 3.2.1 | Last Update: 2026-04-04 | Author: RedMagicBlue Indie Game Studio | © All rights reserved -->
+<!-- Version: 6.2.1 | Last Update: 2026-06-08 | Author: RedMagicBlue Indie Game Studio | © All rights reserved -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -129,7 +129,7 @@ select{
 }
 
 .dark{
-    background:#ccc;
+    background:#111;
 }
 
 .coord{
@@ -159,12 +159,12 @@ select{
 
 .red{
     color:#b71c1c;
-    font-weight:700;
+    font-weight:400;
 }
 
 .blue{
     color:#0d47a1;
-    font-weight:700;
+    font-weight:400;
 }
 
 .panel{
@@ -403,18 +403,41 @@ const grades={
 
 
 let unlockedGrade=parseInt(localStorage.getItem('masonicUnlockedGrade')||'1');
+let completedGrades=JSON.parse(localStorage.getItem('masonicCompletedGrades')||'[]');
+let gradeCompleted=false;
 
 function updateGradeLocks(){
+
  const sel=document.getElementById('grade');
+
  [...sel.options].forEach(opt=>{
+
    const v=parseInt(opt.value||0);
+
    if(v>0){
+
       opt.disabled=v>unlockedGrade;
-      if(v<=unlockedGrade && !opt.textContent.includes('✓') && v<unlockedGrade){
-         opt.textContent='✓ '+opt.textContent.replace(/^✓\s*/,'');
+
+      const base='Grade '+v;
+
+      if(completedGrades.includes(v)){
+
+         if(String(v)===String(trainingGrade)){
+            opt.textContent=base;
+         }else{
+            opt.textContent='✓ '+base;
+         }
+
+      }else{
+
+         opt.textContent=base;
+
       }
+
    }
+
  });
+
 }
 
 let trainingGrade=null;
@@ -446,10 +469,20 @@ function moveHint(san){
 
 
 function updateProgress(){
- const g=parseInt(trainingGrade||document.getElementById('grade').value||0);
- const pct=Math.round((g/33)*100);
+
+ const completed=completedGrades.length;
+ const pct=Math.round((completed/33)*100);
+
  const el=document.getElementById('degreeProgress');
- if(el) el.innerHTML='GRADE '+g+'/33<br>'+pct+'% Progress';
+
+ if(el){
+
+   el.innerHTML=
+   'GRADES COMPLETED: '+completed+'/33<br>'+
+   pct+'% Progress';
+
+ }
+
 }
 
 function updateTrainer(){
@@ -523,17 +556,38 @@ if(!gameStarted) return;
 if(chess.in_checkmate()) return;
 
 if(chess.turn()==="w"){
-whiteTime=Math.max(0,whiteTime-1);
-if(whiteTime===0){
-alert("Time expired. Red wins.");
-clearInterval(clockTimer);
-}
+
+    whiteTime=Math.max(0,whiteTime-1);
+
+    if(whiteTime===0){
+
+        clearInterval(clockTimer);
+
+        showModal(
+            "Time Expired",
+            "The Red Lodge prevails by time.",
+            "New Ritual",
+            "Close",
+            ()=>{ newGame(); }
+        );
+    }
+
 }else{
-blackTime=Math.max(0,blackTime-1);
-if(blackTime===0){
-alert("Time expired. Blue wins.");
-clearInterval(clockTimer);
-}
+
+    blackTime=Math.max(0,blackTime-1);
+
+    if(blackTime===0){
+
+        clearInterval(clockTimer);
+
+        showModal(
+            "Time Expired",
+            "The Blue Lodge prevails by time.",
+            "New Ritual",
+            "Close",
+            ()=>{ newGame(); }
+        );
+    }
 }
 
 updateClocks();
@@ -609,6 +663,8 @@ document.getElementById("status").textContent=st;
 
 function clickSquare(square){
 
+if(gradeCompleted) return;
+
 if(chess.turn()!=="w") return;
 
 if(!selected){
@@ -636,9 +692,13 @@ legal=[];
 if(move){
 
 if(trainingGrade && grades[trainingGrade]){
+
  const expected=grades[trainingGrade].moves[trainingIndex];
+
  if(expected && move.san!==expected){
+
    chess.undo();
+
    showModal(
 "Wrong Move",
 "Expected: "+expected,
@@ -649,46 +709,140 @@ if(trainingGrade && grades[trainingGrade]){
  newGame();
 }
 );
+
    draw();
    return;
  }
+
  trainingIndex++;
  updateTrainer();
+
  if(trainingIndex>=grades[trainingGrade].moves.length){
+
+   gradeCompleted=true;
+
+   if(!completedGrades.includes(parseInt(trainingGrade))){
+
+      completedGrades.push(parseInt(trainingGrade));
+
+      localStorage.setItem(
+      'masonicCompletedGrades',
+      JSON.stringify(completedGrades)
+      );
+   }
+
+   if(clockTimer){
+      clearInterval(clockTimer);
+   }
+
+   updateGradeLocks();
+
    showModal(
     "Degree Completed",
     grades[trainingGrade].name+" mastered.",
     "Next Grade",
-    "Continue Game",
+    "Close",
+
     ()=>{
+
       let g=parseInt(trainingGrade)+1;
+
       if(g<=33){
-if(g>unlockedGrade){
- unlockedGrade=g;
- localStorage.setItem('masonicUnlockedGrade',String(unlockedGrade));
- updateGradeLocks();
-}
-document.getElementById("grade").value=g;
-trainingGrade=String(g);
-trainingIndex=0;
-updateTrainer();
-newGame();
-}
+
+         if(g>unlockedGrade){
+            unlockedGrade=g;
+
+            localStorage.setItem(
+            'masonicUnlockedGrade',
+            String(unlockedGrade)
+            );
+
+            updateGradeLocks();
+         }
+
+         document.getElementById("grade").value=g;
+         trainingGrade=String(g);
+         trainingIndex=0;
+         gradeCompleted=false;
+
+         newGame();
+      }
+    },
+
+    ()=>{
+
+      gradeCompleted=false;
+      document.getElementById("grade").value="";
+      trainingGrade=null;
+      trainingIndex=0;
+
+      newGame();
     }
    );
+
+   draw();
+   return;
  }
 }
 
 if(!gameStarted){gameStarted=true;}
+
 playMove();
 draw();
 setTimeout(aiMove,100);
+
 }else{
 draw();
 }
 }
 
+function cleanSAN(san){
+return san.replace(/[+#]/g,'').replace(/[!?]/g,'');
+}
+
+function trainerEnabled(){
+return !!document.getElementById("grade").value;
+}
+
+const trainerReplies={
+1:["e5","Nc6","Bc5","Nf6","O-O"],
+2:["e5","Nc6","a6","Nf6","Be7"],
+3:["e5","Nc6","exd4","Bc5","Nf6"],
+4:["e5","Nf6","d5"],
+5:["e5","exf4","g5"],
+6:["e5","Nc6","Nf6"],
+7:["e5","Nc6","Nf6","Bc5"],
+8:["e5","Nf6","d6"],
+9:["e5","Nc6","Nf6"],
+10:["e5","exd4","d5"],
+11:["e5","exd4","Nc6"],
+12:["e5","Nc6","Bc5","Bxb4"],
+13:["d5","e6","Nf6","Be7"],
+14:["Nf6","e6","Bd6","O-O"],
+15:["Nf6","e6","Bd6","O-O"],
+16:["Nf6","e6","d5","Be7"],
+17:["e5","Nc6","g6"],
+18:["d5","Nf6","g6"],
+19:["d5","Nf6","e6"],
+20:["Nf6","g6","Bg7"],
+21:["f5","Nf6","e6"],
+22:["d5","c6","Nf6"],
+23:["d5","c6","Nf6","e6"],
+24:["c6","d5","dxe4"],
+25:["e6","d5","Nf6","Be7"],
+26:["c5","d6","cxd4","Nf6"],
+27:["c5","d6","cxd4","Nf6","g6"],
+28:["c5","d6","cxd4","Nf6","a6","e5"],
+29:["Nf6","g6","Bg7","d6"],
+30:["Nf6","g6","d5","Bg7","O-O"],
+31:["Nf6","e6","Bb4","O-O"],
+32:["Nf6","c5","e6","exd5"],
+33:["Nf6","d5","dxe4","g6","Bg7"]
+};
+
 function aiMove(){
+
+if(!trainerEnabled()){
 
 engine.onmessage=function(e){
 
@@ -713,6 +867,38 @@ draw();
 
 engine.postMessage("position fen "+chess.fen());
 engine.postMessage("go movetime "+document.getElementById("difficulty").value);
+
+return;
+}
+
+const g=parseInt(document.getElementById("grade").value||"0");
+const replies=trainerReplies[g];
+
+if(!replies){
+draw();
+return;
+}
+
+const replyIndex=Math.floor((chess.history().length-1)/2);
+const san=replies[replyIndex];
+
+if(!san){
+draw();
+return;
+}
+
+const legalMoves=chess.moves({verbose:true});
+
+const found=legalMoves.find(m=>
+cleanSAN(m.san)===cleanSAN(san)
+);
+
+if(found){
+chess.move(found.san);
+}
+
+playMove();
+draw();
 }
 
 function updateHistory(){
@@ -743,13 +929,14 @@ else black+=v;
 });
 
 document.getElementById("score").innerHTML=
-"<b>White (Blue):</b> "+white+
-"<br><b>Black (Red):</b> "+black+
+"<b>Blue:</b> "+white+
+"<br><b>Red:</b> "+black+
 "<br><br><b>Difference:</b> "+(white-black);
 }
 
 function newGame(){
 chess.reset();
+gradeCompleted=false;
 selected=null;
 legal=[];
 trainingGrade=document.getElementById("grade").value;
@@ -774,5 +961,92 @@ setupTimeControl();
 draw();
 updateTrainer();
 </script>
+  
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const lodgeThoughts = [
+        // Main elegant ones
+        "The Lodge Deliberates…",
+        "Ceremony in Progress…",
+        "The Architect Reflects…",
+        "Ritual Engine Thinking…",
+        "The Master Confers…",
+        "Egregore Processing…",
+        "The Rite Computes…",
+        "Inner Chamber Active…",
+        // Ritual / masonic
+        "Lodge Master Thinking…",
+        "Ceremony Master Thinking…",
+        "The Worshipful Engine Reflects…",
+        "The Master is in Council…",
+        "The Lodge Computes…",
+        "The Rite Continues…",
+        "The Chair Contemplates…",
+        "The Gavel Pauses…",
+        "The Apprentice Calculates…",
+        "The Lodge is Silent…",
+        "The Architect Thinking…",
+        "The Square and Compass Align…",
+        "The Ritual Processes…",
+        "The Degree Unfolds…",
+        // Esoteric / weird
+        "Grandmaster Processing…",
+        "The Machine Confers…",
+        "The Oracle Deliberates…",
+        "The Inner Chamber Computes…",
+        "Acéphale Deliberating…",
+        "The Hidden Hand Calculates…",
+        "Ludic Rite in Progress…",
+        "The Black Lodge Reflects…",
+        "Procedural Ritual Executing…",
+        "Symbolic Engine Active…",
+        "The Archive Murmurs…",
+        "Sacred Geometry Loading…",
+        // Humorous
+        "The Lodge is Gossiping…",
+        "Summoning Move…",
+        "Consulting the Ancient Minutes…",
+        "Bribing the Apprentice…",
+        "Rotating the Compass…",
+        "Polishing the Apron…",
+        "Checking the Sacred Angles…",
+        "Initiating Degree.exe…"
+    ];
+    function replaceThinkingText() {
+        const elements = document.querySelectorAll("*");
+        elements.forEach(el => {
+            if (
+                el.children.length === 0 &&
+                typeof el.innerText === "string"
+            ) {
+                const text = el.innerText.trim();
+                if (
+                    text === "AI thinking" ||
+                    text === "AI thinking..." ||
+                    text === "Ai thinking" ||
+                    text === "Ai thinking..."
+                ) {
+                    const randomText =
+                        lodgeThoughts[
+                            Math.floor(Math.random() * lodgeThoughts.length)
+                        ];
+                    el.innerText = randomText;
+                }
+            }
+        });
+    }
+    // Initial replacement
+    replaceThinkingText();
+    // Watch for dynamic updates
+    const observer = new MutationObserver(() => {
+        replaceThinkingText();
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+  
 </body>
 </html>
