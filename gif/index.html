@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emotify v4</title>
+<style>
+body{margin:0;background:#111;color:#fff;font-family:system-ui}
+#top{padding:10px;display:flex;gap:8px;flex-wrap:wrap;background:#1b1b1b}
+button,input{padding:8px;border:none;border-radius:8px}
+#wrap{display:flex;height:calc(100vh - 60px)}
+#left{width:320px;padding:10px;background:#181818}
+#chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.chip{background:#333;padding:4px 8px;border-radius:999px}
+canvas{width:100%;height:100%;display:block}
+#stage{flex:1}
+</style>
+</head>
+<body>
+<div id="top">
+<input type="file" id="upload" accept="image/*">
+<button id="spin">🎰 Spin</button>
+<button id="pngBtn">🖼 Export PNG</button>
+<button id="gifBtn">🎞 Export Animation (GIF)</button>
+<span id="status"></span>
+</div>
+
+<div id="wrap">
+<div id="left">
+<h3>Emoticons</h3>
+<input id="tokenInput" style="width:100%" value="😂🔥💀🤡🥺XDLOLWTF">
+<div id="chips"></div>
+<br>
+<button onclick="autoFill(25)">Fill 25</button>
+<button onclick="autoFill(100)">Fill 100</button>
+<button onclick="autoFill(300)">Fill 300</button>
+<p>Type emoji, words, or both. No separators required.</p>
+</div>
+<div id="stage"><canvas id="c"></canvas></div>
+</div>
+
+<script>
+const canvas=c,ctx=canvas.getContext('2d');
+let bg=null,bgW=0,bgH=0,items=[];
+
+function resize(){
+canvas.width=canvas.parentElement.clientWidth;
+canvas.height=canvas.parentElement.clientHeight;
+draw();
+}
+onresize=resize;resize();
+
+function parseTokens(str){
+const m=str.match(/\p{Extended_Pictographic}|[A-Za-z0-9_]+/gu);
+return m||["😂"];
+}
+
+function refreshChips(){
+chips.innerHTML="";
+parseTokens(tokenInput.value).forEach(t=>{
+const d=document.createElement('span');
+d.className='chip';
+d.textContent=t;
+chips.appendChild(d);
+});
+}
+refreshChips();
+tokenInput.oninput=refreshChips;
+
+upload.onchange=e=>{
+const f=e.target.files[0];
+if(!f)return;
+const r=new FileReader();
+r.onload=v=>{
+bg=new Image();
+bg.onload=()=>{bgW=bg.width;bgH=bg.height;draw();};
+bg.src=v.target.result;
+};
+r.readAsDataURL(f);
+};
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+if(bg){
+const s=Math.min(canvas.width/bg.width,canvas.height/bg.height);
+const w=bg.width*s,h=bg.height*s;
+ctx.drawImage(bg,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+}
+ctx.textAlign='center';
+ctx.textBaseline='middle';
+items.forEach(i=>{
+ctx.font=i.size+'px Arial';
+ctx.fillText(i.text,i.x,i.y);
+});
+}
+
+function autoFill(n){
+const lib=parseTokens(tokenInput.value);
+for(let i=0;i<n;i++){
+items.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:20+Math.random()*40,
+text:lib[Math.floor(Math.random()*lib.length)]
+});
+}
+draw();
+}
+
+async function spinAnim(ms=2500){
+const lib=parseTokens(tokenInput.value);
+const end=Date.now()+ms;
+while(Date.now()<end){
+items.forEach(i=>i.text=lib[Math.floor(Math.random()*lib.length)]);
+draw();
+await new Promise(r=>setTimeout(r,60));
+}
+}
+
+spin.onclick=()=>spinAnim();
+
+pngBtn.onclick=()=>{
+const ec=document.createElement('canvas');
+const ex=ec.getContext('2d');
+let w=bgW||canvas.width,h=bgH||canvas.height;
+let s=Math.min(1000/w,1000/h,1);
+ec.width=Math.round(w*s);
+ec.height=Math.round(h*s);
+
+if(bg) ex.drawImage(bg,0,0,ec.width,ec.height);
+
+items.forEach(i=>{
+ex.font=(i.size*s)+'px Arial';
+ex.textAlign='center';
+ex.textBaseline='middle';
+ex.fillText(i.text,(i.x/canvas.width)*ec.width,(i.y/canvas.height)*ec.height);
+});
+
+const a=document.createElement('a');
+a.href=ec.toDataURL('image/png');
+a.download='emotify.png';
+a.click();
+};
+
+
+gifBtn.onclick=async()=>{
+status.textContent='Creating GIF...';
+
+const recordCanvas=document.createElement('canvas');
+const rctx=recordCanvas.getContext('2d');
+
+const exportScale=Math.min(0.5, 1200/Math.max(bgW||canvas.width,bgH||canvas.height));
+
+recordCanvas.width=Math.max(600,Math.round((bgW||canvas.width)*exportScale));
+recordCanvas.height=Math.max(400,Math.round((bgH||canvas.height)*exportScale));
+
+function drawRecord(){
+rctx.clearRect(0,0,recordCanvas.width,recordCanvas.height);
+
+if(bg){
+rctx.drawImage(bg,0,0,recordCanvas.width,recordCanvas.height);
+}
+
+rctx.textAlign='center';
+rctx.textBaseline='middle';
+
+items.forEach(i=>{
+const x=(i.x/canvas.width)*recordCanvas.width;
+const y=(i.y/canvas.height)*recordCanvas.height;
+const size=i.size*(recordCanvas.width/canvas.width);
+
+rctx.font=size+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+rctx.strokeStyle='rgba(0,0,0,.45)';
+rctx.lineWidth=Math.max(1,size*0.06);
+rctx.strokeText(i.text,x,y);
+rctx.fillText(i.text,x,y);
+});
+}
+
+const gif=new GIF({
+workers:2,
+quality:10,
+width:recordCanvas.width,
+height:recordCanvas.height
+});
+
+const lib=parseTokens(tokenInput.value);
+const end=Date.now()+3000;
+
+while(Date.now()<end){
+items.forEach(i=>{
+i.text=lib[Math.floor(Math.random()*lib.length)];
+});
+
+draw();
+drawRecord();
+
+gif.addFrame(recordCanvas,{
+copy:true,
+delay:80
+});
+
+await new Promise(r=>setTimeout(r,80));
+}
+
+gif.on('finished',blob=>{
+const a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='emotify.gif';
+a.click();
+status.textContent='Done';
+});
+
+gif.render();
+};
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+</body>
+</html>
