@@ -5,43 +5,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Emotify v4</title>
 <style>
-:root{
---bg:#202124;
---panel:#2b2d31;
---panel2:#313338;
---border:#45474d;
---text:#f2f3f5;
---accent:#7c8cff;
-}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}
-#top{padding:12px;display:flex;gap:8px;flex-wrap:wrap;background:var(--panel);border-bottom:1px solid var(--border)}
-button,input{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);color:var(--text)}
-button:hover{cursor:pointer;filter:brightness(1.08)}
-#wrap{display:flex;height:calc(100vh - 65px)}
-#left{width:320px;padding:12px;background:var(--panel);border-right:1px solid var(--border);overflow:auto}
-#chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chip{background:var(--panel2);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
-canvas{width:100%;height:100%;display:block;touch-action:none}
+body{margin:0;background:#111;color:#fff;font-family:system-ui}
+#top{padding:10px;display:flex;gap:8px;flex-wrap:wrap;background:#1b1b1b}
+button,input{padding:8px;border:none;border-radius:8px}
+#wrap{display:flex;height:calc(100vh - 60px)}
+#left{width:320px;padding:10px;background:#181818}
+#chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.chip{background:#333;padding:4px 8px;border-radius:999px}
+canvas{width:100%;height:100%;display:block}
 #stage{flex:1}
-@media(max-width:900px){
-#wrap{flex-direction:column;height:auto}
-#left{width:100%;order:2;border-right:none;border-top:1px solid var(--border)}
-#stage{order:1;height:70vh}
-}
 </style>
 </head>
 <body>
 <div id="top">
-<input id="tokenInput" style="min-width:260px" value="😂🔥💀🤡🥺XDLOLWTF"><input type="file" id="upload" accept="image/*">
-<button id="spin">🎰 Random</button><button id="placeMode">📍 Place</button><button id="editMode">✏️ Edit</button>
+<input type="file" id="upload" accept="image/*">
+<button id="spin">🎰 Spin</button>
 <button id="pngBtn">🖼 Export PNG</button>
 <button id="gifBtn">🎞 Export Animation (GIF)</button>
-<button id="rotateLeft">↺ Rotate</button><button id="rotateRight">↻ Rotate</button><button id="deleteBtn">🗑 Delete</button><span id="status"></span>
+<span id="status"></span>
 </div>
 
 <div id="wrap">
 <div id="left">
 <h3>Emoticons</h3>
+<input id="tokenInput" style="width:100%" value="😂🔥💀🤡🥺XDLOLWTF">
 <div id="chips"></div>
 <br>
 <button onclick="autoFill(25)">Fill 25</button>
@@ -63,115 +50,8 @@ const gifBtn=document.getElementById('gifBtn');
 const tokenInput=document.getElementById('tokenInput');
 const chips=document.getElementById('chips');
 const status=document.getElementById('status');
-const rotateLeft=document.getElementById('rotateLeft');
-const rotateRight=document.getElementById('rotateRight');
-const deleteBtn=document.getElementById('deleteBtn');
-
-setTimeout(()=>{
-const placeBtn=document.getElementById('placeMode');
-const editBtn=document.getElementById('editMode');
-
-if(placeBtn) placeBtn.onclick=()=>{mode='place';status.textContent='Place mode';};
-if(editBtn) editBtn.onclick=()=>{mode='edit';status.textContent='Edit mode';};
-
-canvas.addEventListener('click',e=>{
- const r=canvas.getBoundingClientRect();
- const x=e.clientX-r.left;
- const y=e.clientY-r.top;
-
- if(mode==='place'){
-   const tokens=parseTokens(tokenInput.value);
-   const choice=prompt('Emoji/text:\n'+tokens.join(' '), tokens[0]||'😂');
-   if(!choice) return;
-
-   items.push({
-      x,y,
-      text:choice,
-      size:60,
-      width:120,
-      height:120,
-      rotation:0
-   });
-   draw();
-   return;
- }
-
- if(mode==='edit'){
-   selected=null;
-   for(let i=items.length-1;i>=0;i--){
-      const it=items[i];
-      const w=it.width||it.size;
-      const h=it.height||it.size;
-      if(Math.abs(x-it.x)<=w/2 && Math.abs(y-it.y)<=h/2){
-         selected=it;
-         break;
-      }
-   }
-   draw();
- }
-});
-
-canvas.addEventListener('pointerdown',()=>{
- if(mode==='edit' && selected) dragging=true;
-});
-
-canvas.addEventListener('pointerup',()=>dragging=false);
-
-canvas.addEventListener('pointermove',e=>{
- if(!dragging || !selected) return;
- const r=canvas.getBoundingClientRect();
- selected.x=e.clientX-r.left;
- selected.y=e.clientY-r.top;
- draw();
-});
-
-canvas.addEventListener('wheel',e=>{
- if(!selected) return;
- e.preventDefault();
-
- if(e.shiftKey){
-   selected.rotation += e.deltaY*0.01;
- }else if(e.altKey){
-   selected.size=Math.max(10,(selected.size||60)-e.deltaY*0.05);
- }else{
-   selected.width=Math.max(20,(selected.width||120)-e.deltaY*0.2);
-   selected.height=Math.max(20,(selected.height||120)-e.deltaY*0.2);
- }
- draw();
-},{passive:false});
-
-document.addEventListener('keydown',e=>{
- if((e.key==='Delete' || e.key==='Backspace') && selected){
-   items=items.filter(x=>x!==selected);
-   selected=null;
-   draw();
- }
-});
-
-rotateLeft.onclick=()=>{
- if(!selected) return;
- selected.rotation=(selected.rotation||0)-Math.PI/18;
- draw();
-};
-
-rotateRight.onclick=()=>{
- if(!selected) return;
- selected.rotation=(selected.rotation||0)+Math.PI/18;
- draw();
-};
-
-deleteBtn.onclick=()=>{
- if(!selected) return;
- items=items.filter(x=>x!==selected);
- selected=null;
- draw();
-};
-},0);
 
 let bg=null,bgW=0,bgH=0,items=[];
-let mode='random';
-let selected=null;
-let dragging=false;
 
 function resize(){
 canvas.width=canvas.parentElement.clientWidth;
@@ -219,20 +99,8 @@ ctx.drawImage(bg,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
 ctx.textAlign='center';
 ctx.textBaseline='middle';
 items.forEach(i=>{
-ctx.save();
-ctx.translate(i.x,i.y);
-ctx.rotate(i.rotation||0);
-ctx.font=(i.size||60)+'px Arial';
-ctx.fillText(i.text,0,0);
-
-if(i===selected){
- const w=i.width||120;
- const h=i.height||120;
- ctx.strokeStyle='#7c8cff';
- ctx.lineWidth=2;
- ctx.strokeRect(-w/2,-h/2,w,h);
-}
-ctx.restore();
+ctx.font=i.size+'px Arial';
+ctx.fillText(i.text,i.x,i.y);
 });
 }
 
