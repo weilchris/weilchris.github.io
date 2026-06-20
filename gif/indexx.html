@@ -40,17 +40,7 @@ canvas{width:100%;height:100%;display:block}
 </div>
 
 <script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-
-const upload=document.getElementById('upload');
-const spin=document.getElementById('spin');
-const pngBtn=document.getElementById('pngBtn');
-const gifBtn=document.getElementById('gifBtn');
-const tokenInput=document.getElementById('tokenInput');
-const chips=document.getElementById('chips');
-const status=document.getElementById('status');
-
+const canvas=c,ctx=canvas.getContext('2d');
 let bg=null,bgW=0,bgH=0,items=[];
 
 function resize(){
