@@ -15,6 +15,29 @@ canvas{width:100%;height:100%;display:block}
 .emoji{display:inline-block;padding:4px;font-size:24px;cursor:pointer}
 .sel{outline:2px solid #7c8cff;border-radius:6px}
 button,input{padding:10px;border:none;border-radius:10px}
+
+#modal{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+z-index:9999;
+align-items:center;
+justify-content:center;
+}
+#modalBox{
+background:#1b1b1b;
+border:1px solid #7c8cff;
+padding:20px;
+border-radius:12px;
+max-width:320px;
+text-align:center;
+}
+#modalBox button{
+margin-top:12px;
+cursor:pointer;
+}
+
 </style>
 </head>
 <body>
@@ -34,6 +57,13 @@ button,input{padding:10px;border:none;border-radius:10px}
 <div id="stage" style="position:relative"><div id="deleteFloat" style="display:none;position:absolute;z-index:20;width:28px;height:28px;border-radius:50%;background:#222;border:1px solid #7c8cff;color:#fff;text-align:center;line-height:28px;cursor:pointer">✕</div><canvas id="c"></canvas></div>
 </div>
 
+<div id="modal">
+<div id="modalBox">
+<div id="modalText"></div>
+<button id="modalOk">OK</button>
+</div>
+</div>
+
 <script src="gif.js"></script>
 <script>
 const CATS={
@@ -43,6 +73,18 @@ const CATS={
 "Food":"🍕🍔🌮🍩🍟🍓🍉",
 "Objects":"🚀🎨📚🎵💡📷🎮"
 };
+
+
+const modal=document.getElementById('modal');
+const modalText=document.getElementById('modalText');
+const modalOk=document.getElementById('modalOk');
+
+function showModal(msg){
+ modalText.textContent=msg;
+ modal.style.display='flex';
+}
+
+modalOk.onclick=()=>modal.style.display='none';
 
 const browser=document.getElementById("browser");
 let currentPalette=[];
@@ -88,7 +130,7 @@ const deleteFloat=document.getElementById('deleteFloat');
 
 nativeBtn.onclick=()=>{
  nativeInput.focus();
- alert('Mac: Ctrl+Cmd+Space\nWindows: Win+.');
+ showModal('Mac: Ctrl+Cmd+Space | Windows: Win+.');
 };
 
 nativeInput.addEventListener('input',()=>{
@@ -167,7 +209,7 @@ canvas.onclick=e=>{
  }
 
  if(currentPalette.length===0){
-   alert('Select emoticons first');
+   showModal('Select emoticons first');
    return;
  }
 
@@ -250,7 +292,7 @@ function draw(){
 draw();
 
 exportGIF.onclick=async()=>{
- if(typeof GIF==="undefined"){alert("gif.js missing");return;}
+ if(typeof GIF==="undefined"){showModal("gif.js missing");return;}
 
  const status=document.getElementById('status');
  status.textContent='Creating GIF...';
@@ -258,8 +300,8 @@ exportGIF.onclick=async()=>{
  const rec=document.createElement('canvas');
  const rctx=rec.getContext('2d',{willReadFrequently:true});
 
- rec.width=canvas.width;
- rec.height=canvas.height;
+ rec.width=Math.max(600,bg?bg.width:1200);
+ rec.height=Math.max(400,bg?bg.height:800);
 
  const gif=new GIF({
    workers:2,
@@ -274,8 +316,6 @@ exportGIF.onclick=async()=>{
  });
 
  gif.on('finished',blob=>{
-   slots.forEach(s=>delete s.exportPhase);
-
    const a=document.createElement('a');
    a.href=URL.createObjectURL(blob);
    a.download='emotify.gif';
@@ -295,17 +335,12 @@ exportGIF.onclick=async()=>{
 
       if(!s.pool || !s.pool.length) return;
 
-      if(s.exportPhase===undefined){
-         s.exportPhase=s.phase;
-      }
+      const emoji=s.pool[Math.floor((s.phase+(f*0.35)))%s.pool.length];
 
-      const emoji=s.pool[Math.floor(s.exportPhase)%s.pool.length];
-      s.exportPhase+=s.speed;
+      const x=(s.x/canvas.width)*rec.width;
+      const y=(s.y/canvas.height)*rec.height;
 
-      const x=s.x;
-      const y=s.y;
-
-      rctx.font=s.size+'px sans-serif';
+      rctx.font=(s.size*rec.width/canvas.width)+'px sans-serif';
       rctx.textAlign='center';
       rctx.textBaseline='middle';
       rctx.fillText(emoji,x,y);
