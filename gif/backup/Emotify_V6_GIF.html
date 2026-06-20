@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emotify V6 GIF</title>
+<style>
+body{margin:0;background:#111;color:#fff;font-family:system-ui}
+#top{padding:10px;background:#1b1b1b;display:flex;gap:8px;flex-wrap:wrap}
+button,input{padding:10px;border-radius:10px;border:0}
+#wrap{display:flex;height:calc(100vh - 60px)}
+#left{width:340px;background:#1a1a1a;padding:10px;overflow:auto}
+#stage{flex:1}
+canvas{width:100%;height:100%;display:block}
+.emoji{font-size:28px;cursor:pointer;padding:4px;display:inline-block}
+.sel{outline:2px solid #7c8cff;border-radius:8px}
+#status{font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+
+<div id="top">
+<input type="file" id="upload" accept="image/*">
+<button id="manual">Manual</button>
+<button id="random">Random Fill</button>
+<button id="exportPNG">Export PNG</button>
+<button id="exportGIF">Export GIF</button>
+<span id="status"></span>
+</div>
+
+<div id="wrap">
+<div id="left">
+<h3>Emoji Set</h3>
+
+<input id="emojiInput" placeholder="Add emoji and press +">
+<button id="addEmoji">+</button>
+
+<hr>
+
+<div id="emojis"></div>
+</div>
+
+<div id="stage">
+<canvas id="c"></canvas>
+</div>
+</div>
+
+<script src="gif.js"></script>
+
+<script>
+const emojiContainer=document.getElementById("emojis");
+const status=document.getElementById("status");
+
+let emojiLibrary=[
+"😀","😂","🤣","😍","🥺","😎","🔥","💀","🤡","👀","❤️","✨","🎉","😭","🚀","🌈"
+];
+
+let selected=[];
+
+function rebuildEmojiUI(){
+ emojiContainer.innerHTML="";
+ emojiLibrary.forEach(e=>{
+   const d=document.createElement("span");
+   d.className="emoji";
+   d.textContent=e;
+
+   if(selected.includes(e)) d.classList.add("sel");
+
+   d.onclick=()=>{
+      if(selected.includes(e)){
+         selected=selected.filter(x=>x!==e);
+         d.classList.remove("sel");
+      }else{
+         selected.push(e);
+         d.classList.add("sel");
+      }
+   };
+
+   emojiContainer.appendChild(d);
+ });
+}
+
+selected=["😀","😂","🔥"];
+rebuildEmojiUI();
+
+document.getElementById("addEmoji").onclick=()=>{
+ const val=document.getElementById("emojiInput").value.trim();
+ if(!val) return;
+
+ [...val].forEach(e=>{
+   if(!emojiLibrary.includes(e))
+      emojiLibrary.push(e);
+ });
+
+ document.getElementById("emojiInput").value="";
+ rebuildEmojiUI();
+};
+
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+ canvas.width=canvas.parentElement.clientWidth;
+ canvas.height=canvas.parentElement.clientHeight;
+}
+resize();
+window.onresize=resize;
+
+let bg=null;
+let imgRect={x:0,y:0,w:0,h:0};
+let slots=[];
+let mode="manual";
+
+function fitImage(){
+ const s=Math.min(canvas.width/bg.width,canvas.height/bg.height);
+ imgRect.w=bg.width*s;
+ imgRect.h=bg.height*s;
+ imgRect.x=(canvas.width-imgRect.w)/2;
+ imgRect.y=(canvas.height-imgRect.h)/2;
+}
+
+upload.onchange=e=>{
+ const f=e.target.files[0];
+ if(!f)return;
+
+ const r=new FileReader();
+
+ r.onload=()=>{
+   bg=new Image();
+   bg.onload=fitImage;
+   bg.src=r.result;
+ };
+
+ r.readAsDataURL(f);
+};
+
+manual.onclick=()=>mode="manual";
+
+random.onclick=()=>{
+ slots=[];
+
+ for(let i=0;i<150;i++){
+   slots.push({
+      x:imgRect.x+Math.random()*imgRect.w,
+      y:imgRect.y+Math.random()*imgRect.h,
+      size:20+Math.random()*50,
+      frame:Math.random()*100
+   });
+ }
+};
+
+canvas.onclick=e=>{
+ if(mode!=="manual") return;
+
+ slots.push({
+   x:e.offsetX,
+   y:e.offsetY,
+   size:60,
+   frame:Math.random()*100
+ });
+};
+
+function renderTo(targetCtx,w,h){
+ targetCtx.clearRect(0,0,w,h);
+
+ if(bg){
+   targetCtx.drawImage(bg,0,0,w,h);
+ }
+
+ slots.forEach(s=>{
+   const emoji=selected.length
+      ? selected[Math.floor(s.frame)%selected.length]
+      : "😀";
+
+   targetCtx.font=s.size+"px sans-serif";
+   targetCtx.textAlign="center";
+   targetCtx.textBaseline="middle";
+
+   const rx=(s.x-imgRect.x)/imgRect.w*w;
+   const ry=(s.y-imgRect.y)/imgRect.h*h;
+
+   targetCtx.fillText(emoji,rx,ry);
+ });
+}
+
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+
+ if(bg){
+   ctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
+ }
+
+ slots.forEach(s=>{
+   s.frame+=0.12;
+
+   const emoji=selected.length
+      ? selected[Math.floor(s.frame)%selected.length]
+      : "😀";
+
+   ctx.font=s.size+"px sans-serif";
+   ctx.textAlign="center";
+   ctx.textBaseline="middle";
+   ctx.fillText(emoji,s.x,s.y);
+ });
+
+ requestAnimationFrame(draw);
+}
+
+draw();
+
+exportPNG.onclick=()=>{
+ const a=document.createElement("a");
+ a.href=canvas.toDataURL("image/png");
+ a.download="emotify.png";
+ a.click();
+};
+
+exportGIF.onclick=async()=>{
+
+ if(typeof GIF==="undefined"){
+   alert("gif.js not found");
+   return;
+ }
+
+ status.textContent="Creating GIF...";
+
+ const off=document.createElement("canvas");
+ off.width=bg ? bg.width : 800;
+ off.height=bg ? bg.height : 600;
+
+ const octx=off.getContext("2d");
+
+ const gif=new GIF({
+   workers:2,
+   quality:10,
+   width:off.width,
+   height:off.height,
+   workerScript:"worker.js"
+ });
+
+ for(let i=0;i<60;i++){
+
+   slots.forEach(s=>s.frame+=0.3);
+
+   renderTo(octx,off.width,off.height);
+
+   gif.addFrame(off,{
+      copy:true,
+      delay:80
+   });
+ }
+
+ gif.on("progress",p=>{
+   status.textContent="Encoding "+Math.round(p*100)+"%";
+ });
+
+ gif.on("finished",blob=>{
+   const a=document.createElement("a");
+   a.href=URL.createObjectURL(blob);
+   a.download="emotify.gif";
+   a.click();
+
+   status.textContent="Done";
+ });
+
+ gif.render();
+};
+</script>
+</body>
+</html>
