@@ -181,54 +181,33 @@ function draw(){
 }
 draw();
 
-exportGIF.onclick=async()=>{
+exportGIF.onclick=()=>{
  if(typeof GIF==="undefined"){alert("gif.js missing");return;}
 
- const status=document.getElementById('status');
- status.textContent='Creating GIF...';
-
  const rec=document.createElement('canvas');
- const rctx=rec.getContext('2d',{willReadFrequently:true});
-
- rec.width=Math.max(600,bg?bg.width:1200);
- rec.height=Math.max(400,bg?bg.height:800);
+ rec.width=bg?bg.width:1200;
+ rec.height=bg?bg.height:800;
+ const rctx=rec.getContext('2d');
 
  const gif=new GIF({
-   workers:2,
-   quality:10,
-   width:rec.width,
-   height:rec.height,
-   workerScript:'worker.js'
+  workers:2,
+  quality:10,
+  width:rec.width,
+  height:rec.height,
+  workerScript:'worker.js'
  });
 
- gif.on('progress',p=>{
-   status.textContent='Encoding '+Math.round(p*100)+'%';
- });
-
- gif.on('finished',blob=>{
-   const a=document.createElement('a');
-   a.href=URL.createObjectURL(blob);
-   a.download='emotify.gif';
-   a.click();
-   status.textContent='Done';
- });
-
- for(let f=0;f<60;f++){
+ for(let f=0;f<70;f++){
 
    rctx.clearRect(0,0,rec.width,rec.height);
-
-   if(bg){
-      rctx.drawImage(bg,0,0,rec.width,rec.height);
-   }
+   if(bg)rctx.drawImage(bg,0,0,rec.width,rec.height);
 
    slots.forEach(s=>{
+      const frame=s.phase+(f*s.speed*2);
+      const emoji=s.pool[Math.floor(frame)%s.pool.length]||"😀";
 
-      if(!s.pool || !s.pool.length) return;
-
-      const emoji=s.pool[Math.floor((s.phase+(f*0.35)))%s.pool.length];
-
-      const x=(s.x/canvas.width)*rec.width;
-      const y=(s.y/canvas.height)*rec.height;
+      const x=((s.x-imgRect.x)/imgRect.w)*rec.width;
+      const y=((s.y-imgRect.y)/imgRect.h)*rec.height;
 
       rctx.font=(s.size*rec.width/canvas.width)+'px sans-serif';
       rctx.textAlign='center';
@@ -236,11 +215,15 @@ exportGIF.onclick=async()=>{
       rctx.fillText(emoji,x,y);
    });
 
-   gif.addFrame(rec,{
-      copy:true,
-      delay:80
-   });
+   gif.addFrame(rec,{copy:true,delay:60});
  }
+
+ gif.on('finished',blob=>{
+   const a=document.createElement('a');
+   a.href=URL.createObjectURL(blob);
+   a.download='emotify.gif';
+   a.click();
+ });
 
  gif.render();
 };
