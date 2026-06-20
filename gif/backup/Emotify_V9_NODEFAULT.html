@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Emotify V8</title>
+<style>
+body{margin:0;background:#111;color:#fff;font-family:system-ui}
+#top{padding:10px;background:#1b1b1b;display:flex;gap:8px}
+#wrap{display:flex;height:calc(100vh - 56px)}
+#left{width:360px;background:#1a1a1a;overflow:auto;padding:10px}
+canvas{width:100%;height:100%;display:block}
+#stage{flex:1}
+.emoji{display:inline-block;padding:3px;font-size:22px;cursor:pointer}
+.sel{outline:2px solid #7c8cff;border-radius:4px}
+input,button{padding:10px;border-radius:8px;border:none}
+.cat h4{margin:8px 0}
+</style></head>
+<body>
+<div id="top">
+<input type="file" id="upload" accept="image/*">
+<input id="search" placeholder="Search emoji/category">
+<button id="exportGIF">Export GIF</button>
+
+<span id="status"></span>
+</div>
+<div id="wrap">
+<div id="left"><div id="browser"></div></div>
+<div id="stage" style="position:relative"><div id="overlayMsg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;color:#ffffff88;pointer-events:none;z-index:5">SELECT EMOTICONS</div><canvas id="c"></canvas></div>
+</div>
+<script src="gif.js"></script>
+<script>
+const DEFAULT_SPEED=.18;
+const CATS={
+"Smileys":"😀😁😂🤣😃😄😅😆😉😊😋😎😍🥰😘😭😱🤯🥳🤡💀👀",
+"People":"👶👧🧑👨👩👴👵👮👷🧙🧛🧟",
+"Animals":"🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐸",
+"Food":"🍕🍔🌮🍩🍟🍎🍉🍓🍇🍰",
+"Travel":"🚗🚕🚙🚌🚀✈️🚲⛵🚂",
+"Activities":"⚽🏀🎾🎲🎮🎸🎹🎨",
+"Objects":"💡📷📚💻⌚📱🔑",
+"Symbols":"❤️🧡💛💚💙💜🖤🤍💖✨⭐⚡🔥",
+"Flags":"🏳️🏴🏁🚩"
+};
+
+const browser=document.getElementById('browser');
+let currentPalette=[], selectedSlot=null;
+
+function build(filter=''){
+ browser.innerHTML='';
+ for(const [cat,str] of Object.entries(CATS)){
+   if(filter && !cat.toLowerCase().includes(filter.toLowerCase()) && !str.includes(filter)) continue;
+   const d=document.createElement('div');
+   d.className='cat';
+   d.innerHTML='<h4>'+cat+'</h4>';
+   [...str.match(/./gu)].forEach(e=>{
+      const s=document.createElement('span');
+      s.className='emoji';
+      s.textContent=e;
+      s.onclick=()=>{
+        s.classList.toggle('sel');
+        const pool=[...document.querySelectorAll('.emoji.sel')].map(x=>x.textContent);
+        if(selectedSlot){
+           selectedSlot.pool=[...pool];
+        }else{
+           currentPalette=[...pool];
+           document.getElementById('overlayMsg').style.display=currentPalette.length?'none':'flex';
+        }
+        save();
+      };
+      d.appendChild(s);
+   });
+   browser.appendChild(d);
+ }
+}
+build();
+search.oninput=e=>build(e.target.value);
+
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+function resize(){c.width=innerWidth-360;c.height=innerHeight-56;} resize(); onresize=resize;
+
+let bg=null,imgRect={x:0,y:0,w:1,h:1},slots=[];
+
+function save(){
+ localStorage.setItem('emotifyV8',JSON.stringify({slots}));
+}
+function load(){
+ const d=localStorage.getItem('emotifyV8');
+ if(d){ try{ slots=JSON.parse(d).slots||[]; }catch(e){} }
+}
+load();
+currentPalette=[];
+
+
+upload.onchange=e=>{
+ const f=e.target.files[0];
+ const r=new FileReader();
+ r.onload=()=>{
+  localStorage.setItem('emotifyImage',r.result);
+  bg=new Image();
+  bg.onload=fit;
+  bg.src=r.result;
+ };
+ r.readAsDataURL(f);
+};
+
+const savedImg=localStorage.getItem('emotifyImage');
+if(savedImg){
+ bg=new Image();
+ bg.onload=fit;
+ bg.src=savedImg;
+}
+
+function fit(){
+ const s=Math.min(c.width/bg.width,c.height/bg.height);
+ imgRect={x:(c.width-bg.width*s)/2,y:(c.height-bg.height*s)/2,w:bg.width*s,h:bg.height*s};
+}
+
+function hit(x,y){
+ for(let i=slots.length-1;i>=0;i--) if(Math.hypot(x-slots[i].x,y-slots[i].y)<slots[i].size*.7) return slots[i];
+}
+
+let drag=null;
+c.onmousedown=e=>{
+ const h=hit(e.offsetX,e.offsetY);
+ if(h){selectedSlot=h;drag=h;}
+};
+c.onmousemove=e=>{
+ if(drag){drag.x=e.offsetX;drag.y=e.offsetY;save();}
+};
+onmouseup=()=>drag=null;
+
+c.onclick=e=>{
+ const h=hit(e.offsetX,e.offsetY);
+ if(h){
+   selectedSlot=h;
+   return;
+ }
+
+ if(currentPalette.length===0){
+   alert('Select emoticons first');
+   return;
+ }
+
+ selectedSlot=null;
+ slots.push({
+   x:e.offsetX,
+   y:e.offsetY,
+   size:60,
+   speed:DEFAULT_SPEED,
+   phase:Math.random()*100,
+   pool:[...currentPalette]
+ });
+ save();
+};
+
+c.addEventListener('wheel',e=>{
+ const h=hit(e.offsetX,e.offsetY);
+ if(!h)return;
+ h.size=Math.max(20,h.size-e.deltaY*.05);
+ save();
+},{passive:false});
+
+// removed broken delete handler
+
+
+document.addEventListener('keydown',e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='e'){
+   localStorage.clear(); slots=[]; location.reload();
+currentPalette=[];
+
+ }
+});
+
+function draw(){
+ ctx.clearRect(0,0,c.width,c.height);
+ if(bg) ctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
+ slots.forEach(s=>{
+  s.phase+=DEFAULT_SPEED;
+  const emoji=s.pool.length?s.pool[Math.floor(s.phase)%s.pool.length]:'😀';
+  ctx.font=s.size+'px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(emoji,s.x,s.y);
+  if(s===selectedSlot){ctx.strokeStyle='#7c8cff';ctx.strokeRect(s.x-s.size/2,s.y-s.size/2,s.size,s.size);}
+ });
+ requestAnimationFrame(draw);
+}
+draw();
+</script></body></html>
