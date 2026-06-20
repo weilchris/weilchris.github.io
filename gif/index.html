@@ -181,7 +181,17 @@ const gif=new GIF({
 workers:2,
 quality:10,
 width:recordCanvas.width,
-height:recordCanvas.height
+height:recordCanvas.height,
+workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+});
+
+gif.on('progress',p=>{
+status.textContent='Encoding GIF '+Math.round(p*100)+'%';
+});
+
+gif.on('error',e=>{
+console.error('GIF ERROR',e);
+status.textContent='GIF Error';
 });
 
 const lib=parseTokens(tokenInput.value);
@@ -204,10 +214,20 @@ await new Promise(r=>setTimeout(r,80));
 }
 
 gif.on('finished',blob=>{
+console.log('GIF FINISHED',blob);
+
+const url=URL.createObjectURL(blob);
 const a=document.createElement('a');
-a.href=URL.createObjectURL(blob);
+
+a.href=url;
 a.download='emotify.gif';
+
+document.body.appendChild(a);
 a.click();
+a.remove();
+
+setTimeout(()=>URL.revokeObjectURL(url),5000);
+
 status.textContent='Done';
 });
 
@@ -215,6 +235,6 @@ gif.render();
 };
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 </body>
 </html>
