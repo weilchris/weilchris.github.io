@@ -172,8 +172,8 @@ canvas.onclick=e=>{
  slots.push({
    x:e.offsetX,
    y:e.offsetY,
-   size:90,
-   speed:0.146,
+   size:60,
+   speed:0.073,
    phase:Math.random()*100,
    pool:[...currentPalette]
  });
@@ -251,8 +251,8 @@ exportGIF.onclick=async()=>{
  const rec=document.createElement('canvas');
  const rctx=rec.getContext('2d',{willReadFrequently:true});
 
- rec.width=canvas.width;
- rec.height=canvas.height;
+ rec.width=Math.max(600,bg?bg.width:1200);
+ rec.height=Math.max(400,bg?bg.height:800);
 
  const gif=new GIF({
    workers:2,
@@ -279,19 +279,19 @@ exportGIF.onclick=async()=>{
    rctx.clearRect(0,0,rec.width,rec.height);
 
    if(bg){
-      rctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
+      rctx.drawImage(bg,0,0,rec.width,rec.height);
    }
 
    slots.forEach(s=>{
 
       if(!s.pool || !s.pool.length) return;
 
-      const emoji=s.pool[Math.floor((s.phase+(f*0.146)))%s.pool.length];
+      const emoji=s.pool[Math.floor((s.phase+(f*0.35)))%s.pool.length];
 
-      const x=s.x;
-      const y=s.y;
+      const x=(s.x/canvas.width)*rec.width;
+      const y=(s.y/canvas.height)*rec.height;
 
-      rctx.font=s.size+'px sans-serif';
+      rctx.font=(s.size*rec.width/canvas.width)+'px sans-serif';
       rctx.textAlign='center';
       rctx.textBaseline='middle';
       rctx.fillText(emoji,x,y);
