@@ -178,7 +178,7 @@ canvas.onclick=e=>{
    x:e.offsetX,
    y:e.offsetY,
    size:90,
-   speed:0.146,
+   speed:0.073,
    phase:Math.random()*100,
    pool:[...currentPalette]
  });
@@ -289,7 +289,7 @@ exportGIF.onclick=async()=>{
    rctx.clearRect(0,0,rec.width,rec.height);
 
    if(bg){
-      rctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
+      rctx.drawImage(bg,0,0,rec.width,rec.height);
    }
 
    slots.forEach(s=>{
