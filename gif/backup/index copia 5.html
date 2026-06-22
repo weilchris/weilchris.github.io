@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
 <title>Emotify V7</title>
 <style>
@@ -47,6 +48,14 @@ const CATS={
 const browser=document.getElementById("browser");
 let currentPalette=[];
 let selectedSlot=null;
+let editTimeout=null;
+
+function keepEditing(){
+ clearTimeout(editTimeout);
+ editTimeout=setTimeout(()=>{
+   selectedSlot=null;
+ },2000);
+}
 
 for(const [name,str] of Object.entries(CATS)){
  const div=document.createElement('div');
@@ -146,12 +155,8 @@ canvas.onclick=e=>{
  const h=hit(e.offsetX,e.offsetY);
 
  if(h){
-   if(selectedSlot===h){
-      selectedSlot=null;
-      return;
-   }
-
    selectedSlot=h;
+   keepEditing();
 
    document.querySelectorAll('.emoji').forEach(x=>x.classList.remove('sel'));
    h.pool.forEach(em=>{
@@ -172,8 +177,8 @@ canvas.onclick=e=>{
  slots.push({
    x:e.offsetX,
    y:e.offsetY,
-   size:60,
-   speed:0.073,
+   size:90,
+   speed:0.146,
    phase:Math.random()*100,
    pool:[...currentPalette]
  });
@@ -187,6 +192,7 @@ canvas.addEventListener('pointerdown',e=>{
  if(h){
    selectedSlot=h;
    draggingSlot=h;
+   keepEditing();
  }
 });
 
@@ -194,6 +200,7 @@ canvas.addEventListener('pointermove',e=>{
  if(!draggingSlot) return;
  draggingSlot.x=e.offsetX;
  draggingSlot.y=e.offsetY;
+ keepEditing();
 });
 
 window.addEventListener('pointerup',()=>{
@@ -205,6 +212,7 @@ canvas.addEventListener('wheel',e=>{
  if(!h)return;
  e.preventDefault();
  h.size=Math.max(20,h.size-e.deltaY*0.05);
+ keepEditing();
 },{passive:false});
 
 
@@ -251,8 +259,8 @@ exportGIF.onclick=async()=>{
  const rec=document.createElement('canvas');
  const rctx=rec.getContext('2d',{willReadFrequently:true});
 
- rec.width=Math.max(600,bg?bg.width:1200);
- rec.height=Math.max(400,bg?bg.height:800);
+ rec.width=canvas.width;
+ rec.height=canvas.height;
 
  const gif=new GIF({
    workers:2,
@@ -267,6 +275,8 @@ exportGIF.onclick=async()=>{
  });
 
  gif.on('finished',blob=>{
+   slots.forEach(s=>delete s.exportPhase);
+
    const a=document.createElement('a');
    a.href=URL.createObjectURL(blob);
    a.download='emotify.gif';
@@ -274,24 +284,29 @@ exportGIF.onclick=async()=>{
    status.textContent='Done';
  });
 
- for(let f=0;f<120;f++){
+ for(let f=0;f<60;f++){
 
    rctx.clearRect(0,0,rec.width,rec.height);
 
    if(bg){
-      rctx.drawImage(bg,0,0,rec.width,rec.height);
+      rctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
    }
 
    slots.forEach(s=>{
 
       if(!s.pool || !s.pool.length) return;
 
-      const emoji=s.pool[Math.floor((s.phase+(f*0.35)))%s.pool.length];
+      if(s.exportPhase===undefined){
+         s.exportPhase=s.phase;
+      }
 
-      const x=(s.x/canvas.width)*rec.width;
-      const y=(s.y/canvas.height)*rec.height;
+      const emoji=s.pool[Math.floor(s.exportPhase)%s.pool.length];
+      s.exportPhase+=s.speed;
 
-      rctx.font=(s.size*rec.width/canvas.width)+'px sans-serif';
+      const x=s.x;
+      const y=s.y;
+
+      rctx.font=s.size+'px sans-serif';
       rctx.textAlign='center';
       rctx.textBaseline='middle';
       rctx.fillText(emoji,x,y);
@@ -299,7 +314,7 @@ exportGIF.onclick=async()=>{
 
    gif.addFrame(rec,{
       copy:true,
-      delay:16
+      delay:80
    });
  }
 
