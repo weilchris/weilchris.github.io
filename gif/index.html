@@ -106,7 +106,7 @@ const deleteFloat=document.getElementById('deleteFloat');
 
 function showModal(msg){
  const m=document.getElementById('modal');
- document.getElementById('modalText').textContent=msg;
+ document.getElementById('modalText').innerHTML=msg;
  m.style.display='flex';
 }
 document.addEventListener('click',e=>{
@@ -117,7 +117,11 @@ document.addEventListener('click',e=>{
 
 nativeBtn.onclick=()=>{
  nativeInput.focus();
- showModal('Mac: Ctrl+Cmd+Space\nWindows: Win+.');
+showModal(`
+<b>Mac:</b> Ctrl + Cmd + Space
+&nbsp; &nbsp; 
+<b>Windows:</b> Win +
+`);
 };
 
 nativeInput.addEventListener('input',()=>{
