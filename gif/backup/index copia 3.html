@@ -298,13 +298,8 @@ exportGIF.onclick=async()=>{
  const rec=document.createElement('canvas');
  const rctx=rec.getContext('2d',{willReadFrequently:true});
 
- if(bg){
-   rec.width=Math.round(imgRect.w);
-   rec.height=Math.round(imgRect.h);
- }else{
-   rec.width=canvas.width;
-   rec.height=canvas.height;
- }
+ rec.width=canvas.width;
+ rec.height=canvas.height;
 
  const gif=new GIF({
    workers:2,
@@ -331,7 +326,7 @@ exportGIF.onclick=async()=>{
    rctx.clearRect(0,0,rec.width,rec.height);
 
    if(bg){
-      rctx.drawImage(bg,0,0,rec.width,rec.height);
+      rctx.drawImage(bg,imgRect.x,imgRect.y,imgRect.w,imgRect.h);
    }
 
    slots.forEach(s=>{
@@ -340,8 +335,8 @@ exportGIF.onclick=async()=>{
 
       const emoji=s.pool[Math.floor(f/6)%s.pool.length];
 
-      const x=bg ? (s.x-imgRect.x) : s.x;
-      const y=bg ? (s.y-imgRect.y) : s.y;
+      const x=s.x;
+      const y=s.y;
 
       rctx.font=s.size+'px sans-serif';
       rctx.textAlign='center';
