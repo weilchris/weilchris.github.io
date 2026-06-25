@@ -2,36 +2,210 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Emotify V7</title>
+<title>Sacrisoft GIF Emotify™ – Generate Infinite Fun</title>
 <style>
-body{margin:0;background:#111;color:#fff;font-family:system-ui}
-#top{padding:10px;background:#1b1b1b;display:flex;gap:8px;align-items:center}
-#wrap{display:flex;height:calc(100vh - 56px)}
-#left{width:360px;background:#1a1a1a;overflow:auto;padding:10px}
-#stage{flex:1}
-canvas{width:100%;height:100%;display:block}
-.cat{margin:8px 0}
-.cat h4{margin:8px 0}
-.emoji{display:inline-block;padding:4px;font-size:24px;cursor:pointer}
-.sel{outline:2px solid #7c8cff;border-radius:6px}
-button,input{padding:10px;border:none;border-radius:10px}
+:root{
+  --bg:#111;
+  --top:#1b1b1b;
+  --panel:#1a1a1a;
+  --panel-dark:#222;
+  --border:#333;
+  --border-light:#444;
+  --text:#fff;
+  --accent:#7c8cff;
+}
 
-#modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);z-index:9999}
-#modalBox{background:#222;border:1px solid #444;border-radius:16px;padding:20px;min-width:320px;color:#fff;box-shadow:0 10px 40px rgba(0,0,0,.5)}
-#modalOk{margin-top:15px;width:100%;background:#333;color:#fff;cursor:pointer}
+/* ---------- Layout ---------- */
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui;
+}
+
+#top{
+  padding:10px;
+  background:var(--top);
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+#wrap{
+  display:flex;
+  height:calc(100vh - 56px);
+}
+
+#left{
+  width:360px;
+  background:var(--panel);
+  overflow:auto;
+  padding:10px;
+}
+
+#stage{flex:1}
+
+canvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* ---------- Categories ---------- */
+
+.cat{margin:8px 0}
+
+.cat h4{
+  margin:8px 0;
+}
+
+.emoji{
+  display:inline-block;
+  padding:4px;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.sel{
+  outline:2px solid var(--accent);
+  border-radius:6px;
+}
+
+/* ---------- Normal Inputs ---------- */
+
+input:not([type="file"]){
+  padding:10px;
+  border:none;
+  border-radius:10px;
+}
+
+/* ---------- Buttons ---------- */
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+}
+
+/* ---------- File Input ---------- */
+
+input[type="file"]{
+  padding:0;
+  border:none;
+  background:none;
+  color:var(--text);
+}
+
+/* Native Choose File button */
+
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button{
+  background:#fff;
+  color:#111;
+  border:1px solid #333;
+  border-radius:999px;
+  padding:10px 16px;
+  cursor:pointer;
+  margin-right:12px;
+}
+
+input[type="file"]::file-selector-button:hover{
+  background:#000;
+  color:#fff;
+}
+
+/* ---------- Modal ---------- */
+
+#modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.75);
+  z-index:9999;
+}
+
+#modalBox{
+  background:var(--panel-dark);
+  border:1px solid var(--border-light);
+  border-radius:16px;
+  padding:20px;
+  min-width:320px;
+  color:var(--text);
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+}
+
+#modalOk{
+  margin-top:15px;
+  width:100%;
+  background:var(--border);
+  color:var(--text);
+  cursor:pointer;
+}
+
+/* ---------- Rainbow Button ---------- */
+
+.btn{
+  cursor:pointer;
+  font-weight:800;
+  color:#fff;
+  border-radius:999px;
+
+  background:linear-gradient(
+    270deg,
+    red,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet,
+    red
+  );
+
+  background-size:400% 400%;
+  animation:rainbowFlow 6s ease infinite;
+
+  box-shadow:0 12px 35px rgba(0,0,0,.35);
+}
+
+.btn:hover{
+  transform:translateY(-1px) scale(1.01);
+}
+
+/* ---------- Grey Button ---------- */
+
+.btn.secondary{
+  animation:none !important;
+  background:#232324 !important;
+  border:1px solid rgba(255,255,255,.16);
+  color:#fff;
+  box-shadow:none;
+}
+
+/* ---------- Animation ---------- */
+
+@keyframes rainbowFlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 </style>
 </head>
 <body>
 <div id="top">
 <input type="file" id="upload" accept="image/*">
-<button id="exportGIF">Export GIF</button><button id="nativeEmoji">➕ Emoji</button><input id="emojiInputNative" type="text" style="position:absolute;left:-9999px;">
-
+<button id="exportGIF" class="btn">Export GIF</button><input id="emojiInputNative" type="text" style="position:absolute;left:-9999px;">
 <span id="status"></span>
+<h1 style="margin:0;margin-left:auto">Sacrisoft GIF Emotify™</h1>
 </div>
 
 <div id="wrap">
 <div id="left">
 <h3>Emoji Browser</h3>
+<button id="nativeEmoji" class="btn secondary">➕ Emoji</button>
 <p>Choose emojis for the next slot, or for the selected slot.</p>
 <div id="browser"></div>
 </div>
