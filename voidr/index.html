@@ -1,6 +1,17 @@
 
 <!-- Version: 6.2.1 | Last Update: 2026-06-25 | Author: RedMagicBlue Indie Game Studio | © All rights reserved -->
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><title>Voidr Game</title>
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<title>Voidr Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+rel="stylesheet">
+
 <style>
 html,body{margin:0;overflow:hidden;background:#000}#ui{position:absolute;left:10px;top:10px;color:#fff;font:14px Arial;background:rgba(0,0,0,.4);padding:8px;border-radius:8px}
 #toggle{position:absolute;right:10px;top:10px;color:#fff}
@@ -164,7 +175,7 @@ body{
 
     position:absolute;
 
-    top:17px;
+    top:20px;
     left:20px;
 
     width:18px;
@@ -367,7 +378,7 @@ button:active{
 }
 
 </style></head><body>
-<div id="ui"></div><div id="feedback" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font:bold 26px Arial;text-shadow:0 0 10px #000;pointer-events:none;z-index:9999;"></div><div id="warning">☄️ ASTEROID STORM ☄️</div><div id="overlay"><div id="overlayBox"><h1>GAME OVER</h1><div id="overlayScore"></div><button onclick="location.reload()">Play Again</button></div></div>
+<div id="ui"></div><div id="feedback" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font:bold 26px Arial;text-shadow:0 0 10px #000;pointer-events:none;z-index:9999;"></div><div id="warning">☄️ ASTEROID STORM ☄️</div><div id="overlay"><div id="overlayBox"><h1>GAME OVER</h1><div id="overlayScore"></div><button id="playAgainBtn" onclick="location.reload()">Play Again</button></div></div>
 <label id="toggle"><input id="timeMode" type="checkbox" checked> Time Mode</label>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js"></script>
 <script>
@@ -376,13 +387,326 @@ const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,6000);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);
 scene.add(new THREE.AmbientLight(0xffffff,1.2));
 const light=new THREE.PointLight(0x88ccff,20);scene.add(light);
-const ship=new THREE.Group();
-let m=new THREE.Mesh(new THREE.CylinderGeometry(.2,.7,3,8),new THREE.MeshStandardMaterial({color:0x44bbff,emissive:0x003355}));m.rotation.x=Math.PI/2;ship.add(m);scene.add(ship);
+// ==========================================
+// PLAYER SHIP MK-II
+// ==========================================
+
+const ship = new THREE.Group();
+
+const hullMat = new THREE.MeshStandardMaterial({
+
+    color:0x66ccff,
+    emissive:0x003355,
+    metalness:.6,
+    roughness:.35
+
+});
+
+const glowMat = new THREE.MeshBasicMaterial({
+
+    color:0x66ffff
+
+});
+
+// --------------------------------------------------
+// Nose
+// --------------------------------------------------
+
+const nose = new THREE.Mesh(
+
+    new THREE.ConeGeometry(.45,2.2,6),
+
+    hullMat
+
+);
+
+nose.rotation.x=Math.PI/2;
+nose.position.z=-1.2;
+
+ship.add(nose);
+
+// --------------------------------------------------
+// Body
+// --------------------------------------------------
+
+const body=new THREE.Mesh(
+
+    new THREE.CylinderGeometry(.45,.65,3.8,8),
+
+    hullMat
+
+);
+
+body.rotation.x=Math.PI/2;
+
+ship.add(body);
+
+// --------------------------------------------------
+// Cockpit
+// --------------------------------------------------
+
+const cockpit=new THREE.Mesh(
+
+    new THREE.SphereGeometry(.35,12,12),
+
+    glowMat
+
+);
+
+cockpit.scale.set(1,.6,1.4);
+
+cockpit.position.set(
+
+    0,
+
+    .32,
+
+    -.55
+
+);
+
+ship.add(cockpit);
+
+// --------------------------------------------------
+// Wings
+// --------------------------------------------------
+
+function wing(side){
+
+    const g=new THREE.BoxGeometry(
+
+        2.3,
+
+        .08,
+
+        .9
+
+    );
+
+    const w=new THREE.Mesh(g,hullMat);
+
+    w.position.x=side*1.35;
+    w.position.y=-.08;
+
+    w.rotation.z=side*.28;
+
+    ship.add(w);
+
+}
+
+wing(-1);
+wing(1);
+
+// --------------------------------------------------
+// Rear fins
+// --------------------------------------------------
+
+function fin(side){
+
+    const f=new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+
+            .08,
+
+            .75,
+
+            .9
+
+        ),
+
+        hullMat
+
+    );
+
+    f.position.set(
+
+        side*.42,
+
+        .35,
+
+        1.2
+
+    );
+
+    ship.add(f);
+
+}
+
+fin(-1);
+fin(1);
+
+// --------------------------------------------------
+// Plasma cannons
+// --------------------------------------------------
+
+const cannonMat=new THREE.MeshBasicMaterial({
+
+    color:0xffff66
+
+});
+
+const cannons=[];
+
+function cannon(side){
+
+    const c=new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+
+            .06,
+
+            .06,
+
+            1.2,
+
+            8
+
+        ),
+
+        cannonMat
+
+    );
+
+    c.rotation.x=Math.PI/2;
+
+    c.position.set(
+
+        side*.95,
+
+        -.08,
+
+        -1.25
+
+    );
+
+    ship.add(c);
+
+    cannons.push(c);
+
+}
+
+cannon(-1);
+cannon(1);
+
+// --------------------------------------------------
+// Engines
+// --------------------------------------------------
+
+const flames=[];
+
+function engine(side){
+
+    const nozzle=new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+
+            .18,
+
+            .22,
+
+            .3,
+
+            10
+
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x444444,
+
+            metalness:.8
+
+        })
+
+    );
+
+    nozzle.rotation.x=Math.PI/2;
+
+    nozzle.position.set(
+
+        side*.32,
+
+        0,
+
+        1.8
+
+    );
+
+    ship.add(nozzle);
+
+    const flame=new THREE.Mesh(
+
+        new THREE.ConeGeometry(
+
+            .14,
+
+            .9,
+
+            8
+
+        ),
+
+        new THREE.MeshBasicMaterial({
+
+            color:0x55ddff,
+
+            transparent:true,
+
+            opacity:.9
+
+        })
+
+    );
+
+    flame.rotation.x=-Math.PI/2;
+
+    flame.position.set(
+
+        side*.32,
+
+        0,
+
+        2.35
+
+    );
+
+    ship.add(flame);
+
+    flames.push(flame);
+
+}
+
+engine(-.25);
+engine(.25);
+
+scene.add(ship);
 camera.position.set(0,2,10);
 const keys={};onkeydown=e=>keys[e.key.toLowerCase()]=true;onkeyup=e=>keys[e.key.toLowerCase()]=false;
 let tx=0,ty=0,score=0,combo=0,timeLeft=60,last=performance.now();
 const ui=document.getElementById('ui');
-const stars=[];for(let i=0;i<3000;i++){let s=new THREE.Mesh(new THREE.SphereGeometry(.08,4,4),new THREE.MeshBasicMaterial({color:0xffffff}));s.position.set((Math.random()-.5)*600,(Math.random()-.5)*350,-Math.random()*5000);scene.add(s);stars.push(s);}
+const stars=[];
+
+const STAR_COLORS=[0xffffff,0xffffff,0xffffff,0xaaddff,0x66ffff,0xff66cc,0xaa66ff,0xffdd66];
+
+for(let i=0;i<3200;i++){
+
+ const giant=Math.random()<0.015;
+ const radius=giant?0.45+Math.random()*0.45:0.04+Math.random()*0.12;
+
+ let s=new THREE.Mesh(
+  new THREE.SphereGeometry(radius,6,6),
+  new THREE.MeshBasicMaterial({color:STAR_COLORS[(Math.random()*STAR_COLORS.length)|0]})
+ );
+
+ s.position.set((Math.random()-.5)*900,(Math.random()-.5)*500,-Math.random()*8000);
+
+ s.userData={speed:0.4+Math.random()*1.6,twinkle:Math.random()*Math.PI*2,pulse:.5+Math.random()};
+
+ scene.add(s);
+ stars.push(s);
+
+}
 const rings=[];
 function make(z){
  const t=Math.random();
@@ -414,7 +738,21 @@ function loop(){
  camera.position.x+=(ship.position.x*.35-camera.position.x)*.05;
  camera.position.y+=((ship.position.y*.2)+2-camera.position.y)*.05;
  camera.lookAt(ship.position.x,ship.position.y,ship.position.z-100);
- stars.forEach(s=>{s.position.z+=sp*12;if(s.position.z>camera.position.z){s.position.z=camera.position.z-5000;s.position.x=(Math.random()-.5)*600;s.position.y=(Math.random()-.5)*350;}});
+ stars.forEach(s=>{
+
+ s.position.z+=sp*10*s.userData.speed;
+ s.userData.twinkle+=0.03;
+
+ const glow=1+Math.sin(s.userData.twinkle)*0.45*s.userData.pulse;
+ s.scale.set(glow,glow,sp>6?6:1);
+
+ if(s.position.z>camera.position.z){
+  s.position.z=camera.position.z-8000;
+  s.position.x=(Math.random()-.5)*900;
+  s.position.y=(Math.random()-.5)*500;
+ }
+
+});
  rings.slice().forEach(g=>{
    g.rotation.z+=.01;
    if(!g.userData.hit&&Math.abs(g.position.z-ship.position.z)<8){
@@ -543,8 +881,11 @@ loop = function(){
     ship.position.x+=(tx-ship.position.x)*.08;
     ship.position.y+=(ty-ship.position.y)*.08;
 
-    ship.rotation.z=-ship.position.x*.04;
-    ship.rotation.x=ship.position.y*.05;
+ship.rotation.z=-ship.position.x*.055;
+
+ship.rotation.x=ship.position.y*.045;
+
+ship.rotation.y=-ship.position.x*.012;
 
     const sp=keys.shift?8:4;
 
@@ -691,6 +1032,46 @@ Sound.engine(
     keys.shift ? 8 : 4
 
 );
+
+// ======================================
+// ENGINE ANIMATION
+// ======================================
+
+flames.forEach(f=>{
+
+    const boost=keys.shift?2.2:1;
+
+    const s=
+
+        (.75+Math.random()*.35)
+
+        *boost;
+
+    f.scale.set(
+
+        1,
+
+        s,
+
+        1
+
+    );
+
+});
+
+cannons.forEach(c=>{
+
+    c.material.color.setHex(
+
+        bulletsLeft<20
+
+        ?0xff8844
+
+        :0xffff66
+
+    );
+
+});
 
 renderer.render(scene,camera);
 
@@ -1450,6 +1831,378 @@ function updateGamepad(){
 
 setInterval(updateGamepad,16);
 
+</script>
+
+<script>
+setInterval(()=>{
+ const ov=document.getElementById('overlay');
+ if(!ov||ov.style.display!=='flex') return;
+ const gp=navigator.getGamepads?navigator.getGamepads()[0]:null;
+ if(!gp) return;
+ if((gp.buttons[0]&&gp.buttons[0].pressed)||(gp.buttons[9]&&gp.buttons[9].pressed)){
+   location.reload();
+ }
+},100);
+</script>
+
+<script>
+// ==========================================
+// HYPERSPACE SECTOR MANAGER
+// Stand-alone
+// ==========================================
+
+const SECTORS=[
+
+{
+    score:0,
+    title:"TRAINING CORRIDOR",
+    asteroid:0xff6600,
+    speed:1,
+    storm:35000,
+    fog:0x000010
+},
+
+{
+    score:10000,
+    title:"NEBULA RIFT",
+    asteroid:0xaa66ff,
+    speed:1.15,
+    storm:32000,
+    fog:0x120022
+},
+
+{
+    score:25000,
+    title:"ASTEROID BELT",
+    asteroid:0xff4444,
+    speed:1.35,
+    storm:28000,
+    fog:0x220000
+},
+
+{
+    score:50000,
+    title:"ION STORM",
+    asteroid:0x44ffff,
+    speed:1.55,
+    storm:24000,
+    fog:0x001133
+},
+
+{
+    score:80000,
+    title:"THE VOID",
+    asteroid:0xffffff,
+    speed:1.85,
+    storm:20000,
+    fog:0x000000
+},
+
+{
+    score:120000,
+    title:"SINGULARITY",
+    asteroid:0xffdd00,
+    speed:2.2,
+    storm:16000,
+    fog:0x111111
+}
+
+];
+
+window.gameDifficulty={
+
+    asteroidColor:0xff6600,
+
+    asteroidSpeed:1,
+
+    stormInterval:35000
+
+};
+
+let currentSector=-1;
+
+// ==========================================
+
+function updateSector(){
+
+    for(let i=SECTORS.length-1;i>=0;i--){
+
+        if(score>=SECTORS[i].score){
+
+            if(currentSector!==i){
+
+                currentSector=i;
+
+                enterSector(SECTORS[i]);
+
+            }
+
+            break;
+
+        }
+
+    }
+
+}
+
+// ==========================================
+
+function enterSector(sector){
+
+    gameDifficulty.asteroidColor=sector.asteroid;
+    gameDifficulty.asteroidSpeed=sector.speed;
+    gameDifficulty.stormInterval=sector.storm;
+
+    // Fog transition
+
+    scene.fog.color.setHex(sector.fog);
+
+    // Existing asteroids
+
+    asteroids.forEach(a=>{
+
+        if(a.material){
+
+            a.material.color.setHex(sector.asteroid);
+
+            if(a.material.emissive){
+
+                a.material.emissive.setHex(sector.asteroid);
+
+            }
+
+        }
+
+        a.userData.speed*=sector.speed;
+
+    });
+
+    // Message
+
+    floatingMessage(
+
+        "✦ SECTOR "+(currentSector+1)+
+        "\n"+sector.title,
+
+        "#44ffff"
+
+    );
+
+    feedback(
+
+        "🚀 ENTERING "+sector.title,
+
+        "#44ffff"
+
+    );
+
+    if(typeof Sound!=="undefined"){
+
+        Sound.level();
+
+    }
+
+    // Flash
+
+    const flash=document.createElement("div");
+
+    flash.style.cssText=`
+        position:fixed;
+        inset:0;
+        background:white;
+        opacity:.7;
+        pointer-events:none;
+        z-index:999999;
+        transition:.6s;
+    `;
+
+    document.body.appendChild(flash);
+
+    requestAnimationFrame(()=>{
+
+        flash.style.opacity="0";
+
+    });
+
+    setTimeout(()=>flash.remove(),650);
+
+}
+
+// ==========================================
+// Export
+// ==========================================
+
+window.updateSector=updateSector;
+
+</script>
+
+<script>
+// ==========================================
+// 3 • 2 • 1 • GO!
+// FULLSCREEN OVERLAY
+// ==========================================
+
+window.countdownActive = true;
+
+(function(){
+
+    const overlay = document.createElement("div");
+
+    overlay.id = "countdownOverlay";
+
+    overlay.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:#000;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        z-index:2147483647;
+        opacity:1;
+        overflow:hidden;
+        pointer-events:all;
+    `;
+
+    const number = document.createElement("div");
+
+    number.style.cssText = `
+        font-family:Orbitron,Arial,sans-serif;
+        font-size:180px;
+        font-weight:900;
+        color:#44ffff;
+        text-shadow:
+            0 0 30px cyan,
+            0 0 70px cyan,
+            0 0 120px cyan;
+        transition:
+            transform .25s ease,
+            opacity .25s ease;
+    `;
+
+    overlay.appendChild(number);
+
+    document.body.appendChild(overlay);
+
+    const items = ["3","2","1","GO!"];
+
+    let index = 0;
+
+    function showNext(){
+
+        number.style.opacity = "0";
+        number.style.transform = "scale(.5)";
+
+        setTimeout(()=>{
+
+            number.textContent = items[index];
+
+            number.style.opacity = "1";
+            number.style.transform = "scale(1.15)";
+
+            if(typeof Sound!=="undefined"){
+
+                if(index<3){
+
+                    Sound.gate();
+
+                }else{
+
+                    Sound.level();
+
+                }
+
+            }
+
+            index++;
+
+            if(index<items.length){
+
+                setTimeout(showNext,850);
+
+            }else{
+
+                setTimeout(()=>{
+
+                    overlay.style.transition="opacity .45s";
+                    overlay.style.opacity="0";
+
+                    setTimeout(()=>{
+
+                        overlay.remove();
+
+                        window.countdownActive=false;
+
+                    },450);
+
+                },800);
+
+            }
+
+        },180);
+
+    }
+
+    setTimeout(showNext,200);
+
+})();
+</script>
+
+<script>
+// ==========================================
+// ORBITRON FONT OVERRIDE
+// Stand-alone
+// ==========================================
+
+(function(){
+
+    // Load Google Font
+    const link=document.createElement("link");
+
+    link.rel="stylesheet";
+
+    link.href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap";
+
+    document.head.appendChild(link);
+
+    // Apply when loaded
+    link.onload=()=>{
+
+        const style=document.createElement("style");
+
+        style.textContent=`
+
+            *,
+            *::before,
+            *::after{
+
+                font-family:
+                    "Orbitron",
+                    Arial,
+                    sans-serif
+                    !important;
+
+            }
+
+            input,
+            textarea,
+            select,
+            button{
+
+                font-family:
+                    "Orbitron",
+                    Arial,
+                    sans-serif
+                    !important;
+
+            }
+
+        `;
+
+        document.head.appendChild(style);
+
+    };
+
+})();
 </script>
 
 </body></html>
