@@ -1107,7 +1107,7 @@ const pickups=[];
 
 function explodeAsteroid(pos){
 
-    for(let i=0;i<90;i++){
+    for(let i=0;i<35;i++){
 
         const p = new THREE.Mesh(
 
@@ -1686,6 +1686,130 @@ Sound.engine=function(speed){
     );
 
 }
+</script>
+<script>
+// ======================================
+// MOBILE + GAMEPAD SUPPORT
+// ======================================
+
+const touch = {
+
+    active:false,
+    startX:0,
+    startY:0
+
+};
+
+// ----------------------
+// TOUCH
+// ----------------------
+
+window.addEventListener("touchstart",e=>{
+
+    touch.active=true;
+
+    touch.startX=e.touches[0].clientX;
+    touch.startY=e.touches[0].clientY;
+
+},{passive:true});
+
+window.addEventListener("touchmove",e=>{
+
+    if(!touch.active) return;
+
+    const x=e.touches[0].clientX;
+    const y=e.touches[0].clientY;
+
+    const dx=x-touch.startX;
+    const dy=y-touch.startY;
+
+    keys.arrowleft  = dx<-30;
+    keys.arrowright = dx>30;
+
+    keys.arrowup    = dy<-30;
+    keys.arrowdown  = dy>30;
+
+},{passive:true});
+
+window.addEventListener("touchend",()=>{
+
+    touch.active=false;
+
+    keys.arrowleft=false;
+    keys.arrowright=false;
+    keys.arrowup=false;
+    keys.arrowdown=false;
+
+});
+
+// ----------------------
+// DOUBLE TAP = SHOOT
+// ----------------------
+
+let lastTap=0;
+
+window.addEventListener("touchend",e=>{
+
+    const now=Date.now();
+
+    if(now-lastTap<250){
+
+        shoot();
+
+    }
+
+    lastTap=now;
+
+});
+
+// ----------------------
+// TWO FINGERS = BOOST
+// ----------------------
+
+window.addEventListener("touchmove",e=>{
+
+    keys.shift=e.touches.length>=2;
+
+},{passive:true});
+
+// ======================================
+// GAMEPAD
+// ======================================
+
+function updateGamepad(){
+
+    const gp=navigator.getGamepads()[0];
+
+    if(!gp) return;
+
+    // Left stick
+
+    keys.arrowleft  = gp.axes[0]<-.25;
+    keys.arrowright = gp.axes[0]>.25;
+
+    keys.arrowup    = gp.axes[1]<-.25;
+    keys.arrowdown  = gp.axes[1]>.25;
+
+    // A / Cross
+
+    if(gp.buttons[0].pressed){
+
+        shoot();
+
+    }
+
+    // Right Trigger
+
+    keys.shift=
+
+        gp.buttons[7] &&
+
+        gp.buttons[7].value>.4;
+
+}
+
+setInterval(updateGamepad,16);
+
 </script>
 <script>
 // ======================================
@@ -2647,7 +2771,7 @@ if(document.readyState==="loading"){
 
             cursor:pointer;
 
-            z-index:99999;
+            z-index:999;
         `;
 
         // Same switch look
