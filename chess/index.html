@@ -1068,7 +1068,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Create image
   const img = document.createElement('img');
-  img.src = './logo.png';
+  img.src = './assets/logo.jpeg';
 
   Object.assign(img.style, {
     width: '100%',
@@ -1107,6 +1107,1519 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Auto hide after 9 seconds
   setTimeout(fadeOut, 9000);
+</script>
+
+<!-- ========================================= -->
+<!-- CHECK MASON : STABLE RITUAL EVENT ENGINE -->
+<!-- COMPLETE UPDATED VERSION -->
+<!-- ========================================= -->
+
+<style>
+
+/* ========================================= */
+/* OVERLAY */
+/* ========================================= */
+
+#moveOverlay{
+
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(0,0,0,.72);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    backdrop-filter:blur(0px);
+
+    transition:
+        opacity 1.5s ease,
+        backdrop-filter 1.5s ease;
+
+    z-index:999999;
+
+    overflow:hidden;
+}
+
+
+/* ========================================= */
+/* ACTIVE */
+/* ========================================= */
+
+#moveOverlay.active{
+
+    opacity:1;
+
+    backdrop-filter:blur(5px);
+}
+
+
+/* ========================================= */
+/* IMAGE */
+/* ========================================= */
+
+#moveOverlay img{
+
+    max-width:75vw;
+    max-height:75vh;
+
+    border:3px solid #d4af37;
+    border-radius:18px;
+
+    box-shadow:
+        0 0 40px rgba(212,175,55,.5),
+        0 0 120px rgba(212,175,55,.25);
+
+    transform:scale(.95);
+
+    animation:ritualZoom 5s linear forwards;
+
+    pointer-events:none;
+    user-select:none;
+}
+
+
+/* ========================================= */
+/* TITLE */
+/* ========================================= */
+
+#ritualTitle{
+
+    position:absolute;
+
+    top:5vh;
+
+    width:100%;
+
+    text-align:center;
+
+    color:#d4af37;
+
+    font-size:42px;
+    font-weight:bold;
+    letter-spacing:4px;
+
+    text-shadow:
+        0 0 20px rgba(212,175,55,.7);
+
+    opacity:0;
+
+    animation:titleFade 5s forwards;
+
+    pointer-events:none;
+
+    user-select:none;
+}
+
+
+/* ========================================= */
+/* ANIMATIONS */
+/* ========================================= */
+
+@keyframes ritualZoom{
+
+    from{
+        transform:scale(.95);
+    }
+
+    to{
+        transform:scale(1);
+    }
+}
+
+@keyframes titleFade{
+
+    0%{
+        opacity:0;
+        transform:translateY(-20px);
+    }
+
+    15%{
+        opacity:1;
+        transform:translateY(0px);
+    }
+
+    80%{
+        opacity:1;
+    }
+
+    100%{
+        opacity:0;
+    }
+}
+
+</style>
+
+
+<script>
+
+/* ========================================= */
+/* CREATE OVERLAY */
+/* ========================================= */
+
+const ritualOverlay = document.createElement("div");
+
+ritualOverlay.id = "moveOverlay";
+
+ritualOverlay.innerHTML = `
+    <div id="ritualTitle"></div>
+    <img id="ritualImage" src="">
+`;
+
+document.body.appendChild(ritualOverlay);
+
+
+/* ========================================= */
+/* RITUAL DATABASE */
+/* ========================================= */
+
+const ritualData = {
+
+    PAWN_ADVANCE:{
+        title:"Pawn Advance",
+        playerImage:"./assets/1b-pawn-advance.jpeg",
+        opponentImage:"./1r-pawn-advance.jpeg",
+        duration:5000,
+        priority:5
+    },
+
+    PAWN_DOUBLE_ADVANCE:{
+        title:"Pawn Double Advance",
+        playerImage:"./assets/2b-double-pawn-advance.jpeg",
+        opponentImage:"./assets/2r-double-pawn-advance.jpeg",
+        duration:5000,
+        priority:10
+    },
+
+    PAWN_CAPTURE:{
+        title:"Pawn Capture",
+        playerImage:"./assets/3b-pawn-capture.jpeg",
+        opponentImage:"./assets/3r-pawn-capture.jpeg",
+        duration:5000,
+        priority:20
+    },
+
+    EN_PASSANT:{
+        title:"En Passant",
+        playerImage:"./assets/4b-en-passant.jpeg",
+        opponentImage:"./assets/4r-en-passant.jpeg",
+        duration:5000,
+        priority:50
+    },
+
+    PAWN_PROMOTION:{
+        title:"Pawn Promotion",
+        playerImage:"./assets/5b-pawn-promotion.jpeg",
+        opponentImage:"./assets/5r-pawn-promotion.jpeg",
+        duration:5000,
+        priority:90
+    },
+
+    ROOK_HORIZONTAL_ASSAULT:{
+        title:"Rook Horizontal Assault",
+        playerImage:"./assets/6b-rock-horizontal-assult.jpeg",
+        opponentImage:"./assets/6r-rock-horizontal-assult.jpeg",
+        duration:5000,
+        priority:25
+    },
+
+    ROOK_VERTICAL_CHARGE:{
+        title:"Rook Vertical Charge",
+        playerImage:"./assets/7b-rock-vertical-charge.jpeg",
+        opponentImage:"./assets/7r-rock-vertical-charge.jpeg",
+        duration:5000,
+        priority:25
+    },
+
+    KNIGHT_LEAP:{
+        title:"Knight Leap",
+        playerImage:"./assets/8b-knight-leap.jpeg",
+        opponentImage:"./assets/8r-knight-leap.jpeg",
+        duration:5000,
+        priority:20
+    },
+
+    KNIGHT_FORK:{
+        title:"Knight Fork",
+        playerImage:"./assets/8b-knight-leap.jpeg",
+        opponentImage:"./assets/8r-knight-leap.jpeg",
+        duration:5000,
+        priority:70
+    },
+
+    BISHOP_DIAGONAL_ADVANCE:{
+        title:"Bishop Diagonal Advance",
+        playerImage:"./assets/10b-bishop-diagonal-advance.jpeg",
+        opponentImage:"./assets/10r-bishop-diagonal-advance.jpeg",
+        duration:5000,
+        priority:20
+    },
+
+    BISHOP_LONG_DIAGONAL_SNIPER:{
+        title:"Bishop Long Diagonal Sniper",
+        playerImage:"./assets/11b-bishop-long-diagonal-sniper.jpeg",
+        opponentImage:"./assets/11r-bishop-long-diagonal-sniper.jpeg",
+        duration:5000,
+        priority:60
+    },
+
+    QUEEN_OMNIDIRECTIONAL_ASSAULT:{
+        title:"Queen Omnidirectional Assault",
+        playerImage:"./assets/12b-queen-omnidirectional-assult.jpeg",
+        opponentImage:"./assets/12r-queen-omnidirectional-assult.jpeg",
+        duration:5000,
+        priority:40
+    },
+
+    QUEEN_SACRIFICE:{
+        title:"Queen Sacrifice",
+        playerImage:"./assets/13b-queen-sacrifice.jpeg",
+        opponentImage:"./assets/13r-queen-sacrifice.jpeg",
+        duration:5000,
+        priority:95
+    },
+
+    KING_ONE_STEP_ADVANCE:{
+        title:"King One-Step Advance",
+        playerImage:"./assets/14b-king-one-step-advance.jpeg",
+        opponentImage:"./assets/14r-king-one-step-advance.jpeg",
+        duration:5000,
+        priority:10
+    },
+
+    CASTLING:{
+        title:"Castling",
+        playerImage:"./assets/15-castling.jpeg",
+        opponentImage:"./assets/15-castling.jpeg",
+        duration:5000,
+        priority:60
+    },
+
+    CHECK:{
+        title:"Check",
+        playerImage:"./assets/16b-check.jpeg",
+        opponentImage:"./assets/16r-check.jpeg",
+        duration:5000,
+        priority:75
+    },
+
+    DOUBLE_CHECK:{
+        title:"Double Check",
+        playerImage:"./assets/17b-double-check.jpeg",
+        opponentImage:"./assets/17r-double-check.jpeg",
+        duration:5000,
+        priority:95
+    },
+
+    CHECKMATE:{
+        title:"Checkmate",
+        playerImage:"./assets/18b-checkmate.jpeg",
+        opponentImage:"./assets/18r-checkmate.jpeg",
+        duration:5000,
+        priority:100
+    },
+
+    STALEMATE:{
+        title:"Stalemate",
+        playerImage:"./assets/19-stalemate.jpeg",
+        opponentImage:"./assets/19-stalemate.jpeg",
+        duration:5000,
+        priority:85
+    },
+
+    PIN:{
+        title:"Pin",
+        playerImage:"./assets/20b-pin.jpeg",
+        opponentImage:"./assets/20r-pin.jpeg",
+        duration:5000,
+        priority:45
+    },
+
+    SKEWER:{
+        title:"Skewer",
+        playerImage:"./assets/21b-skewer.jpeg",
+        opponentImage:"./assets/21r-skewer.jpeg",
+        duration:5000,
+        priority:45
+    },
+
+    DISCOVERED_ATTACK:{
+        title:"Discovered Attack",
+        playerImage:"./assets/22b-discoverd-attack.jpeg",
+        opponentImage:"./assets/22r-discoverd-attack.jpeg",
+        duration:5000,
+        priority:55
+    },
+
+    DISCOVERED_CHECK:{
+        title:"Discovered Check",
+        playerImage:"./assets/23b-discovered-check.jpeg",
+        opponentImage:"./assets/23r-discovered-check.jpeg",
+        duration:5000,
+        priority:90
+    },
+
+    SACRIFICE:{
+        title:"Sacrifice",
+        playerImage:"./assets/24b-sacrifice.jpeg",
+        opponentImage:"./assets/24r-sacrifice.jpeg",
+        duration:5000,
+        priority:80
+    },
+
+    ZUGZWANG:{
+        title:"Zugzwang",
+        playerImage:"./assets/25b-zugzwang.jpeg",
+        opponentImage:"./assets/25r-zugzwang.jpeg",
+        duration:5000,
+        priority:100
+    }
+};
+
+
+/* ========================================= */
+/* ENGINE STATE */
+/* ========================================= */
+
+let ritualQueue = [];
+let ritualPlaying = false;
+
+let currentRitualTimeout = null;
+let currentFadeTimeout = null;
+
+let lastMoveColor = "w";
+
+
+/* ========================================= */
+/* SAFE WRAPPER */
+/* ========================================= */
+
+function safe(fn){
+
+    try{
+
+        return fn();
+
+    }catch(e){
+
+        console.warn(
+            "Ritual helper error:",
+            e
+        );
+
+        return false;
+    }
+}
+
+
+/* ========================================= */
+/* QUEUE SYSTEM */
+/* ========================================= */
+
+function queueRitual(id){
+
+    if(!ritualData[id]) return;
+
+    ritualQueue.push(id);
+
+    ritualQueue.sort((a,b)=>{
+
+        return ritualData[b].priority -
+               ritualData[a].priority;
+    });
+
+    if(!ritualPlaying){
+
+        playNextRitual();
+    }
+}
+
+
+/* ========================================= */
+/* PLAY NEXT */
+/* ========================================= */
+
+function playNextRitual(){
+
+    if(ritualQueue.length === 0){
+
+        ritualPlaying = false;
+        return;
+    }
+
+    ritualPlaying = true;
+
+    const id = ritualQueue.shift();
+
+    const ritual = ritualData[id];
+
+    if(!ritual){
+
+        ritualPlaying = false;
+
+        requestAnimationFrame(
+            playNextRitual
+        );
+
+        return;
+    }
+
+    const isPlayerMove =
+        lastMoveColor === "w";
+
+    const image =
+        isPlayerMove
+        ? ritual.playerImage
+        : ritual.opponentImage;
+
+    showMoveOverlay(
+        ritual.title,
+        image,
+        ritual.duration
+    );
+}
+
+
+/* ========================================= */
+/* SHOW OVERLAY */
+/* ========================================= */
+
+function showMoveOverlay(
+    title,
+    image,
+    duration = 5000
+){
+
+    const overlay =
+        document.getElementById("moveOverlay");
+
+    const img =
+        document.getElementById("ritualImage");
+
+    const text =
+        document.getElementById("ritualTitle");
+
+
+    /*
+    CLEAR OLD TIMERS
+    */
+
+    clearTimeout(currentRitualTimeout);
+    clearTimeout(currentFadeTimeout);
+
+
+    /*
+    RESET
+    */
+
+    overlay.classList.remove("active");
+
+    /*
+    FORCE REFLOW
+    */
+
+    void overlay.offsetWidth;
+
+
+    /*
+    UPDATE CONTENT
+    */
+
+    img.src = image;
+
+    text.textContent = title;
+
+
+    /*
+    SHOW
+    */
+
+    overlay.classList.add("active");
+
+
+    /*
+    AUTO HIDE
+    */
+
+    currentRitualTimeout = setTimeout(()=>{
+
+        overlay.classList.remove("active");
+
+        currentFadeTimeout = setTimeout(()=>{
+
+            ritualPlaying = false;
+
+            requestAnimationFrame(
+                playNextRitual
+            );
+
+        },1500);
+
+    },duration);
+}
+
+
+/* ========================================= */
+/* DETECT RITUALS */
+/* ========================================= */
+
+function detectRituals(move){
+
+    const rituals = [];
+
+    if(!move) return rituals;
+
+
+    /* ===================================== */
+    /* PAWNS */
+    /* ===================================== */
+
+    if(move.piece === "p"){
+
+        const fromRank =
+            parseInt(move.from[1]);
+
+        const toRank =
+            parseInt(move.to[1]);
+
+        const dist =
+            Math.abs(toRank - fromRank);
+
+        if(move.captured){
+
+            if(Math.random() < 0.35){
+
+                rituals.push(
+                    "PAWN_CAPTURE"
+                );
+            }
+
+        }else if(dist === 2){
+
+            rituals.push(
+                "PAWN_DOUBLE_ADVANCE"
+            );
+
+        }else{
+
+            if(Math.random() < 0.15){
+
+                rituals.push(
+                    "PAWN_ADVANCE"
+                );
+            }
+        }
+
+        if(
+            move.flags &&
+            move.flags.includes("e")
+        ){
+
+            rituals.push("EN_PASSANT");
+        }
+
+        if(move.promotion){
+
+            rituals.push(
+                "PAWN_PROMOTION"
+            );
+        }
+    }
+
+
+    /* ===================================== */
+    /* ROOKS */
+    /* ===================================== */
+
+    if(move.piece === "r"){
+
+        if(move.from[0] === move.to[0]){
+
+            rituals.push(
+                "ROOK_VERTICAL_CHARGE"
+            );
+
+        }else{
+
+            rituals.push(
+                "ROOK_HORIZONTAL_ASSAULT"
+            );
+        }
+    }
+
+
+    /* ===================================== */
+    /* KNIGHTS */
+    /* ===================================== */
+
+    if(move.piece === "n"){
+
+        if(Math.random() < 0.35){
+
+            rituals.push("KNIGHT_LEAP");
+        }
+
+        if(safe(()=>isKnightFork(move))){
+
+            rituals.push("KNIGHT_FORK");
+        }
+    }
+
+
+    /* ===================================== */
+    /* BISHOPS */
+    /* ===================================== */
+
+    if(move.piece === "b"){
+
+        const dx = Math.abs(
+            move.to.charCodeAt(0) -
+            move.from.charCodeAt(0)
+        );
+
+        if(dx >= 5){
+
+            rituals.push(
+                "BISHOP_LONG_DIAGONAL_SNIPER"
+            );
+
+        }else{
+
+            rituals.push(
+                "BISHOP_DIAGONAL_ADVANCE"
+            );
+        }
+    }
+
+
+    /* ===================================== */
+    /* QUEEN */
+    /* ===================================== */
+
+    if(move.piece === "q"){
+
+        rituals.push(
+            "QUEEN_OMNIDIRECTIONAL_ASSAULT"
+        );
+
+        if(
+            move.captured &&
+            safe(()=>queenSacrificeCheck(move))
+        ){
+
+            rituals.push(
+                "QUEEN_SACRIFICE"
+            );
+        }
+    }
+
+
+    /* ===================================== */
+    /* KING */
+    /* ===================================== */
+
+    if(move.piece === "k"){
+
+        rituals.push(
+            "KING_ONE_STEP_ADVANCE"
+        );
+    }
+
+
+    /* ===================================== */
+    /* CASTLING */
+    /* ===================================== */
+
+    if(
+        move.san === "O-O" ||
+        move.san === "O-O-O"
+    ){
+
+        rituals.push("CASTLING");
+    }
+
+
+    /* ===================================== */
+    /* CHECK STATES */
+    /* ===================================== */
+
+if(isCheck()){
+    rituals.push("CHECK");
+}
+
+if(isCheckmate()){
+    rituals.push("CHECKMATE");
+}
+
+if(isStalemate()){
+    rituals.push("STALEMATE");
+}
+
+    if(
+        safe(()=>isPin(move))
+    ){
+
+        rituals.push("PIN");
+    }
+
+    if(
+        safe(()=>isSkewer(move))
+    ){
+
+        rituals.push("SKEWER");
+    }
+
+    if(
+        safe(()=>isDiscoveredAttack(move))
+    ){
+
+        rituals.push(
+            "DISCOVERED_ATTACK"
+        );
+    }
+
+    if(
+        safe(()=>isDiscoveredCheck(move))
+    ){
+
+        rituals.push(
+            "DISCOVERED_CHECK"
+        );
+    }
+
+    if(
+        safe(()=>isSacrifice(move))
+    ){
+
+        rituals.push("SACRIFICE");
+    }
+
+    return rituals;
+}
+
+
+/* ========================================= */
+/* HELPERS */
+/* ========================================= */
+
+function isKnightFork(move){
+
+    if(move.piece !== "n")
+        return false;
+
+    if(!chess.SQUARES)
+        return false;
+
+    const enemy = chess.turn();
+
+    let attacked = 0;
+
+    chess.SQUARES.forEach(square=>{
+
+        const piece =
+            chess.get(square);
+
+        if(
+            piece &&
+            piece.color === enemy
+        ){
+
+            const attacks =
+                chess.moves({
+                    square:move.to,
+                    verbose:true
+                });
+
+            if(
+                attacks.some(
+                    m => m.to === square
+                )
+            ){
+
+                attacked++;
+            }
+        }
+    });
+
+    return attacked >= 2;
+}
+
+
+function isDoubleCheck(){
+
+    return false;
+}
+
+
+function queenSacrificeCheck(move){
+
+    return (
+        move.piece === "q" &&
+        move.captured &&
+        !safe(()=>chess.in_checkmate())
+    );
+}
+
+
+function isSacrifice(move){
+
+    if(!move.captured)
+        return false;
+
+    const values = {
+        p:1,
+        n:3,
+        b:3,
+        r:5,
+        q:9
+    };
+
+    const moving =
+        values[move.piece] || 0;
+
+    const captured =
+        values[move.captured] || 0;
+
+    return moving > captured;
+}
+
+
+/* ========================================= */
+/* ATTACK CORE SYSTEM                         */
+/* ========================================= */
+
+function getBoardMap(){
+    return chess.board();
+}
+
+function pieceAt(square){
+    return chess.get(square);
+}
+
+/* ----------------------------------------- */
+/* DIRECTION RAYS (rook/bishop/queen lines)  */
+/* ----------------------------------------- */
+
+function getRay(from, dx, dy){
+
+    const files = "abcdefgh";
+
+    let x = files.indexOf(from[0]);
+    let y = parseInt(from[1]);
+
+    const squares = [];
+
+    while(true){
+
+        x += dx;
+        y += dy;
+
+        if(x < 0 || x > 7 || y < 1 || y > 8)
+            break;
+
+        squares.push(files[x] + y);
+    }
+
+    return squares;
+}
+
+/* ----------------------------------------- */
+/* CHECK IF SQUARE IS ATTACKED               */
+/* ----------------------------------------- */
+
+function isSquareAttackedBy(target, attackerColor){
+
+    const board = getBoardMap();
+
+    for(let r = 0; r < 8; r++){
+        for(let f = 0; f < 8; f++){
+
+            const piece = board[r][f];
+            if(!piece || piece.color !== attackerColor)
+                continue;
+
+            const from =
+                "abcdefgh"[f] + (8 - r);
+
+            const moves = chess.moves({
+                square: from,
+                verbose: true
+            });
+
+            for(const m of moves){
+                if(m.to === target)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* ----------------------------------------- */
+/* SLIDING ATTACK LINES                     */
+/* ----------------------------------------- */
+
+function getSlidingAttacks(from){
+
+    const dirs = [
+        [1,0],[-1,0],[0,1],[0,-1],
+        [1,1],[1,-1],[-1,1],[-1,-1]
+    ];
+
+    let rays = [];
+
+    for(const [dx,dy] of dirs){
+        rays.push(getRay(from, dx, dy));
+    }
+
+    return rays;
+}
+
+/* ========================================= */
+/* PIN DETECTION                             */
+/* ========================================= */
+
+function isPin(move){
+
+    const enemy = chess.turn();
+
+    const from = move.to;
+
+    const dirs = [
+        [1,0],[-1,0],[0,1],[0,-1],
+        [1,1],[1,-1],[-1,1],[-1,-1]
+    ];
+
+    for(const [dx,dy] of dirs){
+
+        const ray = getRay(from, dx, dy);
+
+        let firstPiece = null;
+
+        for(const sq of ray){
+
+            const p = pieceAt(sq);
+
+            if(!p) continue;
+
+            if(!firstPiece){
+                firstPiece = {sq, p};
+            }
+            else{
+
+                // pin pattern:
+                // enemy piece -> friendly king behind
+                if(
+                    firstPiece.p.color !== enemy &&
+                    p.type === "k" &&
+                    p.color === enemy
+                ){
+                    return true;
+                }
+
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* ========================================= */
+/* SKEWER DETECTION                         */
+/* ========================================= */
+
+function isSkewer(move){
+
+    const enemy = chess.turn();
+    const from = move.to;
+
+    const dirs = [
+        [1,0],[-1,0],[0,1],[0,-1],
+        [1,1],[1,-1],[-1,1],[-1,-1]
+    ];
+
+    for(const [dx,dy] of dirs){
+
+        const ray = getRay(from, dx, dy);
+
+        let first = null;
+
+        for(const sq of ray){
+
+            const p = pieceAt(sq);
+
+            if(!p) continue;
+
+            if(!first){
+                first = p;
+            }
+            else{
+
+                // skewer pattern:
+                // high value piece in front, low behind
+                const value = {
+                    p:1, n:3, b:3, r:5, q:9, k:100
+                };
+
+                if(
+                    value[first.type] > value[p.type] &&
+                    first.color !== enemy
+                ){
+                    return true;
+                }
+
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
+/* ========================================= */
+/* DISCOVERED ATTACK                        */
+/* ========================================= */
+
+function isDiscoveredAttack(){
+
+    const before = chess.history({ verbose: true });
+    if(before.length < 2) return false;
+
+    const last = before[before.length - 1];
+    const prev = before[before.length - 2];
+
+    // simplistic but effective:
+    // if a sliding piece becomes active after a piece moves out of line
+
+    const movers = ["b", "r", "q"];
+
+    return movers.includes(last.piece);
+}
+
+function isCheck(){
+
+    return safe(()=>{
+
+        if(typeof chess.isCheck === "function")
+            return chess.isCheck();
+
+        if(typeof chess.in_check === "function")
+            return chess.in_check();
+
+        return false;
+
+    });
+
+}
+
+function isCheckmate(){
+
+    return safe(()=>{
+
+        if(typeof chess.isCheckmate === "function")
+            return chess.isCheckmate();
+
+        if(typeof chess.in_checkmate === "function")
+            return chess.in_checkmate();
+
+        return false;
+
+    });
+
+}
+
+function isStalemate(){
+
+    return safe(()=>{
+
+        if(typeof chess.isStalemate === "function")
+            return chess.isStalemate();
+
+        if(typeof chess.in_stalemate === "function")
+            return chess.in_stalemate();
+
+        return false;
+
+    });
+
+}
+
+
+/* ========================================= */
+/* HOOK INTO clickSquare */
+/* ========================================= */
+
+const originalClickSquare =
+    clickSquare;
+
+clickSquare = function(square){
+
+    /*
+    SAVE HISTORY LENGTH
+    */
+
+    const before =
+        chess.history().length;
+
+    /*
+    RUN ORIGINAL
+    */
+
+    originalClickSquare(square);
+
+    /*
+    CHECK MOVE
+    */
+
+    const after =
+        chess.history().length;
+
+    if(after <= before) return;
+
+    /*
+    GET LAST MOVE
+    */
+
+    const moves =
+        chess.history({
+            verbose:true
+        });
+
+    const lastMove =
+        moves[moves.length - 1];
+
+    if(!lastMove) return;
+
+    lastMoveColor =
+        lastMove.color;
+
+    /*
+    DETECT RITUALS
+    */
+
+    let rituals = [];
+
+    try{
+
+        rituals =
+            detectRituals(lastMove);
+
+    }catch(e){
+
+        console.warn(
+            "detectRituals failed:",
+            e
+        );
+
+        return;
+    }
+
+    /*
+    QUEUE
+    */
+
+    rituals.forEach(queueRitual);
+};
+
+</script>
+
+
+<!-- ========================================= -->
+<!-- CHECK MASON : RITUAL OVERLAY TOGGLE -->
+<!-- STANDALONE SCRIPT -->
+<!-- ========================================= -->
+
+<style>
+
+/* ========================================= */
+/* TOGGLE CONTAINER */
+/* ========================================= */
+
+#ritualToggle{
+
+    position:fixed;
+
+    left:18px;
+    bottom:18px;
+
+    width:72px;
+    height:38px;
+
+    border-radius:999px;
+
+    background:rgba(0,0,0,.72);
+
+    border:2px solid #d4af37;
+
+    box-shadow:
+        0 0 15px rgba(212,175,55,.35);
+
+    cursor:pointer;
+
+    Z-index:2;
+
+    transition:
+        background .35s ease,
+        border-color .35s ease,
+        opacity .35s ease,
+        transform .2s ease;
+
+    backdrop-filter:blur(6px);
+
+    user-select:none;
+}
+
+
+/* ========================================= */
+/* HOVER */
+/* ========================================= */
+
+#ritualToggle:hover{
+
+    transform:scale(1.05);
+}
+
+
+/* ========================================= */
+/* KNOB */
+/* ========================================= */
+
+#ritualToggleKnob{
+
+    position:absolute;
+
+    top:5px;
+    left:3px;
+
+    width:28px;
+    height:28px;
+
+    border-radius:50%;
+
+    background:#d4af37;
+
+    box-shadow:
+        0 0 12px rgba(212,175,55,.6);
+
+    transition:
+        transform .35s ease,
+        background .35s ease;
+}
+
+
+/* ========================================= */
+/* LABEL */
+/* ========================================= */
+
+#ritualToggleLabel{
+
+    position:absolute;
+
+    top:50%;
+    right:13px;
+
+    transform:translateY(-50%);
+
+    color:#d4af37;
+
+    font-size:10px;
+    font-weight:bold;
+    letter-spacing:1px;
+
+    pointer-events:none;
+
+    transition:
+        color .35s ease;
+}
+
+
+/* ========================================= */
+/* OFF STATE */
+/* ========================================= */
+
+#ritualToggle.off{
+
+    background:rgba(0,0,0,.4);
+
+    border-color:#666;
+}
+
+#ritualToggle.off #ritualToggleKnob{
+
+    transform:translateX(34px);
+
+    background:#888;
+
+    box-shadow:none;
+}
+
+#ritualToggle.off #ritualToggleLabel{
+
+    color:#999;
+}
+
+</style>
+
+
+<script>
+
+/* ========================================= */
+/* GLOBAL SWITCH */
+/* ========================================= */
+
+window.ritualOverlaysEnabled = true;
+
+
+/* ========================================= */
+/* LOAD SAVED STATE */
+/* ========================================= */
+
+const savedRitualState =
+    localStorage.getItem(
+        "ritualOverlaysEnabled"
+    );
+
+if(savedRitualState !== null){
+
+    window.ritualOverlaysEnabled =
+        savedRitualState === "true";
+}
+
+
+/* ========================================= */
+/* CREATE TOGGLE */
+/* ========================================= */
+
+const ritualToggle =
+    document.createElement("div");
+
+ritualToggle.id = "ritualToggle";
+
+ritualToggle.innerHTML = `
+    <div id="ritualToggleKnob"></div>
+    <div id="ritualToggleLabel">FX</div>
+`;
+
+document.body.appendChild(
+    ritualToggle
+);
+
+
+/* ========================================= */
+/* APPLY STATE */
+/* ========================================= */
+
+function updateRitualToggle(){
+
+    if(window.ritualOverlaysEnabled){
+
+        ritualToggle.classList.remove("off");
+
+    }else{
+
+        ritualToggle.classList.add("off");
+
+        /*
+        FORCE HIDE CURRENT OVERLAY
+        */
+
+        const overlay =
+            document.getElementById(
+                "moveOverlay"
+            );
+
+        if(overlay){
+
+            overlay.classList.remove(
+                "active"
+            );
+        }
+    }
+}
+
+
+/* ========================================= */
+/* CLICK */
+/* ========================================= */
+
+ritualToggle.addEventListener(
+    "click",
+    ()=>{
+
+        window.ritualOverlaysEnabled =
+            !window.ritualOverlaysEnabled;
+
+        localStorage.setItem(
+            "ritualOverlaysEnabled",
+            window.ritualOverlaysEnabled
+        );
+
+        updateRitualToggle();
+    }
+);
+
+
+/* ========================================= */
+/* INIT */
+/* ========================================= */
+
+updateRitualToggle();
+
+
+/* ========================================= */
+/* PATCH EXISTING ENGINE */
+/* ========================================= */
+
+if(
+    typeof queueRitual === "function"
+){
+
+    const originalQueueRitual =
+        queueRitual;
+
+    queueRitual = function(id){
+
+        if(
+            !window
+            .ritualOverlaysEnabled
+        ){
+            return;
+        }
+
+        return originalQueueRitual(id);
+    };
+}
+
+
+if(
+    typeof showMoveOverlay === "function"
+){
+
+    const originalShowMoveOverlay =
+        showMoveOverlay;
+
+    showMoveOverlay = function(){
+
+        if(
+            !window
+            .ritualOverlaysEnabled
+        ){
+            return;
+        }
+
+        return originalShowMoveOverlay(
+            ...arguments
+        );
+    };
+}
+
 </script>
   
 </body>
