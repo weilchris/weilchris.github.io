@@ -2418,6 +2418,52 @@ if(
 }
 
 </script>
+
+<script>
+(function () {
+
+    const originalShowModal = showModal;
+
+    let degreeTimeout = null;
+
+    showModal = function (title, text, aText, bText, aFn, bFn) {
+
+        // only intercept Degree Completed modal
+        if (
+            title === "Degree Completed" &&
+            window.ritualOverlaysEnabled
+        ) {
+
+            // prevent stacking if triggered multiple times
+            if (degreeTimeout) {
+                clearTimeout(degreeTimeout);
+            }
+
+            degreeTimeout = setTimeout(() => {
+
+                originalShowModal.call(
+                    this,
+                    title,
+                    text,
+                    aText,
+                    bText,
+                    aFn,
+                    bFn
+                );
+
+                degreeTimeout = null;
+
+            }, 13000);
+
+            return;
+        }
+
+        // default behavior for everything else
+        return originalShowModal.apply(this, arguments);
+    };
+
+})();
+</script>
   
 </body>
 </html>
