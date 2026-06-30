@@ -853,6 +853,9 @@ const oldLoop = loop;
 loop = function(){
 
     requestAnimationFrame(loop);
+
+    if (window.gameGuard && !window.gameGuard()) return;
+
     if(gameOver){ renderer.render(scene,camera); return; }
 
     const now = performance.now();
@@ -1016,6 +1019,9 @@ ship.rotation.y=-ship.position.x*.012;
             recycle(g);
 
     });
+
+if (typeof updateUnlocks === "function") updateUnlocks(score);
+if (typeof updateBestScore === "function") updateBestScore(score);
 
 ui.innerHTML =
 `Score ${score}<br>
@@ -1812,130 +1818,6 @@ function updateGamepad(){
 setInterval(updateGamepad,16);
 
 </script>
-<script>
-// ======================================
-// MOBILE + GAMEPAD SUPPORT
-// ======================================
-
-const touch = {
-
-    active:false,
-    startX:0,
-    startY:0
-
-};
-
-// ----------------------
-// TOUCH
-// ----------------------
-
-window.addEventListener("touchstart",e=>{
-
-    touch.active=true;
-
-    touch.startX=e.touches[0].clientX;
-    touch.startY=e.touches[0].clientY;
-
-},{passive:true});
-
-window.addEventListener("touchmove",e=>{
-
-    if(!touch.active) return;
-
-    const x=e.touches[0].clientX;
-    const y=e.touches[0].clientY;
-
-    const dx=x-touch.startX;
-    const dy=y-touch.startY;
-
-    keys.arrowleft  = dx<-30;
-    keys.arrowright = dx>30;
-
-    keys.arrowup    = dy<-30;
-    keys.arrowdown  = dy>30;
-
-},{passive:true});
-
-window.addEventListener("touchend",()=>{
-
-    touch.active=false;
-
-    keys.arrowleft=false;
-    keys.arrowright=false;
-    keys.arrowup=false;
-    keys.arrowdown=false;
-
-});
-
-// ----------------------
-// DOUBLE TAP = SHOOT
-// ----------------------
-
-let lastTap=0;
-
-window.addEventListener("touchend",e=>{
-
-    const now=Date.now();
-
-    if(now-lastTap<250){
-
-        shoot();
-
-    }
-
-    lastTap=now;
-
-});
-
-// ----------------------
-// TWO FINGERS = BOOST
-// ----------------------
-
-window.addEventListener("touchmove",e=>{
-
-    keys.shift=e.touches.length>=2;
-
-},{passive:true});
-
-// ======================================
-// GAMEPAD
-// ======================================
-
-function updateGamepad(){
-
-    const gp=navigator.getGamepads()[0];
-
-    if(!gp) return;
-
-    // Left stick
-
-    keys.arrowleft  = gp.axes[0]<-.25;
-    keys.arrowright = gp.axes[0]>.25;
-
-    keys.arrowup    = gp.axes[1]<-.25;
-    keys.arrowdown  = gp.axes[1]>.25;
-
-    // A / Cross
-
-    if(gp.buttons[0].pressed){
-
-        shoot();
-
-    }
-
-    // Right Trigger
-
-    keys.shift=
-
-        gp.buttons[7] &&
-
-        gp.buttons[7].value>.4;
-
-}
-
-setInterval(updateGamepad,16);
-
-</script>
 
 <script>
 setInterval(()=>{
@@ -2138,117 +2020,6 @@ function enterSector(sector){
 
 window.updateSector=updateSector;
 
-</script>
-
-<script>
-// ==========================================
-// 3 • 2 • 1 • GO!
-// FULLSCREEN OVERLAY
-// ==========================================
-
-window.countdownActive = true;
-
-(function(){
-
-    const overlay = document.createElement("div");
-
-    overlay.id = "countdownOverlay";
-
-    overlay.style.cssText = `
-        position:fixed;
-        inset:0;
-        background:#000;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        z-index:2147483647;
-        opacity:1;
-        overflow:hidden;
-        pointer-events:all;
-    `;
-
-    const number = document.createElement("div");
-
-    number.style.cssText = `
-        font-family:Orbitron,Arial,sans-serif;
-        font-size:180px;
-        font-weight:900;
-        color:#44ffff;
-        text-shadow:
-            0 0 30px cyan,
-            0 0 70px cyan,
-            0 0 120px cyan;
-        transition:
-            transform .25s ease,
-            opacity .25s ease;
-    `;
-
-    overlay.appendChild(number);
-
-    document.body.appendChild(overlay);
-
-    const items = ["3","2","1","GO!"];
-
-    let index = 0;
-
-    function showNext(){
-
-        number.style.opacity = "0";
-        number.style.transform = "scale(.5)";
-
-        setTimeout(()=>{
-
-            number.textContent = items[index];
-
-            number.style.opacity = "1";
-            number.style.transform = "scale(1.15)";
-
-            if(typeof Sound!=="undefined"){
-
-                if(index<3){
-
-                    Sound.gate();
-
-                }else{
-
-                    Sound.level();
-
-                }
-
-            }
-
-            index++;
-
-            if(index<items.length){
-
-                setTimeout(showNext,850);
-
-            }else{
-
-                setTimeout(()=>{
-
-                    overlay.style.transition="opacity .45s";
-                    overlay.style.opacity="0";
-
-                    setTimeout(()=>{
-
-                        overlay.remove();
-
-                        window.countdownActive=false;
-
-                    },450);
-
-                },800);
-
-            }
-
-        },180);
-
-    }
-
-    setTimeout(showNext,200);
-
-})();
 </script>
 
 <script>
@@ -2599,7 +2370,7 @@ function init(){
     btn.style.cssText=`
         position:fixed;
         left:255px;
-        top:180px;
+        top:10px;
 
         width:40px;
         height:40px;
@@ -3041,6 +2812,474 @@ if(document.readyState==="loading"){
     };
 
 })();
+</script>
+
+<script>
+// ======================================
+// COMET SAVE + SHIP SELECT SYSTEM v1
+// Standalone module
+// ======================================
+
+(function(){
+
+const SAVE_KEY = "comet_save_v1";
+
+// ------------------------------
+// SAVE STATE
+// ------------------------------
+const saveData = {
+    bestScore: 0,
+    unlockedShips: [0],
+    selectedShipIndex: 0
+};
+
+let selectedShipIndex = 0;
+let gameStarted = false;
+let uiFocusIndex = 0;
+
+// ------------------------------
+// GAMEPAD STATE
+// ------------------------------
+let gpCooldown = 0;
+
+// ------------------------------
+// SHIPS CONFIG
+// ------------------------------
+const SHIPS = [
+    { name: "MK-I", color: 0x66ccff },
+    { name: "MK-II", color: 0xff66cc },
+    { name: "MK-III", color: 0x66ff99 }
+];
+
+// ------------------------------
+// LOAD / SAVE
+// ------------------------------
+function loadSave() {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+
+    try {
+        const data = JSON.parse(raw);
+
+        saveData.bestScore = data.bestScore ?? 0;
+        saveData.unlockedShips = data.unlockedShips ?? [0];
+        saveData.selectedShipIndex = data.selectedShipIndex ?? 0;
+
+        selectedShipIndex = saveData.selectedShipIndex;
+
+    } catch (e) {
+        console.warn("Save corrupted, resetting.");
+    }
+}
+
+function saveGame() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+}
+
+// ------------------------------
+// SHIP APPLY (your 3D ship)
+// expects global `ship` THREE.Group
+// ------------------------------
+function applyShip(index) {
+    if (typeof ship === "undefined") return;
+
+    const data = SHIPS[index];
+
+    ship.traverse(obj => {
+        if (obj.material && obj.material.color) {
+            obj.material.color.setHex(data.color);
+        }
+    });
+}
+
+// ------------------------------
+// START MENU UI
+// ------------------------------
+const menu = document.createElement("div");
+menu.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.92);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:999999;
+    font-family:Orbitron,Arial;
+    color:white;
+`;
+
+document.body.appendChild(menu);
+
+let focusables = [];
+
+function renderMenu() {
+
+    menu.innerHTML = "";
+
+    uiFocusIndex = 0;
+
+    const title = document.createElement("div");
+    title.textContent = "SELECT YOUR SHIP";
+    title.style.cssText = "font-size:42px;margin-bottom:20px;";
+    menu.appendChild(title);
+
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:20px;";
+
+    SHIPS.forEach((s, i) => {
+
+        const unlocked = saveData.unlockedShips.includes(i);
+
+        const btn = document.createElement("button");
+
+        btn.textContent = unlocked ? s.name : "LOCKED";
+
+        btn.disabled = !unlocked;
+
+        btn.style.cssText = `
+            padding:16px 22px;
+            font-size:18px;
+            border-radius:12px;
+            cursor:pointer;
+            background:${unlocked ? "#33bbff" : "#333"};
+            opacity:${unlocked ? 1 : 0.3};
+            border:none;
+            color:white;
+        `;
+
+        if (unlocked) {
+            btn.onclick = () => {
+                selectedShipIndex = i;
+                saveData.selectedShipIndex = i;
+                saveGame();
+                highlight();
+            };
+        }
+
+        row.appendChild(btn);
+        focusables.push(btn);
+    });
+
+    menu.appendChild(row);
+
+    const startBtn = document.createElement("button");
+    startBtn.textContent = "START MISSION";
+    startBtn.style.cssText = `
+        margin-top:30px;
+        padding:14px 30px;
+        font-size:22px;
+        border-radius:14px;
+        background:#00ccff;
+        border:none;
+        cursor:pointer;
+    `;
+
+    startBtn.onclick = startGame;
+
+    menu.appendChild(startBtn);
+    focusables.push(startBtn);
+
+function updateFocusUI(){
+
+    focusables.forEach((el, i) => {
+
+        if (!el) return;
+
+        if (i === uiFocusIndex) {
+            el.style.outline = "3px solid #00ffff";
+            el.style.transform = "scale(1.05)";
+        } else {
+            el.style.outline = "none";
+            el.style.transform = "scale(1)";
+        }
+    });
+}
+
+updateFocusUI();
+
+window.__updateFocusUI = updateFocusUI;
+window.__focusables = focusables;
+
+}
+
+// ------------------------------
+// GAMEPAD MENU CONTROLS
+// ------------------------------
+function moveSelection(dir){
+
+    const unlocked = saveData.unlockedShips;
+
+    let next = selectedShipIndex;
+
+    do {
+        next += dir;
+
+        if (next < 0) next = SHIPS.length - 1;
+        if (next >= SHIPS.length) next = 0;
+
+    } while (!unlocked.includes(next));
+
+    selectedShipIndex = next;
+    saveData.selectedShipIndex = next;
+    saveGame();
+
+    highlight();
+}
+
+function selectShip(){
+    saveData.selectedShipIndex = selectedShipIndex;
+    saveGame();
+    highlight();
+}
+
+// ------------------------------
+// START GAME
+// ------------------------------
+function startGame() {
+
+    gameStarted = true;
+    menu.style.display = "none";
+
+    applyShip(selectedShipIndex);
+
+    if (window.startCountdown) {
+
+        window.startCountdown(() => {
+
+            if (typeof loop === "function") {
+                requestAnimationFrame(loop);
+            }
+
+        });
+
+    } else {
+        // fallback
+        if (typeof loop === "function") {
+            requestAnimationFrame(loop);
+        }
+    }
+}
+
+// ------------------------------
+// UNLOCK LOGIC HOOK
+// call this from your main loop
+// ------------------------------
+function updateUnlocks(score) {
+
+    if (score > 2000 && !saveData.unlockedShips.includes(1)) {
+        saveData.unlockedShips.push(1);
+        notify("🚀 MK-II UNLOCKED");
+        saveGame();
+    }
+
+    if (score > 10000 && !saveData.unlockedShips.includes(2)) {
+        saveData.unlockedShips.push(2);
+        notify("🚀 MK-III UNLOCKED");
+        saveGame();
+    }
+
+}
+
+// ------------------------------
+// SCORE SAVE HOOK
+// ------------------------------
+function updateBestScore(score) {
+    if (score > saveData.bestScore) {
+        saveData.bestScore = score;
+        saveGame();
+    }
+}
+
+// ------------------------------
+// UI FEEDBACK
+// ------------------------------
+function highlight() {
+    if (typeof notify !== "undefined") {
+        notify("🚀 SELECTED: " + SHIPS[selectedShipIndex].name);
+
+        const el = document.getElementById("bigNotification");
+        if (el) el.style.zIndex = "2147483647";
+    }
+}
+
+// ------------------------------
+// GLOBAL GUARD (blocks game until start)
+// ------------------------------
+function gameGuard() {
+    if (!gameStarted) {
+        if (typeof renderer !== "undefined" && typeof scene !== "undefined" && typeof camera !== "undefined") {
+            renderer.render(scene, camera);
+        }
+        return false;
+    }
+    return true;
+}
+
+// ------------------------------
+// INIT
+// ------------------------------
+loadSave();
+renderMenu();
+applyShip(selectedShipIndex);
+
+// ------------------------------
+// GAMEPAD LOOP
+// ------------------------------
+function gamepadLoop(){
+
+    const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+
+    if (!gp) {
+        requestAnimationFrame(gamepadLoop);
+        return;
+    }
+
+    if (gpCooldown > 0) gpCooldown--;
+
+// MENU NAVIGATION (UI FOCUS SYSTEM)
+if (!gameStarted && focusables.length) {
+
+    // LEFT / PREVIOUS
+    if (gp.buttons[14]?.pressed && gpCooldown === 0) {
+
+        uiFocusIndex--;
+        if (uiFocusIndex < 0) uiFocusIndex = focusables.length - 1;
+
+        gpCooldown = 15;
+        window.__updateFocusUI?.();
+    }
+
+    // RIGHT / NEXT
+    if (gp.buttons[15]?.pressed && gpCooldown === 0) {
+
+        uiFocusIndex++;
+        if (uiFocusIndex >= focusables.length) uiFocusIndex = 0;
+
+        gpCooldown = 15;
+        window.__updateFocusUI?.();
+    }
+
+    // A BUTTON = CLICK CURRENT FOCUS
+    if (gp.buttons[0]?.pressed && gpCooldown === 0) {
+
+        focusables[uiFocusIndex]?.click();
+
+        gpCooldown = 20;
+    }
+
+    // START BUTTON = ALWAYS START MISSION
+    if (gp.buttons[9]?.pressed && gpCooldown === 0) {
+
+        startGame();
+
+        gpCooldown = 25;
+    }
+}
+
+    requestAnimationFrame(gamepadLoop);
+}
+
+// start it
+gamepadLoop();
+
+// expose hooks globally
+window.updateUnlocks = updateUnlocks;
+window.updateBestScore = updateBestScore;
+window.gameGuard = gameGuard;
+window.saveData = saveData;
+
+})();
+
+// ==========================================
+// 3 • 2 • 1 • GO! (CALLABLE VERSION)
+// ==========================================
+
+window.startCountdown = function(onComplete){
+
+    const overlay = document.createElement("div");
+
+    overlay.id = "countdownOverlay";
+
+    overlay.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:#000;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        z-index:2147483647;
+        opacity:1;
+        overflow:hidden;
+        pointer-events:all;
+    `;
+
+    const number = document.createElement("div");
+
+    number.style.cssText = `
+        font-family:Orbitron,Arial,sans-serif;
+        font-size:180px;
+        font-weight:900;
+        color:#44ffff;
+        text-shadow:
+            0 0 30px cyan,
+            0 0 70px cyan,
+            0 0 120px cyan;
+        transition:
+            transform .25s ease,
+            opacity .25s ease;
+    `;
+
+    overlay.appendChild(number);
+    document.body.appendChild(overlay);
+
+    const items = ["3","2","1","GO!"];
+    let index = 0;
+
+    function showNext(){
+
+        number.style.opacity = "0";
+        number.style.transform = "scale(.5)";
+
+        setTimeout(()=>{
+
+            number.textContent = items[index];
+
+            number.style.opacity = "1";
+            number.style.transform = "scale(1.15)";
+
+            if(typeof Sound !== "undefined"){
+                if(index < 3) Sound.gate();
+                else Sound.level();
+            }
+
+            index++;
+
+            if(index < items.length){
+                setTimeout(showNext, 850);
+            } else {
+                setTimeout(()=>{
+
+                    overlay.style.transition = "opacity .45s";
+                    overlay.style.opacity = "0";
+
+                    setTimeout(()=>{
+
+                        overlay.remove();
+
+                        if(onComplete) onComplete();
+
+                    }, 450);
+
+                }, 800);
+            }
+
+        }, 180);
+    }
+
+    setTimeout(showNext, 200);
+};
+
 </script>
 
 </body></html>
