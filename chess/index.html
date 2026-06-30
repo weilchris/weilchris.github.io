@@ -550,6 +550,9 @@ if(clockTimer) clearInterval(clockTimer);
 clockTimer=setInterval(()=>{
 
 if(!gameStarted) return;
+
+if(ritualPause) return;
+
 if(chess.in_checkmate()) return;
 
 if(chess.turn()==="w"){
@@ -786,7 +789,17 @@ if(!gameStarted){gameStarted=true;}
 
 playMove();
 draw();
-setTimeout(aiMove,100);
+setTimeout(function waitForRitual(){
+
+    if(ritualPause){
+
+        setTimeout(waitForRitual,100);
+        return;
+    }
+
+    aiMove();
+
+},100);
 
 }else{
 draw();
@@ -1488,7 +1501,7 @@ const ritualData = {
 
 let ritualQueue = [];
 let ritualPlaying = false;
-
+let ritualPause = false;
 let currentRitualTimeout = null;
 let currentFadeTimeout = null;
 
@@ -1626,21 +1639,28 @@ function showMoveOverlay(
     void overlay.offsetWidth;
 
 
-    /*
-    UPDATE CONTENT
-    */
+/*
+UPDATE CONTENT
+*/
 
-    img.src = image;
+img.src = image;
+text.textContent = title;
 
-    text.textContent = title;
+/*
+PAUSE CLOCKS
+*/
 
+ritualPause = true;
 
-    /*
-    SHOW
-    */
+/*
+SMALL DRAMATIC DELAY
+*/
+
+setTimeout(()=>{
 
     overlay.classList.add("active");
 
+},300);
 
     /*
     AUTO HIDE
@@ -1650,15 +1670,17 @@ function showMoveOverlay(
 
         overlay.classList.remove("active");
 
-        currentFadeTimeout = setTimeout(()=>{
+currentFadeTimeout = setTimeout(()=>{
 
-            ritualPlaying = false;
+    ritualPause = false;
 
-            requestAnimationFrame(
-                playNextRitual
-            );
+    ritualPlaying = false;
 
-        },1500);
+    requestAnimationFrame(
+        playNextRitual
+    );
+
+},1500);
 
     },duration);
 }
@@ -1848,17 +1870,33 @@ function detectRituals(move){
     /* CHECK STATES */
     /* ===================================== */
 
-if(isCheck()){
-    rituals.push("CHECK");
-}
+    if(
+        safe(()=>chess.in_check())
+    ){
 
-if(isCheckmate()){
-    rituals.push("CHECKMATE");
-}
+        rituals.push("CHECK");
+    }
 
-if(isStalemate()){
-    rituals.push("STALEMATE");
-}
+    if(
+        safe(()=>isDoubleCheck())
+    ){
+
+        rituals.push("DOUBLE_CHECK");
+    }
+
+    if(
+        safe(()=>chess.in_checkmate())
+    ){
+
+        rituals.push("CHECKMATE");
+    }
+
+    if(
+        safe(()=>chess.in_stalemate())
+    ){
+
+        rituals.push("STALEMATE");
+    }
 
     if(
         safe(()=>isPin(move))
@@ -1989,266 +2027,24 @@ function isSacrifice(move){
 }
 
 
-/* ========================================= */
-/* ATTACK CORE SYSTEM                         */
-/* ========================================= */
-
-function getBoardMap(){
-    return chess.board();
-}
-
-function pieceAt(square){
-    return chess.get(square);
-}
-
-/* ----------------------------------------- */
-/* DIRECTION RAYS (rook/bishop/queen lines)  */
-/* ----------------------------------------- */
-
-function getRay(from, dx, dy){
-
-    const files = "abcdefgh";
-
-    let x = files.indexOf(from[0]);
-    let y = parseInt(from[1]);
-
-    const squares = [];
-
-    while(true){
-
-        x += dx;
-        y += dy;
-
-        if(x < 0 || x > 7 || y < 1 || y > 8)
-            break;
-
-        squares.push(files[x] + y);
-    }
-
-    return squares;
-}
-
-/* ----------------------------------------- */
-/* CHECK IF SQUARE IS ATTACKED               */
-/* ----------------------------------------- */
-
-function isSquareAttackedBy(target, attackerColor){
-
-    const board = getBoardMap();
-
-    for(let r = 0; r < 8; r++){
-        for(let f = 0; f < 8; f++){
-
-            const piece = board[r][f];
-            if(!piece || piece.color !== attackerColor)
-                continue;
-
-            const from =
-                "abcdefgh"[f] + (8 - r);
-
-            const moves = chess.moves({
-                square: from,
-                verbose: true
-            });
-
-            for(const m of moves){
-                if(m.to === target)
-                    return true;
-            }
-        }
-    }
+function isPin(){
 
     return false;
 }
 
-/* ----------------------------------------- */
-/* SLIDING ATTACK LINES                     */
-/* ----------------------------------------- */
-
-function getSlidingAttacks(from){
-
-    const dirs = [
-        [1,0],[-1,0],[0,1],[0,-1],
-        [1,1],[1,-1],[-1,1],[-1,-1]
-    ];
-
-    let rays = [];
-
-    for(const [dx,dy] of dirs){
-        rays.push(getRay(from, dx, dy));
-    }
-
-    return rays;
-}
-
-/* ========================================= */
-/* PIN DETECTION                             */
-/* ========================================= */
-
-function isPin(move){
-
-    const enemy = chess.turn();
-
-    const from = move.to;
-
-    const dirs = [
-        [1,0],[-1,0],[0,1],[0,-1],
-        [1,1],[1,-1],[-1,1],[-1,-1]
-    ];
-
-    for(const [dx,dy] of dirs){
-
-        const ray = getRay(from, dx, dy);
-
-        let firstPiece = null;
-
-        for(const sq of ray){
-
-            const p = pieceAt(sq);
-
-            if(!p) continue;
-
-            if(!firstPiece){
-                firstPiece = {sq, p};
-            }
-            else{
-
-                // pin pattern:
-                // enemy piece -> friendly king behind
-                if(
-                    firstPiece.p.color !== enemy &&
-                    p.type === "k" &&
-                    p.color === enemy
-                ){
-                    return true;
-                }
-
-                break;
-            }
-        }
-    }
+function isSkewer(){
 
     return false;
 }
-
-/* ========================================= */
-/* SKEWER DETECTION                         */
-/* ========================================= */
-
-function isSkewer(move){
-
-    const enemy = chess.turn();
-    const from = move.to;
-
-    const dirs = [
-        [1,0],[-1,0],[0,1],[0,-1],
-        [1,1],[1,-1],[-1,1],[-1,-1]
-    ];
-
-    for(const [dx,dy] of dirs){
-
-        const ray = getRay(from, dx, dy);
-
-        let first = null;
-
-        for(const sq of ray){
-
-            const p = pieceAt(sq);
-
-            if(!p) continue;
-
-            if(!first){
-                first = p;
-            }
-            else{
-
-                // skewer pattern:
-                // high value piece in front, low behind
-                const value = {
-                    p:1, n:3, b:3, r:5, q:9, k:100
-                };
-
-                if(
-                    value[first.type] > value[p.type] &&
-                    first.color !== enemy
-                ){
-                    return true;
-                }
-
-                break;
-            }
-        }
-    }
-
-    return false;
-}
-
-/* ========================================= */
-/* DISCOVERED ATTACK                        */
-/* ========================================= */
 
 function isDiscoveredAttack(){
 
-    const before = chess.history({ verbose: true });
-    if(before.length < 2) return false;
-
-    const last = before[before.length - 1];
-    const prev = before[before.length - 2];
-
-    // simplistic but effective:
-    // if a sliding piece becomes active after a piece moves out of line
-
-    const movers = ["b", "r", "q"];
-
-    return movers.includes(last.piece);
+    return false;
 }
 
-function isCheck(){
+function isDiscoveredCheck(){
 
-    return safe(()=>{
-
-        if(typeof chess.isCheck === "function")
-            return chess.isCheck();
-
-        if(typeof chess.in_check === "function")
-            return chess.in_check();
-
-        return false;
-
-    });
-
-}
-
-function isCheckmate(){
-
-    return safe(()=>{
-
-        if(typeof chess.isCheckmate === "function")
-            return chess.isCheckmate();
-
-        if(typeof chess.in_checkmate === "function")
-            return chess.in_checkmate();
-
-        return false;
-
-    });
-
-}
-
-function isStalemate(){
-
-    return safe(()=>{
-
-        if(typeof chess.isStalemate === "function")
-            return chess.isStalemate();
-
-        if(typeof chess.in_stalemate === "function")
-            return chess.in_stalemate();
-
-        return false;
-
-    });
-
+    return false;
 }
 
 
