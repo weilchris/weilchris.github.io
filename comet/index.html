@@ -2382,7 +2382,7 @@ function init(){
     btn.style.cssText=`
         position:fixed;
         left:255px;
-        top:10px;
+        top:180px;
 
         width:40px;
         height:40px;
@@ -2926,6 +2926,35 @@ function renderMenu() {
 
     menu.innerHTML = "";
 
+    const topContainer = document.createElement("div");
+    topContainer.style.cssText = `
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:20px;
+`;
+
+const logo = document.createElement("img");
+logo.src = "./assets/logo.png";
+logo.style.cssText = `
+    width:30%;
+    margin-bottom:-30px;
+    filter: drop-shadow(0 0 20px cyan);
+`;
+
+const highscore = document.createElement("div");
+highscore.textContent = "HIGH SCORE: " + saveData.bestScore;
+highscore.style.cssText = `
+    font-size:22px;
+    color:#44ffff;
+    text-shadow:0 0 15px cyan;
+    margin-bottom:10px;
+`;
+
+topContainer.appendChild(logo);
+topContainer.appendChild(highscore);
+menu.appendChild(topContainer);
+
     const title = document.createElement("div");
     title.textContent = "SELECT YOUR SHIP";
     title.style.cssText = "font-size:42px;margin-bottom:20px;";
@@ -3101,10 +3130,18 @@ function updateBestScore(score) {
 // ------------------------------
 function highlight() {
     if (typeof notify !== "undefined") {
+
         notify("🚀 SELECTED: " + SHIPS[selectedShipIndex].name);
 
         const el = document.getElementById("bigNotification");
-        if (el) el.style.zIndex = "2147483647";
+
+        if (el) {
+            el.style.zIndex = "2147483647";
+
+            // move it higher ONLY for highlight
+            el.style.top = "12%";
+            el.style.transform = "translate(-50%,-50%) scale(1)";
+        }
     }
 }
 
