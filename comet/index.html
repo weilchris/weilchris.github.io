@@ -3327,17 +3327,30 @@ window.startCountdown = function(onComplete){
 
 <script>
 // ==========================================
-// MOBILE UI + AR MODE FIX v2 (WORKING)
+// DEVICE-AWARE UI + AR MODE FIX v3
 // ==========================================
 
 (function(){
 
-const isPhone = /iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
-const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
-const isMobile = isPhone || isTablet;
+// ------------------------------------------
+// 0. DEVICE DETECTION (FIXED)
+// ------------------------------------------
+
+// iPhone / small mobile phones only
+const isPhone =
+    /iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
+
+// iPad (including iPadOS "Macintosh" spoof)
+const isIPad =
+    /iPad/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+// Tablet = iPad or large touch device (but NOT phone)
+const isTablet =
+    isIPad || (!isPhone && navigator.maxTouchPoints > 1);
 
 // ------------------------------------------
-// 1. HARD HIDE UI (incl. late injection fix)
+// 1. HIDE UI ONLY ON PHONE (NOT TABLET!)
 // ------------------------------------------
 
 function hideMobileUI(){
@@ -3353,28 +3366,30 @@ function hideMobileUI(){
 
     hide();
 
-    // catch late DOM injections (God Mode is dynamic)
+    // watch late injections
     const obs = new MutationObserver(hide);
     obs.observe(document.body, { childList:true, subtree:true });
 }
 
-if(isPhone) hideMobileUI();
+// ONLY phones get hidden UI
+if(isPhone && !isTablet) hideMobileUI();
 
 // ------------------------------------------
-// 2. AR CAMERA BACKGROUND (FIXED LAYERING)
+// 2. AR CAMERA BACKGROUND (ALL TOUCH DEVICES)
 // ------------------------------------------
 
 let arStarted = false;
 
 async function startAR(){
 
-    if(!isMobile || arStarted) return;
+    if(arStarted) return;
     arStarted = true;
 
     try {
 
         const video = document.createElement("video");
         video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
         video.autoplay = true;
         video.muted = true;
 
@@ -3386,7 +3401,7 @@ async function startAR(){
         video.srcObject = stream;
         await video.play();
 
-        // Create video layer BEHIND canvas (IMPORTANT FIX)
+        // Background layer
         const bg = document.createElement("div");
         bg.style.cssText = `
             position:fixed;
@@ -3404,11 +3419,9 @@ async function startAR(){
         bg.appendChild(video);
         document.body.prepend(bg);
 
-        // Make canvas transparent and above video
+        // THREE.js safety
         if(typeof renderer !== "undefined"){
-
             renderer.setClearColor(0x000000, 0);
-
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -3416,7 +3429,6 @@ async function startAR(){
             renderer.domElement.style.pointerEvents = "none";
         }
 
-        // remove fog for visibility
         if(typeof scene !== "undefined"){
             scene.fog = null;
         }
@@ -3434,22 +3446,19 @@ async function startAR(){
         if(typeof notify !== "undefined"){
             notify("⚠️ CAMERA BLOCKED","#ff4444");
         }
-
     }
 }
 
 // ------------------------------------------
-// 3. AUTO START ON FIRST TOUCH (mobile only)
+// 3. AUTO START ON FIRST TOUCH (ALL TOUCH DEVICES)
 // ------------------------------------------
 
-if(isMobile){
+// phone + tablet both allowed
+if(isPhone || isTablet){
     window.addEventListener("pointerdown", startAR, { once:true });
 }
 
-// ------------------------------------------
-// DEBUG ACCESS
-// ------------------------------------------
-
+// debug hook
 window.enableAR = startAR;
 
 })();
