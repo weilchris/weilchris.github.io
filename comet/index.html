@@ -2935,7 +2935,7 @@ function renderMenu() {
 `;
 
 const logo = document.createElement("img");
-logo.src = "./assets/icon.png";
+logo.src = "./assets/logo.png";
 logo.style.cssText = `
     width:30%;
     margin-bottom:-30px;
@@ -3327,15 +3327,30 @@ window.startCountdown = function(onComplete){
 
 <script>
 // ==========================================
-// MOBILE UI + AR MODE FIX v2 (WORKING)
+// MOBILE UI + AR MODE FIX v3 (ROBUST)
 // ==========================================
 
 (function(){
 
-const isPhone = window.matchMedia("(max-width: 767px)").matches;
+// ------------------------------------------
+// 0. ROBUST DEVICE DETECTION (IMPORTANT FIX)
+// ------------------------------------------
+
+// Phones only (UI hiding)
+const isPhone =
+    window.matchMedia("(max-width: 767px)").matches;
+
+// Touch devices (phones + tablets + iPads + some laptops)
+const isTouch =
+    ("ontouchstart" in window) ||
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia("(pointer: coarse)").matches;
+
+// AR should work on ALL touch devices (not just phones)
+const canUseAR = isTouch;
 
 // ------------------------------------------
-// 1. HARD HIDE UI (incl. late injection fix)
+// 1. HARD HIDE UI (PHONE ONLY)
 // ------------------------------------------
 
 function hideMobileUI(){
@@ -3356,17 +3371,17 @@ function hideMobileUI(){
     obs.observe(document.body, { childList:true, subtree:true });
 }
 
-if (isPhone) hideMobileUI();
+if(isPhone) hideMobileUI();
 
 // ------------------------------------------
-// 2. AR CAMERA BACKGROUND (FIXED LAYERING)
+// 2. AR CAMERA BACKGROUND (FIXED STACKING)
 // ------------------------------------------
 
 let arStarted = false;
 
 async function startAR(){
 
-    if(!isMobile || arStarted) return;
+    if(!canUseAR || arStarted) return;
     arStarted = true;
 
     try {
@@ -3375,6 +3390,7 @@ async function startAR(){
         video.setAttribute("playsinline", "");
         video.autoplay = true;
         video.muted = true;
+        video.style.objectFit = "cover";
 
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: "environment" },
@@ -3384,12 +3400,15 @@ async function startAR(){
         video.srcObject = stream;
         await video.play();
 
-        // Create video layer BEHIND canvas (IMPORTANT FIX)
+        // ------------------------------------------
+        // BACKGROUND LAYER (BEHIND EVERYTHING)
+        // ------------------------------------------
+
         const bg = document.createElement("div");
         bg.style.cssText = `
             position:fixed;
             inset:0;
-            z-index:-2;
+            z-index:0;
             overflow:hidden;
         `;
 
@@ -3402,19 +3421,22 @@ async function startAR(){
         bg.appendChild(video);
         document.body.prepend(bg);
 
-        // Make canvas transparent and above video
+        // ------------------------------------------
+        // THREE.JS FIX (CRITICAL)
+        // ------------------------------------------
+
         if(typeof renderer !== "undefined"){
 
-            renderer.setClearColor(0x000000, 0);
+            renderer.setClearColor(0x000000, 0); // transparent canvas
 
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
-            renderer.domElement.style.zIndex = "1";
+            renderer.domElement.style.zIndex = "2";
             renderer.domElement.style.pointerEvents = "none";
         }
 
-        // remove fog for visibility
+        // fog off (optional but recommended for AR)
         if(typeof scene !== "undefined"){
             scene.fog = null;
         }
@@ -3437,10 +3459,11 @@ async function startAR(){
 }
 
 // ------------------------------------------
-// 3. AUTO START ON FIRST TOUCH (mobile only)
+// 3. AUTO START ON FIRST INTERACTION
 // ------------------------------------------
 
-if (isPhone) {
+// works on phones + tablets + iPads
+if(canUseAR){
     window.addEventListener("pointerdown", startAR, { once:true });
 }
 
