@@ -2835,7 +2835,6 @@ const saveData = {
 
 let selectedShipIndex = 0;
 let gameStarted = false;
-let uiFocusIndex = 0;
 
 // ------------------------------
 // GAMEPAD STATE
@@ -2911,13 +2910,9 @@ menu.style.cssText = `
 
 document.body.appendChild(menu);
 
-let focusables = [];
-
 function renderMenu() {
 
     menu.innerHTML = "";
-
-    uiFocusIndex = 0;
 
     const title = document.createElement("div");
     title.textContent = "SELECT YOUR SHIP";
@@ -2948,17 +2943,35 @@ function renderMenu() {
             color:white;
         `;
 
+if (i === selectedShipIndex) {
+
+    btn.style.outline = "3px solid #00ffff";
+    btn.style.boxShadow = "0 0 20px cyan";
+    btn.style.transform = "scale(1.08)";
+
+}
+
         if (unlocked) {
-            btn.onclick = () => {
-                selectedShipIndex = i;
-                saveData.selectedShipIndex = i;
-                saveGame();
-                highlight();
-            };
+
+btn.onclick = () => {
+
+    selectedShipIndex = i;
+
+    saveData.selectedShipIndex = i;
+
+    saveGame();
+
+    applyShip(i);
+
+    highlight();
+
+    renderMenu();
+
+};
         }
 
         row.appendChild(btn);
-        focusables.push(btn);
+
     });
 
     menu.appendChild(row);
@@ -2978,59 +2991,39 @@ function renderMenu() {
     startBtn.onclick = startGame;
 
     menu.appendChild(startBtn);
-    focusables.push(startBtn);
-
-function updateFocusUI(){
-
-    focusables.forEach((el, i) => {
-
-        if (!el) return;
-
-        if (i === uiFocusIndex) {
-            el.style.outline = "3px solid #00ffff";
-            el.style.transform = "scale(1.05)";
-        } else {
-            el.style.outline = "none";
-            el.style.transform = "scale(1)";
-        }
-    });
-}
-
-updateFocusUI();
-
-window.__updateFocusUI = updateFocusUI;
-window.__focusables = focusables;
-
 }
 
 // ------------------------------
 // GAMEPAD MENU CONTROLS
 // ------------------------------
+
 function moveSelection(dir){
 
     const unlocked = saveData.unlockedShips;
 
     let next = selectedShipIndex;
 
-    do {
+    do{
+
         next += dir;
 
-        if (next < 0) next = SHIPS.length - 1;
-        if (next >= SHIPS.length) next = 0;
+        if(next < 0) next = SHIPS.length - 1;
+        if(next >= SHIPS.length) next = 0;
 
-    } while (!unlocked.includes(next));
+    }while(!unlocked.includes(next));
 
     selectedShipIndex = next;
+
     saveData.selectedShipIndex = next;
+
     saveGame();
 
-    highlight();
-}
+    applyShip(next);
 
-function selectShip(){
-    saveData.selectedShipIndex = selectedShipIndex;
-    saveGame();
     highlight();
+
+    renderMenu();
+
 }
 
 // ------------------------------
@@ -3122,6 +3115,7 @@ function gameGuard() {
 loadSave();
 renderMenu();
 applyShip(selectedShipIndex);
+highlight();
 
 // ------------------------------
 // GAMEPAD LOOP
@@ -3137,44 +3131,44 @@ function gamepadLoop(){
 
     if (gpCooldown > 0) gpCooldown--;
 
-// MENU NAVIGATION (UI FOCUS SYSTEM)
-if (!gameStarted && focusables.length) {
+// ------------------------------
+// GAMEPAD MENU
+// ------------------------------
 
-    // LEFT / PREVIOUS
+if (!gameStarted) {
+
+    // LEFT
     if (gp.buttons[14]?.pressed && gpCooldown === 0) {
 
-        uiFocusIndex--;
-        if (uiFocusIndex < 0) uiFocusIndex = focusables.length - 1;
-
+        moveSelection(-1);
         gpCooldown = 15;
-        window.__updateFocusUI?.();
+
     }
 
-    // RIGHT / NEXT
+    // RIGHT
     if (gp.buttons[15]?.pressed && gpCooldown === 0) {
 
-        uiFocusIndex++;
-        if (uiFocusIndex >= focusables.length) uiFocusIndex = 0;
-
+        moveSelection(1);
         gpCooldown = 15;
-        window.__updateFocusUI?.();
+
     }
 
-    // A BUTTON = CLICK CURRENT FOCUS
+    // A = START MISSION
     if (gp.buttons[0]?.pressed && gpCooldown === 0) {
 
-        focusables[uiFocusIndex]?.click();
+        startGame();
+        gpCooldown = 25;
 
-        gpCooldown = 20;
     }
 
-    // START BUTTON = ALWAYS START MISSION
+    // START = START MISSION
     if (gp.buttons[9]?.pressed && gpCooldown === 0) {
 
         startGame();
-
         gpCooldown = 25;
+
     }
+
 }
 
     requestAnimationFrame(gamepadLoop);
