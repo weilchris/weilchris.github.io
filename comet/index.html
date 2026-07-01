@@ -3332,7 +3332,9 @@ window.startCountdown = function(onComplete){
 
 (function(){
 
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isPhone = /iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
+const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+const isMobile = isPhone || isTablet;
 
 // ------------------------------------------
 // 1. HARD HIDE UI (incl. late injection fix)
@@ -3356,7 +3358,7 @@ function hideMobileUI(){
     obs.observe(document.body, { childList:true, subtree:true });
 }
 
-if(isMobile) hideMobileUI();
+if(isPhone) hideMobileUI();
 
 // ------------------------------------------
 // 2. AR CAMERA BACKGROUND (FIXED LAYERING)
