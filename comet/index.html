@@ -685,7 +685,13 @@ scene.add(ship);
 camera.position.set(0,2,10);
 const keys={};onkeydown=e=>keys[e.key.toLowerCase()]=true;onkeyup=e=>keys[e.key.toLowerCase()]=false;
 let tx=0,ty=0,score=0,combo=0,timeLeft=60,last=performance.now();
-const ui=document.getElementById('ui');
+let timeEnabled = true;
+const timeModeEl = document.getElementById("timeMode");
+
+timeModeEl.addEventListener("change", (e) => {
+    e.stopPropagation();
+    timeEnabled = e.target.checked;
+});
 const stars=[];
 
 const STAR_COLORS=[0xffffff,0xffffff,0xffffff,0xaaddff,0x66ffff,0xff66cc,0xaa66ff,0xffdd66];
@@ -729,7 +735,13 @@ function recycle(g){
 function loop(){
  requestAnimationFrame(loop);
  const now=performance.now(),dt=(now-last)/1000;last=now;
- if(timeMode.checked){timeLeft-=dt;if(timeLeft<=0){alert("Time up! Score "+score);location.reload();}}
+if (timeEnabled) {
+    timeLeft -= dt;
+    if (timeLeft <= 0) {
+        gameOver = true;
+        showGameOver();
+    }
+}
  if(keys.a||keys.arrowleft)tx-=.4;if(keys.d||keys.arrowright)tx+=.4;if(keys.w||keys.arrowup)ty+=.25;if(keys.s||keys.arrowdown)ty-=.25;
  tx=Math.max(-25,Math.min(25,tx));ty=Math.max(-12,Math.min(12,ty));
  ship.position.x+=(tx-ship.position.x)*.08;ship.position.y+=(ty-ship.position.y)*.08;
@@ -767,7 +779,7 @@ function loop(){
    }
    if(g.position.z>camera.position.z+20)recycle(g);
  });
- ui.innerHTML=`Score ${score}<br>Combo x${combo}<br>${timeMode.checked?"Time "+timeLeft.toFixed(1):"Endless"}`;
+ ui.innerHTML=`Score ${score}<br>Combo x${combo}<br>${timeEnabled ? "Time " + timeLeft.toFixed(1) : "Endless"}`;
  renderer.render(scene,camera);
 }
 loop();
