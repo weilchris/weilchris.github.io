@@ -3327,30 +3327,15 @@ window.startCountdown = function(onComplete){
 
 <script>
 // ==========================================
-// MOBILE UI + AR MODE FIX v3 (ROBUST)
+// MOBILE UI + AR MODE FIX v2 (WORKING)
 // ==========================================
 
 (function(){
 
-// ------------------------------------------
-// 0. ROBUST DEVICE DETECTION (IMPORTANT FIX)
-// ------------------------------------------
-
-// Phones only (UI hiding)
-const isPhone =
-    window.matchMedia("(max-width: 767px)").matches;
-
-// Touch devices (phones + tablets + iPads + some laptops)
-const isTouch =
-    ("ontouchstart" in window) ||
-    navigator.maxTouchPoints > 0 ||
-    window.matchMedia("(pointer: coarse)").matches;
-
-// AR should work on ALL touch devices (not just phones)
-const canUseAR = isTouch;
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 // ------------------------------------------
-// 1. HARD HIDE UI (PHONE ONLY)
+// 1. HARD HIDE UI (incl. late injection fix)
 // ------------------------------------------
 
 function hideMobileUI(){
@@ -3371,17 +3356,17 @@ function hideMobileUI(){
     obs.observe(document.body, { childList:true, subtree:true });
 }
 
-if(isPhone) hideMobileUI();
+if(isMobile) hideMobileUI();
 
 // ------------------------------------------
-// 2. AR CAMERA BACKGROUND (FIXED STACKING)
+// 2. AR CAMERA BACKGROUND (FIXED LAYERING)
 // ------------------------------------------
 
 let arStarted = false;
 
 async function startAR(){
 
-    if(!canUseAR || arStarted) return;
+    if(!isMobile || arStarted) return;
     arStarted = true;
 
     try {
@@ -3390,7 +3375,6 @@ async function startAR(){
         video.setAttribute("playsinline", "");
         video.autoplay = true;
         video.muted = true;
-        video.style.objectFit = "cover";
 
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: "environment" },
@@ -3400,15 +3384,12 @@ async function startAR(){
         video.srcObject = stream;
         await video.play();
 
-        // ------------------------------------------
-        // BACKGROUND LAYER (BEHIND EVERYTHING)
-        // ------------------------------------------
-
+        // Create video layer BEHIND canvas (IMPORTANT FIX)
         const bg = document.createElement("div");
         bg.style.cssText = `
             position:fixed;
             inset:0;
-            z-index:0;
+            z-index:-2;
             overflow:hidden;
         `;
 
@@ -3421,22 +3402,19 @@ async function startAR(){
         bg.appendChild(video);
         document.body.prepend(bg);
 
-        // ------------------------------------------
-        // THREE.JS FIX (CRITICAL)
-        // ------------------------------------------
-
+        // Make canvas transparent and above video
         if(typeof renderer !== "undefined"){
 
-            renderer.setClearColor(0x000000, 0); // transparent canvas
+            renderer.setClearColor(0x000000, 0);
 
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
-            renderer.domElement.style.zIndex = "2";
+            renderer.domElement.style.zIndex = "1";
             renderer.domElement.style.pointerEvents = "none";
         }
 
-        // fog off (optional but recommended for AR)
+        // remove fog for visibility
         if(typeof scene !== "undefined"){
             scene.fog = null;
         }
@@ -3459,11 +3437,10 @@ async function startAR(){
 }
 
 // ------------------------------------------
-// 3. AUTO START ON FIRST INTERACTION
+// 3. AUTO START ON FIRST TOUCH (mobile only)
 // ------------------------------------------
 
-// works on phones + tablets + iPads
-if(canUseAR){
+if(isMobile){
     window.addEventListener("pointerdown", startAR, { once:true });
 }
 
