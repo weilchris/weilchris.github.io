@@ -3325,4 +3325,104 @@ window.startCountdown = function(onComplete){
 
 </script>
 
+<script>
+// ==========================================
+// MOBILE UI + AR CAMERA MODE MODULE
+// ==========================================
+
+(function(){
+
+const isMobile =
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+// ------------------------------------------
+// 1. HIDE TIME MODE + GOD MODE ON MOBILE
+// ------------------------------------------
+
+function hideMobileUI(){
+
+    if(!isMobile) return;
+
+    const timeToggle = document.getElementById("toggle"); // Time Mode label
+    const godToggle  = document.getElementById("godToggle");
+
+    if(timeToggle) timeToggle.style.display = "none";
+    if(godToggle)  godToggle.style.display = "none";
+}
+
+hideMobileUI();
+
+// ------------------------------------------
+// 2. AR CAMERA BACKGROUND
+// ------------------------------------------
+
+let video, videoTexture, arEnabled = false;
+
+async function startAR(){
+
+    if(arEnabled) return;
+    arEnabled = true;
+
+    try {
+
+        video = document.createElement("video");
+        video.setAttribute("playsinline", "");
+        video.autoplay = true;
+        video.muted = true;
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: "environment"
+            },
+            audio: false
+        });
+
+        video.srcObject = stream;
+        await video.play();
+
+        // create texture
+        videoTexture = new THREE.VideoTexture(video);
+
+        videoTexture.minFilter = THREE.LinearFilter;
+        videoTexture.magFilter = THREE.LinearFilter;
+        videoTexture.format = THREE.RGBFormat;
+
+        // remove fog so AR is visible
+        if(scene && scene.fog) scene.fog = null;
+
+        // replace scene background
+        scene.background = videoTexture;
+
+        // optional: dim UI for AR clarity
+        document.body.style.background = "transparent";
+
+        notify("📱 AR MODE ACTIVE","#44ffcc");
+
+    } catch(err) {
+
+        console.warn("AR failed:", err);
+        notify("⚠️ Camera blocked","#ff4444");
+
+    }
+}
+
+// ------------------------------------------
+// 3. AUTO ENABLE ON MOBILE FIRST TOUCH
+// ------------------------------------------
+
+if(isMobile){
+
+    window.addEventListener("pointerdown", startAR, { once:true });
+
+}
+
+// ------------------------------------------
+// 4. OPTIONAL MANUAL TOGGLE (for testing desktop)
+// ------------------------------------------
+
+window.enableAR = startAR;
+
+})();
+</script>
+
 </body></html>
