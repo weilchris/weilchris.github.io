@@ -3327,97 +3327,125 @@ window.startCountdown = function(onComplete){
 
 <script>
 // ==========================================
-// MOBILE UI + AR CAMERA MODE MODULE
+// MOBILE UI + AR MODE FIX v2 (WORKING)
 // ==========================================
 
 (function(){
 
-const isMobile =
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 // ------------------------------------------
-// 1. HIDE TIME MODE + GOD MODE ON MOBILE
+// 1. HARD HIDE UI (incl. late injection fix)
 // ------------------------------------------
 
 function hideMobileUI(){
 
-    if(!isMobile) return;
+    const hide = () => {
 
-    const timeToggle = document.getElementById("toggle"); // Time Mode label
-    const godToggle  = document.getElementById("godToggle");
+        const timeToggle = document.getElementById("toggle");
+        const godToggle  = document.getElementById("godToggle");
 
-    if(timeToggle) timeToggle.style.display = "none";
-    if(godToggle)  godToggle.style.display = "none";
+        if(timeToggle) timeToggle.style.display = "none";
+        if(godToggle)  godToggle.style.display = "none";
+    };
+
+    hide();
+
+    // catch late DOM injections (God Mode is dynamic)
+    const obs = new MutationObserver(hide);
+    obs.observe(document.body, { childList:true, subtree:true });
 }
 
-hideMobileUI();
+if(isMobile) hideMobileUI();
 
 // ------------------------------------------
-// 2. AR CAMERA BACKGROUND
+// 2. AR CAMERA BACKGROUND (FIXED LAYERING)
 // ------------------------------------------
 
-let video, videoTexture, arEnabled = false;
+let arStarted = false;
 
 async function startAR(){
 
-    if(arEnabled) return;
-    arEnabled = true;
+    if(!isMobile || arStarted) return;
+    arStarted = true;
 
     try {
 
-        video = document.createElement("video");
+        const video = document.createElement("video");
         video.setAttribute("playsinline", "");
         video.autoplay = true;
         video.muted = true;
 
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "environment"
-            },
+            video: { facingMode: "environment" },
             audio: false
         });
 
         video.srcObject = stream;
         await video.play();
 
-        // create texture
-        videoTexture = new THREE.VideoTexture(video);
+        // Create video layer BEHIND canvas (IMPORTANT FIX)
+        const bg = document.createElement("div");
+        bg.style.cssText = `
+            position:fixed;
+            inset:0;
+            z-index:-2;
+            overflow:hidden;
+        `;
 
-        videoTexture.minFilter = THREE.LinearFilter;
-        videoTexture.magFilter = THREE.LinearFilter;
-        videoTexture.format = THREE.RGBFormat;
+        video.style.cssText = `
+            width:100%;
+            height:100%;
+            object-fit:cover;
+        `;
 
-        // remove fog so AR is visible
-        if(scene && scene.fog) scene.fog = null;
+        bg.appendChild(video);
+        document.body.prepend(bg);
 
-        // replace scene background
-        scene.background = videoTexture;
+        // Make canvas transparent and above video
+        if(typeof renderer !== "undefined"){
 
-        // optional: dim UI for AR clarity
+            renderer.setClearColor(0x000000, 0);
+
+            renderer.domElement.style.position = "fixed";
+            renderer.domElement.style.top = "0";
+            renderer.domElement.style.left = "0";
+            renderer.domElement.style.zIndex = "1";
+            renderer.domElement.style.pointerEvents = "none";
+        }
+
+        // remove fog for visibility
+        if(typeof scene !== "undefined"){
+            scene.fog = null;
+        }
+
         document.body.style.background = "transparent";
 
-        notify("📱 AR MODE ACTIVE","#44ffcc");
+        if(typeof notify !== "undefined"){
+            notify("📱 AR MODE ACTIVE","#44ffcc");
+        }
 
-    } catch(err) {
+    } catch(err){
 
         console.warn("AR failed:", err);
-        notify("⚠️ Camera blocked","#ff4444");
+
+        if(typeof notify !== "undefined"){
+            notify("⚠️ CAMERA BLOCKED","#ff4444");
+        }
 
     }
 }
 
 // ------------------------------------------
-// 3. AUTO ENABLE ON MOBILE FIRST TOUCH
+// 3. AUTO START ON FIRST TOUCH (mobile only)
 // ------------------------------------------
 
 if(isMobile){
-
     window.addEventListener("pointerdown", startAR, { once:true });
-
 }
 
 // ------------------------------------------
-// 4. OPTIONAL MANUAL TOGGLE (for testing desktop)
+// DEBUG ACCESS
 // ------------------------------------------
 
 window.enableAR = startAR;
