@@ -435,7 +435,7 @@ button:active{
 
 </style></head><body>
 <div id="ui"></div><div id="feedback" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font:bold 26px Arial;text-shadow:0 0 10px #000;pointer-events:none;z-index:9999;"></div><div id="warning" style="text-align:center; font-seize:18px; margin-top:150px;">☄️ ASTRO STORM ☄️</div><div id="overlay"><div id="overlayBox"><h1>GAME OVER</h1><div id="overlayScore"></div><button id="playAgainBtn" onclick="location.reload()">Play Again</button></div></div>
-<label id="toggle"><input id="timeMode" type="checkbox" checked> Time Mode</label>
+<label id="toggle"><input id="timeMode" type="checkbox"> Time Mode</label>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160/build/three.min.js"></script>
 <script>
 const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x000010,.0015);
@@ -2583,7 +2583,7 @@ if(document.readyState==="loading"){
         label.id="godToggle";
 
         label.innerHTML=`
-            <input id="godModeSwitch" type="checkbox">
+            <input id="godModeSwitch" type="checkbox" checked>
             God Mode
         `;
 
@@ -3371,6 +3371,22 @@ window.startCountdown = function(onComplete){
 
                         overlay.remove();
 
+                        // ==========================================
+                        // RESET SWITCHES AFTER COUNTDOWN
+                        // ==========================================
+                        const timeModeEl = document.getElementById("timeMode");
+                        const godModeEl = document.getElementById("godModeSwitch");
+
+                        if (timeModeEl) {
+                            timeModeEl.checked = true;
+                            timeModeEl.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+
+                        if (godModeEl) {
+                            godModeEl.checked = false;
+                            godModeEl.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+
                         if(onComplete) onComplete();
 
                     }, 450);
@@ -3383,7 +3399,6 @@ window.startCountdown = function(onComplete){
 
     setTimeout(showNext, 200);
 };
-
 </script>
 
 <script>
