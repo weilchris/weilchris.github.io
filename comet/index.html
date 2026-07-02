@@ -378,6 +378,61 @@ button:active{
 
 }
 
+/* ==========================================
+   MOBILE RESPONSIVE UI
+========================================== */
+
+@media (max-width: 768px){
+
+    /* General text */
+    body{
+        font-size:14px;
+    }
+
+    /* HUD */
+    #ui{
+        top:115px;
+        left:18px;
+
+    }
+
+    /* Notifications */
+    #bigNotification{
+        font-size:24px !important;
+        min-width:90% !important;
+        width:90%;
+        padding:0 10px;
+    }
+
+    /* Countdown */
+    #countdownOverlay div{
+        font-size:90px !important;
+    }
+
+    /* Game Over */
+    #overlayBox{
+        width:90%;
+        min-width:unset;
+        padding:22px;
+    }
+
+    #overlayBox h1{
+        font-size:34px;
+    }
+
+    #overlayScore{
+        font-size:20px;
+    }
+
+    /* Buttons */
+    button{
+        font-size:16px;
+        padding:12px 18px;
+    }
+
+}
+
+
 </style></head><body>
 <div id="ui"></div><div id="feedback" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font:bold 26px Arial;text-shadow:0 0 10px #000;pointer-events:none;z-index:9999;"></div><div id="warning">☄️ ASTEROID STORM ☄️</div><div id="overlay"><div id="overlayBox"><h1>GAME OVER</h1><div id="overlayScore"></div><button id="playAgainBtn" onclick="location.reload()">Play Again</button></div></div>
 <label id="toggle"><input id="timeMode" type="checkbox" checked> Time Mode</label>
@@ -2529,7 +2584,7 @@ if(document.readyState==="loading"){
 
         label.innerHTML=`
             <input id="godModeSwitch" type="checkbox">
-            GOD MODE
+            God Mode
         `;
 
         label.style.cssText=`
@@ -2756,10 +2811,10 @@ if(document.readyState==="loading"){
     box.id="bigNotification";
 
     box.style.cssText=`
-        position:fixed;
-        left:50%;
-        top:28%;
-        transform:translate(-50%,-50%) scale(.8);
+        position: fixed;
+        left: 50%;
+        bottom: 90px;
+        transform: translateX(-50%) scale(1);
 
         min-width:420px;
 
@@ -2790,25 +2845,31 @@ if(document.readyState==="loading"){
 
     let timer;
 
-    window.notify=function(text,color="#44ffff"){
+ window.notify = function(text, color = "#44ffff") {
 
-        clearTimeout(timer);
+    clearTimeout(timer);
 
-        box.textContent=text;
+    box.textContent = text;
+    box.style.color = color;
 
-        box.style.color=color;
+    // ensure bottom positioning mode
+    box.style.top = "auto";
+    box.style.bottom = "90px";
+    box.style.left = "50%";
 
-        box.style.opacity="1";
-        box.style.transform="translate(-50%,-50%) scale(1)";
+    // SHOW (bottom-centered)
+    box.style.opacity = "1";
+    box.style.transform = "translateX(-50%) scale(1)";
 
-        timer=setTimeout(()=>{
+    timer = setTimeout(() => {
 
-            box.style.opacity="0";
-            box.style.transform="translate(-50%,-50%) scale(.85)";
+        box.style.opacity = "0";
 
-        },900);
+        // HIDE (keep same positioning logic!)
+        box.style.transform = "translateX(-50%) scale(.85)";
 
-    };
+    }, 900);
+};
 
     // Compatibility
     window.feedback=function(text,color){
@@ -3131,7 +3192,7 @@ function updateBestScore(score) {
 function highlight() {
     if (typeof notify !== "undefined") {
 
-        notify("🚀 SELECTED: " + SHIPS[selectedShipIndex].name);
+        notify();
 
         const el = document.getElementById("bigNotification");
 
