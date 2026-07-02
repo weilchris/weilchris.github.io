@@ -3540,4 +3540,155 @@ window.enableAR = startAR;
 })();
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const t = document.getElementById("toggle");
+  const g = document.getElementById("godToggle");
+
+  if (t) t.style.display = "none";
+  if (g) g.style.display = "none";
+});
+</script>
+
+<script>
+(function(){
+
+// ===============================
+// MOBILE ONLY
+// ===============================
+const isMobile =
+    window.matchMedia("(max-width: 768px)").matches ||
+    ("ontouchstart" in window);
+
+if(!isMobile) return;
+
+// ===============================
+// STYLE
+// ===============================
+const style = document.createElement("style");
+style.textContent = `
+#mobile_close_btn{
+    position:fixed;
+    top:14px;
+    right:14px;
+    width:54px;
+    height:54px;
+    z-index:2147483647;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(0,0,0,0.35);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.15);
+
+    cursor:pointer;
+
+    transition:transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+#mobile_close_btn:active{
+    transform:scale(0.95);
+}
+
+#mobile_close_btn:hover{
+    transform:scale(1.08);
+    background:rgba(0,0,0,0.55);
+    border-color:#2aa8ff;
+}
+
+#mobile_close_btn svg path{
+    stroke:#ffffff;
+    stroke-width:2.5;
+    fill:none;
+    stroke-linecap:round;
+
+    stroke-dasharray:40;
+    stroke-dashoffset:40;
+
+    animation:draw 0.6s ease forwards;
+}
+
+#mobile_close_btn svg path:nth-child(2){
+    animation-delay:0.08s;
+}
+
+@keyframes draw{
+    to{ stroke-dashoffset:0; }
+}
+`;
+document.head.appendChild(style);
+
+// ===============================
+// BUTTON
+// ===============================
+const btn = document.createElement("div");
+btn.id = "mobile_close_btn";
+
+btn.innerHTML = `
+<svg width="26" height="26" viewBox="0 0 24 24">
+    <path d="M4 4 L20 20"></path>
+    <path d="M20 4 L4 20"></path>
+</svg>
+`;
+
+document.body.appendChild(btn);
+
+// ===============================
+// CLICK → INDEX.HTML ONLY
+// ===============================
+btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    window.location.href = "./index.html";
+});
+
+// ===============================
+// OPTIONAL SWIPE DOWN CLOSE
+// ===============================
+let startY = null;
+
+document.addEventListener("touchstart", (e)=>{
+    startY = e.touches[0].clientY;
+}, {passive:true});
+
+document.addEventListener("touchend", (e)=>{
+    if(startY === null) return;
+
+    const endY = e.changedTouches[0].clientY;
+
+    if(endY - startY > 120){
+        window.location.href = "./index.html";
+    }
+
+    startY = null;
+}, {passive:true});
+
+})();
+</script>
+
+<script>
+let gLocked = false;
+
+document.addEventListener("keydown", function(e) {
+
+    if ((e.key === "g" || e.key === "G") && !gLocked) {
+        gLocked = true;
+        window.location.href = "./index.html";
+    }
+
+});
+
+document.addEventListener("keyup", function(e) {
+    if (e.key === "g" || e.key === "G") {
+        gLocked = false;
+    }
+});
+</script>
+
 </body></html>

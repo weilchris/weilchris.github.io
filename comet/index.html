@@ -100,6 +100,23 @@ body{
     height:100%;
     border:none;
 }
+
+#gm_logo{
+    position:fixed;
+    top:5%;
+    left:50%;
+    transform:translateX(-50%);
+    width:280px;
+    height:280px;
+
+    background:url("./assets/icon.png") center center / contain no-repeat;
+
+    z-index:999999;
+    pointer-events:none;
+
+    filter: drop-shadow(0 0 18px rgba(42,168,255,.35));
+}
+
 `;
 
 document.head.appendChild(style);
@@ -108,6 +125,10 @@ document.head.appendChild(style);
 const menuEl = document.createElement("div");
 menuEl.id = "gm_menu";
 document.body.appendChild(menuEl);
+
+const logo = document.createElement("div");
+logo.id = "gm_logo";
+document.body.appendChild(logo);
 
 const lightbox = document.createElement("div");
 lightbox.id = "gm_lightbox";
@@ -245,7 +266,7 @@ document.addEventListener("keydown",(e)=>{
 
     }
 
-    if((e.key==="r" || e.key==="G") && LIGHTBOX_OPEN){
+    if((e.key==="g") && LIGHTBOX_OPEN){
 
         e.preventDefault();
         e.stopPropagation();
@@ -275,9 +296,9 @@ function init(){
     loop();
 
     add("Time Attack","./time.html");
-    add("Arcade","./arcade.html");
-    add("God Mode","./god.html");
     add("Free Play","./free.html");
+    add("Arcade Mode","./arcade.html");
+    add("God Mode","./god.html");
 
 }
 
