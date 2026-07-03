@@ -103,7 +103,7 @@ body{
 
 #gm_logo{
     position:fixed;
-    top:-25px;
+    top: 50px;
     left:50%;
     transform:translateX(-50%);
     width:280px;
@@ -115,6 +115,12 @@ body{
     pointer-events:none;
 
     filter: drop-shadow(0 0 18px rgba(42,168,255,.35));
+}
+
+@media (max-width: 768px) {
+    #gm_logo {
+        top: -75px;
+    }
 }
 
 `;
