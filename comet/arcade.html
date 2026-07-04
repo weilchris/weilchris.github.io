@@ -3660,8 +3660,28 @@ btn.addEventListener("click", (e) => {
     window.location.href = "./index.html";
 });
 
-})();
+// ===============================
+// OPTIONAL SWIPE DOWN CLOSE
+// ===============================
+let startY = null;
 
+document.addEventListener("touchstart", (e)=>{
+    startY = e.touches[0].clientY;
+}, {passive:true});
+
+document.addEventListener("touchend", (e)=>{
+    if(startY === null) return;
+
+    const endY = e.changedTouches[0].clientY;
+
+    if(endY - startY > 120){
+        window.location.href = "./index.html";
+    }
+
+    startY = null;
+}, {passive:true});
+
+})();
 </script>
 
 <script>
