@@ -318,104 +318,42 @@ init();
 
     const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-    // Only apply on touch devices
+    // Mobile only
     if (!isTouch) return;
 
     // ---------------------------------------
-    // 1. CSS HARD LOCK
+    // Prevent pull-to-refresh
     // ---------------------------------------
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
         html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-
-            overflow: hidden !important;
-
-            /* kills pull-to-refresh / bounce in modern browsers */
-            overscroll-behavior: none !important;
-
-            /* disables browser gestures (zoom, pan, etc.) */
-            touch-action: none !important;
-
-            /* iOS selection kill switch */
-            -webkit-user-select: none !important;
-            user-select: none !important;
-
-            -webkit-touch-callout: none !important;
-            -webkit-tap-highlight-color: transparent !important;
-        }
-
-        * {
-            -webkit-user-select: none !important;
-            user-select: none !important;
-            -webkit-touch-callout: none !important;
+            overscroll-behavior: none;
         }
     `;
     document.head.appendChild(style);
 
-    // ---------------------------------------
-    // 2. BLOCK GESTURES
-    // ---------------------------------------
+    let startY = 0;
 
-    function prevent(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
+    document.addEventListener("touchstart", function (e) {
+        startY = e.touches[0].clientY;
+    }, { passive: true });
 
-    // scroll / zoom / swipe
-    document.addEventListener('touchmove', prevent, { passive: false });
-    document.addEventListener('touchstart', prevent, { passive: false });
-
-    // double tap zoom / gestures
-    document.addEventListener('gesturestart', prevent);
-    document.addEventListener('gesturechange', prevent);
-    document.addEventListener('gestureend', prevent);
-
-    // wheel (some mobile + trackpad hybrid devices)
-    document.addEventListener('wheel', prevent, { passive: false });
-
-    // ---------------------------------------
-    // 3. BLOCK SELECTION / CONTEXT MENU
-    // ---------------------------------------
-
-    document.addEventListener('selectstart', prevent);
-    document.addEventListener('contextmenu', prevent);
-
-    // long press iOS "callout"
-    document.addEventListener('touchend', function(e){
-        // just in case selection still triggers
-        window.getSelection?.().removeAllRanges?.();
-    });
-
-    // ---------------------------------------
-    // 4. STOP KEYS THAT CAN TRIGGER REFRESH
-    // ---------------------------------------
-    document.addEventListener('keydown', function(e) {
-
-        // prevent pull-to-refresh / browser reload shortcuts
-        if (
-            e.key === "F5" ||
-            (e.ctrlKey && e.key.toLowerCase() === "r") ||
-            (e.metaKey && e.key.toLowerCase() === "r") ||
-            e.key === "Escape"
-        ) {
+    document.addEventListener("touchmove", function (e) {
+        if (window.scrollY === 0 && e.touches[0].clientY > startY) {
             e.preventDefault();
         }
-
-    }, true);
+    }, { passive: false });
 
     // ---------------------------------------
-    // 5. DISABLE BACK-SWIPE (BEST EFFORT)
+    // Prevent back swipe / back button
     // ---------------------------------------
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function () {
-        history.pushState(null, null, location.href);
+    history.pushState(null, "", location.href);
+
+    window.addEventListener("popstate", function () {
+        history.pushState(null, "", location.href);
     });
 
 })();
 </script>
-
 </body>
 </html>
