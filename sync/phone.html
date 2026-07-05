@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Phone Controller</title>
+<title>Phone</title>
 <script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -12,10 +12,8 @@
 
 <h3>📱 Controller</h3>
 
-<video id="v" autoplay playsinline style="width:100%;max-height:40vh;"></video>
+<video id="v" autoplay playsinline style="width:100%;"></video>
 <canvas id="c" style="display:none;"></canvas>
-
-<div id="pad" style="width:200px;height:200px;background:#444;border-radius:50%;margin:20px auto;"></div>
 
 <div id="out"></div>
 
@@ -24,25 +22,15 @@
 let peer;
 let dx = 0, dy = 0;
 
-// joystick
-const pad = document.getElementById("pad");
-
-pad.addEventListener("touchmove", e=>{
-  const t = e.touches[0];
-  dx = (t.clientX - window.innerWidth/2)/60;
-  dy = (t.clientY - window.innerHeight/2)/60;
-});
-
-// safe decode
-function dec(text){
+// decode OFFER
+function decode(text){
   if(text.startsWith("WG:OFFER:")){
-    const raw = text.split("WG:OFFER:")[1];
-    return JSON.parse(atob(raw));
+    return JSON.parse(atob(text.split("WG:OFFER:")[1]));
   }
   return null;
 }
 
-// scan desktop QR
+// camera scan
 const video = document.getElementById("v");
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
@@ -71,14 +59,17 @@ function scan(){
   requestAnimationFrame(scan);
 }
 
-function enc(type, data){
-  return "WG:" + type + ":" + btoa(JSON.stringify(data));
-}
+// joystick (simple)
+window.addEventListener("touchmove", e=>{
+  const t = e.touches[0];
+  dx = (t.clientX - window.innerWidth/2)/60;
+  dy = (t.clientY - window.innerHeight/2)/60;
+});
 
-// start WebRTC + generate ANSWER QR
+// STEP 2: create ANSWER QR
 function start(qr){
 
-  const offer = dec(qr);
+  const offer = decode(qr);
   if(!offer) return;
 
   peer = new SimplePeer({
@@ -87,15 +78,14 @@ function start(qr){
   });
 
   peer.on("signal", answer=>{
-    const encoded = enc("ANSWER", answer);
-
-    document.getElementById("out").innerHTML = "";
+    const encoded = "WG:ANSWER:" + btoa(JSON.stringify(answer));
 
     const ta = document.createElement("textarea");
-    ta.style.width = "90%";
-    ta.style.height = "80px";
+    ta.style.width="90%";
+    ta.style.height="100px";
     ta.value = encoded;
 
+    document.getElementById("out").innerHTML="";
     document.getElementById("out").appendChild(ta);
   });
 
