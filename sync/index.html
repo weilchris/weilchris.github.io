@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Desktop Game</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+</head>
+
+<body style="margin:0;background:#111;color:white;font-family:sans-serif;overflow:hidden;">
+
+<canvas id="c"></canvas>
+
+<div style="position:fixed;top:10px;left:10px;z-index:10;background:#000;padding:10px;">
+  <div>📡 STEP 1: Scan this with phone</div>
+  <canvas id="qr1"></canvas>
+
+  <div style="margin-top:10px;">📷 STEP 2: Scan phone QR here</div>
+  <video id="v" autoplay playsinline style="width:200px;"></video>
+  <div id="status">waiting...</div>
+</div>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let x = 300, y = 300;
+
+const pc = new RTCPeerConnection();
+const channel = pc.createDataChannel("game");
+
+channel.onmessage = e=>{
+  const d = JSON.parse(e.data);
+  x += d.dx * 8;
+  y += d.dy * 8;
+};
+
+// safe encode
+function enc(type, data){
+  return "WG:" + type + ":" + btoa(JSON.stringify(data));
+}
+
+// STEP 1: OFFER QR
+pc.createOffer().then(async offer=>{
+  await pc.setLocalDescription(offer);
+
+  QRCode.toCanvas(
+    document.getElementById("qr1"),
+    enc("OFFER", pc.localDescription)
+  );
+});
+
+// STEP 2: scan ANSWER from phone
+const video = document.getElementById("v");
+const vcanvas = document.createElement("canvas");
+const vctx = vcanvas.getContext("2d");
+
+navigator.mediaDevices.getUserMedia({video:true})
+.then(stream=>{
+  video.srcObject = stream;
+  scan();
+});
+
+function scan(){
+  if(video.readyState === 4){
+    vcanvas.width = video.videoWidth;
+    vcanvas.height = video.videoHeight;
+
+    vctx.drawImage(video,0,0);
+
+    const img = vctx.getImageData(0,0,vcanvas.width,vcanvas.height);
+    const code = jsQR(img.data, vcanvas.width, vcanvas.height);
+
+    if(code){
+      handle(code.data);
+      return;
+    }
+  }
+  requestAnimationFrame(scan);
+}
+
+async function handle(text){
+  if(!text.startsWith("WG:ANSWER:")) return;
+
+  const raw = text.split("WG:ANSWER:")[1];
+  const answer = JSON.parse(atob(raw));
+
+  await pc.setRemoteDescription(answer);
+  document.getElementById("status").innerText = "CONNECTED";
+}
+
+// draw game
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="lime";
+  ctx.fillRect(x,y,40,40);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+
+</body>
+</html>

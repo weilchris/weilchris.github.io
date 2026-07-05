@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Phone Controller</title>
+<script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+
+<body style="margin:0;background:#222;color:white;text-align:center;font-family:sans-serif;">
+
+<h3>📱 Controller</h3>
+
+<video id="v" autoplay playsinline style="width:100%;max-height:40vh;"></video>
+<canvas id="c" style="display:none;"></canvas>
+
+<div id="pad" style="width:200px;height:200px;background:#444;border-radius:50%;margin:20px auto;"></div>
+
+<div id="out"></div>
+
+<script>
+
+let peer;
+let dx = 0, dy = 0;
+
+// joystick
+const pad = document.getElementById("pad");
+
+pad.addEventListener("touchmove", e=>{
+  const t = e.touches[0];
+  dx = (t.clientX - window.innerWidth/2)/60;
+  dy = (t.clientY - window.innerHeight/2)/60;
+});
+
+// safe decode
+function dec(text){
+  if(text.startsWith("WG:OFFER:")){
+    const raw = text.split("WG:OFFER:")[1];
+    return JSON.parse(atob(raw));
+  }
+  return null;
+}
+
+// scan desktop QR
+const video = document.getElementById("v");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+.then(stream=>{
+  video.srcObject = stream;
+  scan();
+});
+
+function scan(){
+  if(video.readyState === 4){
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    ctx.drawImage(video,0,0);
+
+    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const code = jsQR(img.data, canvas.width, canvas.height);
+
+    if(code){
+      start(code.data);
+      return;
+    }
+  }
+  requestAnimationFrame(scan);
+}
+
+function enc(type, data){
+  return "WG:" + type + ":" + btoa(JSON.stringify(data));
+}
+
+// start WebRTC + generate ANSWER QR
+function start(qr){
+
+  const offer = dec(qr);
+  if(!offer) return;
+
+  peer = new SimplePeer({
+    initiator:false,
+    trickle:false
+  });
+
+  peer.on("signal", answer=>{
+    const encoded = enc("ANSWER", answer);
+
+    document.getElementById("out").innerHTML = "";
+
+    const ta = document.createElement("textarea");
+    ta.style.width = "90%";
+    ta.style.height = "80px";
+    ta.value = encoded;
+
+    document.getElementById("out").appendChild(ta);
+  });
+
+  peer.signal(offer);
+
+  setInterval(()=>{
+    if(peer.connected){
+      peer.send(JSON.stringify({dx,dy}));
+    }
+  },30);
+}
+
+</script>
+
+</body>
+</html>
