@@ -2,20 +2,18 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Desktop Host</title>
-
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
-
+</head>
 <style>
 :root{
-  --bg: #1b1b1b;
-  --panel: #222;
-  --border: #333;
-  --text: #eaeaea;
-  --muted: #9a9a9a;
-  --accent: #6cff7a;
+  --bg:#1b1b1b;
+  --panel:#222;
+  --border:#333;
+  --text:#eaeaea;
+  --muted:#9a9a9a;
+  --accent:#6cff7a;
 }
 
 *{
@@ -31,186 +29,87 @@ html,body{
   overflow:hidden;
 }
 
-#app{
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-  width:100vw;
-}
-
-/* TOP BAR */
-#topbar{
-  height:48px;
-  display:flex;
-  align-items:center;
-  padding:0 16px;
-  background:#151515;
-  border-bottom:1px solid var(--border);
-  font-size:13px;
-  letter-spacing:0.6px;
-  color:var(--muted);
-}
-
-/* MAIN */
-#main{
-  flex:1;
-  display:flex;
-  gap:12px;
-  padding:12px;
-  overflow:hidden;
-}
-
-/* GAME */
-#gameWrap{
-  flex:1;
-  background:#111;
-  border:1px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-}
-
+/* GAME CANVAS */
 #game{
-  width:100%;
-  height:100%;
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
   display:block;
+  background:#000;
 }
 
-/* PANEL */
-#panel{
-  width:340px;
-  min-width:280px;
-  max-width:360px;
+/* TOP LEFT FLOAT PANEL (your existing inline div) */
+body > div{
+  position:fixed;
+  top:10px;
+  left:10px;
 
+  width:260px;
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:10px;
+  padding:10px;
 
-  display:flex;
-  flex-direction:column;
-  overflow:auto;
-}
-
-.section{
-  padding:14px;
-  border-bottom:1px solid var(--border);
   display:flex;
   flex-direction:column;
   gap:10px;
+
+  z-index:10;
 }
 
-.section h3{
-  margin:0;
+/* TEXT */
+body > div > div{
   font-size:12px;
   color:var(--muted);
-  font-weight:500;
-  letter-spacing:1px;
 }
 
-/* 🔥 SHARED SQUARE MEDIA */
-.mediaBox{
-  width:100%;
-  aspect-ratio: 1 / 1;
-  background:#000;
-  border-radius:10px;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* QR */
+/* QR CANVAS */
 #qr{
   width:100%;
-  height:100%;
+  height:auto;
+  background:#fff;
+  border-radius:6px;
+  display:block;
 }
 
-/* CAMERA */
-#v{
+/* VIDEO */
+video{
   width:100%;
-  height:100%;
-  object-fit:cover;
+  border-radius:8px;
+  background:#000;
+  display:block;
 }
 
-/* STATUS */
-#status{
-  padding:10px 14px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* MOBILE */
-@media (max-width: 900px){
-  #main{
-    flex-direction:column;
-  }
-
-  #panel{
-    width:100%;
-    max-width:none;
-    height:45vh;
-  }
-
-  #gameWrap{
-    height:55vh;
-  }
+/* CONNECTED STATE */
+.connected{
+  color:var(--accent);
+  font-weight:500;
 }
 </style>
-</head>
 
-<body>
+<body style="margin:0;background:#111;color:white;font-family:sans-serif;">
 
-<div id="app">
+<canvas id="game"></canvas>
 
-  <div id="topbar">
-    DESKTOP HOST • WEBRTC GAME BRIDGE
-  </div>
+<div style="position:fixed;top:10px;left:10px;background:black;padding:10px;">
+  <div>📡 STEP 1: scan with phone</div>
+  <canvas id="qr"></canvas>
 
-  <div id="main">
-
-    <div id="gameWrap">
-      <canvas id="game"></canvas>
-    </div>
-
-    <div id="panel">
-
-      <div class="section">
-        <h3>STEP 1 — PAIR DEVICE</h3>
-        <div class="mediaBox">
-          <canvas id="qr"></canvas>
-        </div>
-      </div>
-
-      <div class="section">
-        <h3>STEP 2 — SCAN RETURN QR</h3>
-        <div class="mediaBox">
-          <video id="v" autoplay playsinline></video>
-        </div>
-      </div>
-
-      <div id="status">
-        status: waiting for connection...
-      </div>
-
-    </div>
-
-  </div>
+  <div style="margin-top:10px;">📥 STEP 3: scan phone QR</div>
+  <video id="v" autoplay playsinline style="width:200px;"></video>
 </div>
 
 <script>
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
-function resize(){
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-}
-window.addEventListener("resize", resize);
-setTimeout(resize, 50);
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
 let x = 200, y = 200;
 
-/* WEBRTC */
+// WebRTC
 const pc = new RTCPeerConnection();
 const channel = pc.createDataChannel("game");
 
@@ -220,102 +119,44 @@ channel.onmessage = e=>{
   y += d.dy * 8;
 };
 
-/* QR helper */
+// encode helper
 const enc = (t,d)=>"WG:"+t+":"+btoa(JSON.stringify(d));
 
-/* OFFER */
+// STEP 1: OFFER QR
 pc.createOffer().then(async offer=>{
   await pc.setLocalDescription(offer);
 
   QRCode.toCanvas(
     document.getElementById("qr"),
-    enc("OFFER", pc.localDescription),
-    { width: 300 }
+    enc("OFFER", pc.localDescription)
   );
 });
 
-/* CAMERA */
+// STEP 3: scan ANSWER from phone
 const video = document.getElementById("v");
 const c = document.createElement("canvas");
 const cx = c.getContext("2d");
 
-let scanning = true;
-let lastScan = 0;
-const SCAN_INTERVAL = 120;
-
-navigator.mediaDevices.getUserMedia({
-  video: {
-    facingMode: "environment",
-    width: { ideal: 1280 },
-    height: { ideal: 720 }
-  }
-}).then(stream=>{
+navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{
   video.srcObject = stream;
-  video.setAttribute("playsinline", "");
-  video.play();
-  requestAnimationFrame(scan);
+  scan();
 });
 
 function scan(){
+  if(video.readyState === 4){
+    c.width = video.videoWidth;
+    c.height = video.videoHeight;
 
-  if(!scanning){
-    requestAnimationFrame(scan);
-    return;
-  }
+    cx.drawImage(video,0,0);
 
-  const now = Date.now();
-  if(now - lastScan < SCAN_INTERVAL){
-    requestAnimationFrame(scan);
-    return;
-  }
-  lastScan = now;
+    const img = cx.getImageData(0,0,c.width,c.height);
+    const code = jsQR(img.data, c.width, c.height);
 
-  if(video.readyState !== video.HAVE_ENOUGH_DATA){
-    requestAnimationFrame(scan);
-    return;
-  }
-
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-
-  if(!vw || !vh){
-    requestAnimationFrame(scan);
-    return;
-  }
-
-  const size = 320;
-
-  const minDim = Math.min(vw, vh);
-  const sx = (vw - minDim) / 2;
-  const sy = (vh - minDim) / 2;
-
-  try {
-    c.width = size;
-    c.height = size;
-
-    cx.drawImage(video, sx, sy, minDim, minDim, 0, 0, size, size);
-
-    const img = cx.getImageData(0, 0, size, size);
-
-    const code = jsQR(img.data, size, size, {
-      inversionAttempts: "attemptBoth"
-    });
-
-    if(code && code.data){
-
-      scanning = false;
-
+    if(code){
       handle(code.data);
-
-      setTimeout(()=>{
-        scanning = true;
-      }, 800);
+      return;
     }
-
-  } catch(e){
-    console.warn("QR scan error:", e);
   }
-
   requestAnimationFrame(scan);
 }
 
@@ -326,15 +167,13 @@ async function handle(text){
   const answer = JSON.parse(atob(raw));
 
   await pc.setRemoteDescription(answer);
-
-  document.getElementById("status").innerText =
-    "status: CONNECTED ✓";
+  console.log("CONNECTED");
 }
 
-/* GAME LOOP */
+// game
 function loop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = "#6cff7a";
+  ctx.fillStyle="lime";
   ctx.fillRect(x,y,40,40);
   requestAnimationFrame(loop);
 }
