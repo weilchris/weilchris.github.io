@@ -9,99 +9,31 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
-:root{
-  --bg:#1b1b1b;
-  --panel:#222;
-  --border:#333;
-  --text:#eaeaea;
-  --muted:#9a9a9a;
-  --accent:#6cff7a;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html,body{
+body {
   margin:0;
-  height:100%;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui, sans-serif;
-  overflow:hidden;
+  background:#222;
+  color:white;
+  font-family:sans-serif;
+  text-align:center;
 }
 
-/* APP LAYOUT */
-body{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:14px;
-  padding:12px;
-}
-
-/* HEADER */
-h3{
-  margin:6px 0;
-  font-size:13px;
-  color:var(--muted);
-  letter-spacing:1px;
-}
-
-/* CAMERA */
-video{
+video {
   width:100%;
-  max-height:40vh;
-  border-radius:10px;
-  background:#000;
-  object-fit:cover;
-  border:1px solid var(--border);
+  max-height:45vh;
+  background:black;
 }
 
-/* JOYSTICK */
-#pad{
-  width:180px;
-  height:180px;
+#pad {
+  width:200px;
+  height:200px;
+  background:#444;
   border-radius:50%;
-  background:var(--panel);
-  border:1px solid var(--border);
+  margin:20px auto;
   touch-action:none;
-  position:relative;
 }
 
-/* INNER GLOW */
-#pad::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  background:radial-gradient(circle, rgba(108,255,122,0.08), transparent 60%);
-}
-
-/* OUTPUT PANEL */
-#out{
-  width:100%;
-  max-width:320px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:10px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:10px;
-  min-height:60px;
-}
-
-/* QR RESULT CANVAS */
-#out canvas{
-  width:100%;
-  max-width:260px;
-}
-
-/* CONNECTED STATE */
-.connected{
-  color:var(--accent);
-  font-weight:600;
+#out {
+  margin-top:10px;
 }
 </style>
 </head>
