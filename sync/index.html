@@ -30,27 +30,20 @@ html,body{
 }
 
 /* GAME CANVAS */
-#game{
-  position:fixed;
-  inset:0;
+canvas#game{
   width:100vw;
   height:100vh;
   display:block;
   background:#000;
 }
 
-/* TOP LEFT FLOAT PANEL (your existing inline div) */
-body > div{
+/* FLOATING UI PANEL */
+#ui{
   position:fixed;
   top:10px;
   left:10px;
 
   width:260px;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
-
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -58,10 +51,22 @@ body > div{
   z-index:10;
 }
 
+/* PANEL STYLE */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
 /* TEXT */
-body > div > div{
-  font-size:12px;
+.title{
+  font-size:11px;
   color:var(--muted);
+  letter-spacing:1px;
 }
 
 /* QR CANVAS */
@@ -70,15 +75,19 @@ body > div > div{
   height:auto;
   background:#fff;
   border-radius:6px;
-  display:block;
 }
 
-/* VIDEO */
+/* VIDEO PREVIEW */
 video{
   width:100%;
   border-radius:8px;
   background:#000;
-  display:block;
+}
+
+/* STATUS */
+#status{
+  font-size:12px;
+  color:var(--muted);
 }
 
 /* CONNECTED STATE */
@@ -87,8 +96,7 @@ video{
   font-weight:500;
 }
 </style>
-
-<body style="margin:0;background:#111;color:white;font-family:sans-serif;">
+<body>
 
 <canvas id="game"></canvas>
 
