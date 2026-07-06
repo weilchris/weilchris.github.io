@@ -202,28 +202,45 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+let scanning = true;
+let lastScan = 0;
+const SCAN_INTERVAL = 140;
+
 navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" }
+  video: {
+    facingMode: { ideal: "environment" }
+  }
 }).then(stream => {
   video.srcObject = stream;
-  scan();
+  return video.play();
+}).then(() => {
+  requestAnimationFrame(scan);
+}).catch(err => {
+  alert("Camera error: " + err);
 });
 
-/* ---------------- QR SCAN LOOP ---------------- */
-function scan(){
-  if(video.readyState === video.HAVE_ENOUGH_DATA){
+function scan() {
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+  if (video.readyState >= 2) {
 
-    ctx.drawImage(video, 0, 0);
+    const w = video.videoWidth;
+    const h = video.videoHeight;
 
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(img.data, canvas.width, canvas.height);
+    if (w && h) {
 
-    if(code){
-      handleQR(code.data);
-      return;
+      canvas.width = w;
+      canvas.height = h;
+
+      ctx.drawImage(video, 0, 0, w, h);
+
+      const img = ctx.getImageData(0, 0, w, h);
+
+      const code = jsQR(img.data, w, h);
+
+      if (code) {
+        handleQR(code.data);
+        return;
+      }
     }
   }
 
@@ -261,7 +278,11 @@ function handleQR(data){
     const qr = document.createElement("canvas");
     out.appendChild(qr);
 
-    QRCode.toCanvas(qr, encoded, { width: 220 });
+QRCode.toCanvas(qr, encoded, {
+  width: 280,
+  margin: 1,
+  errorCorrectionLevel: "L"
+});
 
   });
 

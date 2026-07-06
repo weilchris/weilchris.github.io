@@ -239,26 +239,83 @@ const video = document.getElementById("v");
 const c = document.createElement("canvas");
 const cx = c.getContext("2d");
 
-navigator.mediaDevices.getUserMedia({video:true}).then(stream=>{
+let scanning = true;
+let lastScan = 0;
+const SCAN_INTERVAL = 120;
+
+navigator.mediaDevices.getUserMedia({
+  video: {
+    facingMode: "environment",
+    width: { ideal: 1280 },
+    height: { ideal: 720 }
+  }
+}).then(stream=>{
   video.srcObject = stream;
-  scan();
+  video.setAttribute("playsinline", "");
+  video.play();
+  requestAnimationFrame(scan);
 });
 
 function scan(){
-  if(video.readyState === 4){
-    c.width = video.videoWidth;
-    c.height = video.videoHeight;
 
-    cx.drawImage(video,0,0);
-
-    const img = cx.getImageData(0,0,c.width,c.height);
-    const code = jsQR(img.data, c.width, c.height);
-
-    if(code){
-      handle(code.data);
-      return;
-    }
+  if(!scanning){
+    requestAnimationFrame(scan);
+    return;
   }
+
+  const now = Date.now();
+  if(now - lastScan < SCAN_INTERVAL){
+    requestAnimationFrame(scan);
+    return;
+  }
+  lastScan = now;
+
+  if(video.readyState !== video.HAVE_ENOUGH_DATA){
+    requestAnimationFrame(scan);
+    return;
+  }
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+
+  if(!vw || !vh){
+    requestAnimationFrame(scan);
+    return;
+  }
+
+  const size = 320;
+
+  const minDim = Math.min(vw, vh);
+  const sx = (vw - minDim) / 2;
+  const sy = (vh - minDim) / 2;
+
+  try {
+    c.width = size;
+    c.height = size;
+
+    cx.drawImage(video, sx, sy, minDim, minDim, 0, 0, size, size);
+
+    const img = cx.getImageData(0, 0, size, size);
+
+    const code = jsQR(img.data, size, size, {
+      inversionAttempts: "attemptBoth"
+    });
+
+    if(code && code.data){
+
+      scanning = false;
+
+      handle(code.data);
+
+      setTimeout(()=>{
+        scanning = true;
+      }, 800);
+    }
+
+  } catch(e){
+    console.warn("QR scan error:", e);
+  }
+
   requestAnimationFrame(scan);
 }
 
