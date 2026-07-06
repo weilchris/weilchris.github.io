@@ -1,253 +1,167 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SYNC Phone Controller</title>
+<meta charset="utf-8"/>
+<title>Phone Controller</title>
 
 <script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
-:root{
-  --bg:#1b1b1b;
-  --panel:#262626;
-  --panel2:#2f2f2f;
-  --text:#ffffff;
-  --muted:#bdbdbd;
-  --accent:#4ade80;
-  --radius:18px;
-}
-
-*{
-  box-sizing:border-box;
-  font-family:sans-serif;
-}
-
-body{
+body {
   margin:0;
-  background:var(--bg);
-  color:var(--text);
-  overflow:hidden;
+  background:#222;
+  color:white;
+  font-family:sans-serif;
+  text-align:center;
 }
 
-/* Layout */
-.wrapper{
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-  padding:16px;
-  gap:12px;
-}
-
-/* Card */
-.card{
-  background:var(--panel);
-  border-radius:var(--radius);
-  padding:16px;
-  box-shadow:0 10px 40px rgba(0,0,0,.35);
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-/* Camera */
-video{
+video {
   width:100%;
-  border-radius:12px;
+  max-height:45vh;
   background:black;
 }
 
-/* Joystick zone */
-#pad{
-  flex:1;
-  background:var(--panel2);
-  border-radius:var(--radius);
+#pad {
+  width:200px;
+  height:200px;
+  background:#444;
+  border-radius:50%;
+  margin:20px auto;
   touch-action:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:var(--muted);
 }
 
-/* QR output */
-#out{
-  display:flex;
-  justify-content:center;
-}
-
-/* Toast */
-.toast{
-  position:fixed;
-  top:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#2f2f2f;
-  padding:12px 18px;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.45);
-  opacity:0;
-  transition:.25s;
-  pointer-events:none;
-}
-
-.toast.show{
-  opacity:1;
-  top:35px;
+#out {
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="toast" id="toast"></div>
+<h3>📱 Controller (scan desktop QR)</h3>
 
-<div class="wrapper">
-
-  <!-- CAMERA -->
-  <div class="card">
-    <div>📷 Scan desktop QR</div>
-    <video id="video" autoplay playsinline></video>
-  </div>
-
-  <!-- JOYSTICK -->
-  <div id="pad">Move finger here</div>
-
-  <!-- ANSWER QR -->
-  <div class="card">
-    <div>📡 Show this to desktop</div>
-    <div id="out"></div>
-  </div>
-
-</div>
-
+<video id="video" autoplay playsinline></video>
 <canvas id="canvas" style="display:none;"></canvas>
+
+<div id="pad"></div>
+
+<div id="out"></div>
 
 <script>
 
-/* ---------------- UI ---------------- */
-const toastEl = document.getElementById("toast");
-
-function notify(msg){
-  toastEl.textContent = msg;
-  toastEl.classList.add("show");
-  clearTimeout(window.__t);
-  window.__t = setTimeout(()=>{
-    toastEl.classList.remove("show");
-  },2000);
-}
-
-/* ---------------- JOYSTICK ---------------- */
+let peer = null;
 let dx = 0, dy = 0;
+let connected = false;
 
+// ---------------- JOYSTICK ----------------
 const pad = document.getElementById("pad");
 
-pad.addEventListener("touchmove", (e)=>{
+pad.addEventListener("touchmove", (e) => {
   const t = e.touches[0];
-  dx = (t.clientX - window.innerWidth/2)/60;
-  dy = (t.clientY - window.innerHeight/2)/60;
+  dx = (t.clientX - window.innerWidth/2) / 60;
+  dy = (t.clientY - window.innerHeight/2) / 60;
 });
 
-pad.addEventListener("touchend", ()=>{
+pad.addEventListener("touchend", () => {
   dx = 0;
   dy = 0;
 });
 
-/* ---------------- CAMERA ---------------- */
+// ---------------- CAMERA ----------------
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 navigator.mediaDevices.getUserMedia({
-  video:{facingMode:"environment"}
-}).then(stream=>{
+  video: { facingMode: "environment" }
+}).then(stream => {
   video.srcObject = stream;
   scan();
+}).catch(err => {
+  alert("Camera error: " + err);
 });
 
-/* ---------------- SCAN LOOP ---------------- */
-function scan(){
-  if(video.readyState === video.HAVE_ENOUGH_DATA){
+// ---------------- QR SCAN LOOP ----------------
+function scan() {
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    ctx.drawImage(video,0,0);
+    ctx.drawImage(video, 0, 0);
 
-    const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(img.data, canvas.width, canvas.height);
 
-    if(code){
-      handleOffer(code.data);
+    if (code) {
+      handleQR(code.data);
       return;
     }
   }
+
   requestAnimationFrame(scan);
 }
 
-/* ---------------- DECODE ---------------- */
-function decode(text){
-  if(!text.startsWith("WG:OFFER:")) return null;
+// ---------------- DECODE OFFER ----------------
+function decodeOffer(text) {
+  try {
+    if (!text.startsWith("WG:OFFER:")) return null;
 
-  const raw = text.split("WG:OFFER:")[1];
-  return JSON.parse(atob(raw));
+    const raw = text.split("WG:OFFER:")[1];
+    return JSON.parse(atob(raw));
+  } catch (e) {
+    console.error("decode error", e);
+    return null;
+  }
 }
 
-/* ---------------- WEBRTC ---------------- */
-let pc;
-let channel;
+// ---------------- HANDLE OFFER ----------------
+function handleQR(data) {
 
-/* ---------------- HANDLE OFFER ---------------- */
-function handleOffer(text){
+  const offer = decodeOffer(data);
+  if (!offer) return;
 
-  const offer = decode(text);
-  if(!offer) return;
+  document.getElementById("out").innerHTML = "connecting...";
 
-  notify("📡 Offer received");
-
-  pc = new RTCPeerConnection({
-    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+  peer = new SimplePeer({
+    initiator: false,
+    trickle: false
   });
 
-  pc.ondatachannel = (e)=>{
-    channel = e.channel;
-  };
+  // IMPORTANT: THIS IS WHAT YOU WERE MISSING
+  peer.on("signal", answer => {
 
-  pc.oniceconnectionstatechange = ()=>{
-    if(pc.iceConnectionState === "connected"){
-      notify("✅ Connected");
-    }
-  };
+    const encoded = "WG:ANSWER:" + btoa(JSON.stringify(answer));
 
-  pc.setRemoteDescription(offer)
-    .then(()=>pc.createAnswer())
-    .then(a=>pc.setLocalDescription(a))
-    .then(()=>{
+    const container = document.getElementById("out");
+    container.innerHTML = "";
 
-      const encoded = "WG:ANSWER:" + btoa(JSON.stringify(pc.localDescription));
+    // CREATE QR CODE (NOT TEXT)
+    const canvasQR = document.createElement("canvas");
+    container.appendChild(canvasQR);
 
-      const out = document.getElementById("out");
-      out.innerHTML = "";
-
-      const qr = document.createElement("canvas");
-      out.appendChild(qr);
-
-      QRCode.toCanvas(qr, encoded, {
-        width:220
-      });
-
-      notify("📡 Show QR to desktop");
+    QRCode.toCanvas(canvasQR, encoded, function (err) {
+      if (err) console.error(err);
     });
 
-}
+  });
 
-/* ---------------- SEND INPUT ---------------- */
-setInterval(()=>{
-  if(channel && channel.readyState === "open"){
-    channel.send(JSON.stringify({dx,dy}));
-  }
-},30);
+  peer.on("connect", () => {
+    connected = true;
+    document.getElementById("out").innerHTML = "CONNECTED 🎮";
+  });
+
+  peer.signal(offer);
+
+  // send input loop
+  setInterval(() => {
+    if (peer && connected) {
+      peer.send(JSON.stringify({ dx, dy }));
+    }
+  }, 30);
+}
 
 </script>
 
