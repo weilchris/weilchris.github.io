@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Phone Controller</title>
 
 <script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
@@ -9,45 +10,171 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
-body {
+:root{
+  --bg:#1b1b1b;
+  --panel:#222;
+  --border:#333;
+  --text:#eaeaea;
+  --muted:#9a9a9a;
+  --accent:#6cff7a;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
   margin:0;
-  background:#222;
-  color:white;
-  font-family:sans-serif;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui, sans-serif;
+  overflow:hidden;
+}
+
+/* APP */
+#app{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* TOP BAR */
+#topbar{
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#151515;
+  border-bottom:1px solid var(--border);
+
+  font-size:13px;
+  letter-spacing:0.6px;
+  color:var(--muted);
+}
+
+/* MAIN */
+#main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:12px;
+  overflow:hidden;
+}
+
+/* PANELS */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.title{
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+/* CAMERA */
+#video{
+  width:100%;
+  max-height:38vh;
+  background:#000;
+  border-radius:10px;
+  object-fit:cover;
+}
+
+/* JOYSTICK */
+#padWrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px;
+}
+
+#pad{
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:#2a2a2a;
+  border:1px solid var(--border);
+
+  touch-action:none;
+  position:relative;
+  overflow:hidden;
+}
+
+/* inner glow */
+#pad::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(108,255,122,0.08), transparent 60%);
+}
+
+/* QR output */
+#out{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px;
+}
+
+/* status */
+#status{
+  font-size:12px;
+  color:var(--muted);
   text-align:center;
 }
 
-video {
-  width:100%;
-  max-height:45vh;
-  background:black;
-}
-
-#pad {
-  width:200px;
-  height:200px;
-  background:#444;
-  border-radius:50%;
-  margin:20px auto;
-  touch-action:none;
-}
-
-#out {
-  margin-top:10px;
+/* MOBILE SAFE */
+@media (min-width: 800px){
+  #video{
+    max-height:45vh;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<h3>📱 Controller (scan desktop QR)</h3>
+<div id="app">
 
-<video id="video" autoplay playsinline></video>
+  <div id="topbar">
+    PHONE CONTROLLER • DEVICE LINK
+  </div>
+
+  <div id="main">
+
+    <div class="panel">
+      <div class="title">STEP 1 — SCAN DESKTOP QR</div>
+      <video id="video" autoplay playsinline></video>
+    </div>
+
+    <div class="panel">
+      <div class="title">STEP 2 — CONTROLLER</div>
+
+      <div id="padWrap">
+        <div id="pad"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="title">PAIRING OUTPUT</div>
+      <div id="out"></div>
+    </div>
+
+    <div id="status">waiting for connection...</div>
+
+  </div>
+</div>
+
 <canvas id="canvas" style="display:none;"></canvas>
-
-<div id="pad"></div>
-
-<div id="out"></div>
 
 <script>
 
@@ -55,11 +182,12 @@ let peer = null;
 let dx = 0, dy = 0;
 let connected = false;
 
-// ---------------- JOYSTICK ----------------
+/* ---------------- JOYSTICK ---------------- */
 const pad = document.getElementById("pad");
 
 pad.addEventListener("touchmove", (e) => {
   const t = e.touches[0];
+
   dx = (t.clientX - window.innerWidth/2) / 60;
   dy = (t.clientY - window.innerHeight/2) / 60;
 });
@@ -69,7 +197,7 @@ pad.addEventListener("touchend", () => {
   dy = 0;
 });
 
-// ---------------- CAMERA ----------------
+/* ---------------- CAMERA ---------------- */
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -79,13 +207,11 @@ navigator.mediaDevices.getUserMedia({
 }).then(stream => {
   video.srcObject = stream;
   scan();
-}).catch(err => {
-  alert("Camera error: " + err);
 });
 
-// ---------------- QR SCAN LOOP ----------------
-function scan() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+/* ---------------- QR SCAN LOOP ---------------- */
+function scan(){
+  if(video.readyState === video.HAVE_ENOUGH_DATA){
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -95,7 +221,7 @@ function scan() {
     const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const code = jsQR(img.data, canvas.width, canvas.height);
 
-    if (code) {
+    if(code){
       handleQR(code.data);
       return;
     }
@@ -104,60 +230,51 @@ function scan() {
   requestAnimationFrame(scan);
 }
 
-// ---------------- DECODE OFFER ----------------
-function decodeOffer(text) {
-  try {
-    if (!text.startsWith("WG:OFFER:")) return null;
+/* ---------------- DECODE ---------------- */
+function decodeOffer(text){
+  if(!text.startsWith("WG:OFFER:")) return null;
 
-    const raw = text.split("WG:OFFER:")[1];
-    return JSON.parse(atob(raw));
-  } catch (e) {
-    console.error("decode error", e);
-    return null;
-  }
+  const raw = text.split("WG:OFFER:")[1];
+  return JSON.parse(atob(raw));
 }
 
-// ---------------- HANDLE OFFER ----------------
-function handleQR(data) {
+/* ---------------- HANDLE ---------------- */
+function handleQR(data){
 
   const offer = decodeOffer(data);
-  if (!offer) return;
+  if(!offer) return;
 
-  document.getElementById("out").innerHTML = "connecting...";
+  document.getElementById("status").innerText = "connecting...";
 
   peer = new SimplePeer({
-    initiator: false,
-    trickle: false
+    initiator:false,
+    trickle:false
   });
 
-  // IMPORTANT: THIS IS WHAT YOU WERE MISSING
   peer.on("signal", answer => {
 
     const encoded = "WG:ANSWER:" + btoa(JSON.stringify(answer));
 
-    const container = document.getElementById("out");
-    container.innerHTML = "";
+    const out = document.getElementById("out");
+    out.innerHTML = "";
 
-    // CREATE QR CODE (NOT TEXT)
-    const canvasQR = document.createElement("canvas");
-    container.appendChild(canvasQR);
+    const qr = document.createElement("canvas");
+    out.appendChild(qr);
 
-    QRCode.toCanvas(canvasQR, encoded, function (err) {
-      if (err) console.error(err);
-    });
+    QRCode.toCanvas(qr, encoded, { width: 220 });
 
   });
 
   peer.on("connect", () => {
     connected = true;
-    document.getElementById("out").innerHTML = "CONNECTED 🎮";
+    document.getElementById("status").innerText = "CONNECTED ✓";
   });
 
   peer.signal(offer);
 
-  // send input loop
+  /* INPUT LOOP */
   setInterval(() => {
-    if (peer && connected) {
+    if(peer && connected){
       peer.send(JSON.stringify({ dx, dy }));
     }
   }, 30);

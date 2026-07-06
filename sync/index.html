@@ -2,33 +2,215 @@
 <html>
 <head>
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Desktop Host</title>
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+
+<style>
+:root{
+  --bg: #1b1b1b;
+  --panel: #222;
+  --border: #333;
+  --text: #eaeaea;
+  --muted: #9a9a9a;
+  --accent: #6cff7a;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui, sans-serif;
+  overflow:hidden;
+}
+
+#app{
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  width:100vw;
+}
+
+/* TOP BAR */
+#topbar{
+  height:48px;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  background:#151515;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  letter-spacing:0.6px;
+  color:var(--muted);
+}
+
+/* MAIN */
+#main{
+  flex:1;
+  display:flex;
+  gap:12px;
+  padding:12px;
+  overflow:hidden;
+}
+
+/* GAME */
+#gameWrap{
+  flex:1;
+  background:#111;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+
+#game{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* PANEL */
+#panel{
+  width:340px;
+  min-width:280px;
+  max-width:360px;
+
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+
+  display:flex;
+  flex-direction:column;
+  overflow:auto;
+}
+
+.section{
+  padding:14px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.section h3{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+  font-weight:500;
+  letter-spacing:1px;
+}
+
+/* 🔥 SHARED SQUARE MEDIA */
+.mediaBox{
+  width:100%;
+  aspect-ratio: 1 / 1;
+  background:#000;
+  border-radius:10px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* QR */
+#qr{
+  width:100%;
+  height:100%;
+}
+
+/* CAMERA */
+#v{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* STATUS */
+#status{
+  padding:10px 14px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* MOBILE */
+@media (max-width: 900px){
+  #main{
+    flex-direction:column;
+  }
+
+  #panel{
+    width:100%;
+    max-width:none;
+    height:45vh;
+  }
+
+  #gameWrap{
+    height:55vh;
+  }
+}
+</style>
 </head>
 
-<body style="margin:0;background:#111;color:white;font-family:sans-serif;">
+<body>
 
-<canvas id="game"></canvas>
+<div id="app">
 
-<div style="position:fixed;top:10px;left:10px;background:black;padding:10px;">
-  <div>📡 STEP 1: scan with phone</div>
-  <canvas id="qr"></canvas>
+  <div id="topbar">
+    DESKTOP HOST • WEBRTC GAME BRIDGE
+  </div>
 
-  <div style="margin-top:10px;">📥 STEP 3: scan phone QR</div>
-  <video id="v" autoplay playsinline style="width:200px;"></video>
+  <div id="main">
+
+    <div id="gameWrap">
+      <canvas id="game"></canvas>
+    </div>
+
+    <div id="panel">
+
+      <div class="section">
+        <h3>STEP 1 — PAIR DEVICE</h3>
+        <div class="mediaBox">
+          <canvas id="qr"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>STEP 2 — SCAN RETURN QR</h3>
+        <div class="mediaBox">
+          <video id="v" autoplay playsinline></video>
+        </div>
+      </div>
+
+      <div id="status">
+        status: waiting for connection...
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
 <script>
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+
+function resize(){
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+window.addEventListener("resize", resize);
+setTimeout(resize, 50);
 
 let x = 200, y = 200;
 
-// WebRTC
+/* WEBRTC */
 const pc = new RTCPeerConnection();
 const channel = pc.createDataChannel("game");
 
@@ -38,20 +220,21 @@ channel.onmessage = e=>{
   y += d.dy * 8;
 };
 
-// encode helper
+/* QR helper */
 const enc = (t,d)=>"WG:"+t+":"+btoa(JSON.stringify(d));
 
-// STEP 1: OFFER QR
+/* OFFER */
 pc.createOffer().then(async offer=>{
   await pc.setLocalDescription(offer);
 
   QRCode.toCanvas(
     document.getElementById("qr"),
-    enc("OFFER", pc.localDescription)
+    enc("OFFER", pc.localDescription),
+    { width: 300 }
   );
 });
 
-// STEP 3: scan ANSWER from phone
+/* CAMERA */
 const video = document.getElementById("v");
 const c = document.createElement("canvas");
 const cx = c.getContext("2d");
@@ -86,13 +269,15 @@ async function handle(text){
   const answer = JSON.parse(atob(raw));
 
   await pc.setRemoteDescription(answer);
-  console.log("CONNECTED");
+
+  document.getElementById("status").innerText =
+    "status: CONNECTED ✓";
 }
 
-// game
+/* GAME LOOP */
 function loop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="lime";
+  ctx.fillStyle = "#6cff7a";
   ctx.fillRect(x,y,40,40);
   requestAnimationFrame(loop);
 }
