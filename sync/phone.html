@@ -1,167 +1,500 @@
 <!doctype html>
 <html>
 <head>
+
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+
 <title>Phone Controller</title>
 
 <script src="https://cdn.jsdelivr.net/npm/simple-peer/simplepeer.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
+
 <style>
-body {
-  margin:0;
-  background:#222;
-  color:white;
-  font-family:sans-serif;
-  text-align:center;
+
+body{
+    margin:0;
+    background:#222;
+    color:white;
+    font-family:sans-serif;
+    text-align:center;
 }
 
-video {
-  width:100%;
-  max-height:45vh;
-  background:black;
+
+h3{
+    margin:12px;
 }
 
-#pad {
-  width:200px;
-  height:200px;
-  background:#444;
-  border-radius:50%;
-  margin:20px auto;
-  touch-action:none;
+
+#cameraBox{
+    position:relative;
 }
 
-#out {
-  margin-top:10px;
+
+video{
+
+    width:100%;
+    max-height:45vh;
+    background:black;
+    object-fit:cover;
+
 }
+
+
+
+#scanFrame{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:160px;
+    height:160px;
+
+    transform:
+        translate(-50%,-50%);
+
+    border:
+        3px solid #55ff55;
+
+    pointer-events:none;
+
+}
+
+
+
+#pad{
+
+    width:220px;
+    height:220px;
+
+    background:#444;
+
+    border-radius:50%;
+
+    margin:20px auto;
+
+    touch-action:none;
+
+}
+
+
+
+#out{
+
+    margin-top:10px;
+
+}
+
+
+
 </style>
+
 </head>
+
 
 <body>
 
-<h3>📱 Controller (scan desktop QR)</h3>
+
+<h3>
+📱 Controller (scan desktop QR)
+</h3>
+
+
+
+<div id="cameraBox">
+
 
 <video id="video" autoplay playsinline></video>
-<canvas id="canvas" style="display:none;"></canvas>
+
+
+<div id="scanFrame"></div>
+
+
+</div>
+
+
+
+<canvas id="canvas" hidden></canvas>
+
+
 
 <div id="pad"></div>
 
-<div id="out"></div>
+
+<div id="out">
+waiting...
+</div>
+
+
+
 
 <script>
 
-let peer = null;
-let dx = 0, dy = 0;
-let connected = false;
 
-// ---------------- JOYSTICK ----------------
-const pad = document.getElementById("pad");
+let peer=null;
 
-pad.addEventListener("touchmove", (e) => {
-  const t = e.touches[0];
-  dx = (t.clientX - window.innerWidth/2) / 60;
-  dy = (t.clientY - window.innerHeight/2) / 60;
-});
+let connected=false;
 
-pad.addEventListener("touchend", () => {
-  dx = 0;
-  dy = 0;
-});
+let scanning=true;
 
-// ---------------- CAMERA ----------------
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
 
-navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "environment" }
-}).then(stream => {
-  video.srcObject = stream;
-  scan();
-}).catch(err => {
-  alert("Camera error: " + err);
-});
+let dx=0;
 
-// ---------------- QR SCAN LOOP ----------------
-function scan() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+let dy=0;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+// ---------------- SCAN ANSWER QR ----------------
 
-    ctx.drawImage(video, 0, 0);
 
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(img.data, canvas.width, canvas.height);
+const video=document.getElementById("v");
 
-    if (code) {
-      handleQR(code.data);
-      return;
+const scanCanvas=document.createElement("canvas");
+const scanCtx=scanCanvas.getContext("2d");
+
+
+let scanning=true;
+
+
+
+async function startCamera(){
+
+
+    try{
+
+
+        const stream=
+            await navigator.mediaDevices.getUserMedia({
+
+                video:{
+                    facingMode:{
+                        ideal:"environment"
+                    },
+
+                    width:{
+                        ideal:1920
+                    },
+
+                    height:{
+                        ideal:1080
+                    }
+
+                }
+
+            });
+
+
+        video.srcObject=stream;
+
+
+        scan();
+
+
+    }catch(err){
+
+        document.getElementById("status").innerHTML=
+            "Camera error: "+err;
+
     }
-  }
 
-  requestAnimationFrame(scan);
+
 }
 
-// ---------------- DECODE OFFER ----------------
-function decodeOffer(text) {
-  try {
-    if (!text.startsWith("WG:OFFER:")) return null;
 
-    const raw = text.split("WG:OFFER:")[1];
-    return JSON.parse(atob(raw));
-  } catch (e) {
-    console.error("decode error", e);
-    return null;
-  }
-}
 
-// ---------------- HANDLE OFFER ----------------
-function handleQR(data) {
+startCamera();
 
-  const offer = decodeOffer(data);
-  if (!offer) return;
 
-  document.getElementById("out").innerHTML = "connecting...";
 
-  peer = new SimplePeer({
-    initiator: false,
-    trickle: false
-  });
 
-  // IMPORTANT: THIS IS WHAT YOU WERE MISSING
-  peer.on("signal", answer => {
+function scan(){
 
-    const encoded = "WG:ANSWER:" + btoa(JSON.stringify(answer));
 
-    const container = document.getElementById("out");
-    container.innerHTML = "";
-
-    // CREATE QR CODE (NOT TEXT)
-    const canvasQR = document.createElement("canvas");
-    container.appendChild(canvasQR);
-
-    QRCode.toCanvas(canvasQR, encoded, function (err) {
-      if (err) console.error(err);
-    });
-
-  });
-
-  peer.on("connect", () => {
-    connected = true;
-    document.getElementById("out").innerHTML = "CONNECTED 🎮";
-  });
-
-  peer.signal(offer);
-
-  // send input loop
-  setInterval(() => {
-    if (peer && connected) {
-      peer.send(JSON.stringify({ dx, dy }));
+    if(!scanning){
+        return;
     }
-  }, 30);
+
+
+    if(video.readyState===4){
+
+
+        scanCanvas.width=
+            video.videoWidth;
+
+
+        scanCanvas.height=
+            video.videoHeight;
+
+
+
+        scanCtx.drawImage(
+
+            video,
+
+            0,
+            0,
+
+            scanCanvas.width,
+            scanCanvas.height
+
+        );
+
+
+
+        /*
+          Scan only center area.
+          This avoids reflections
+          and improves speed.
+        */
+
+
+        const size=
+            Math.min(
+                scanCanvas.width,
+                scanCanvas.height
+            )*0.65;
+
+
+
+        const sx=
+            (scanCanvas.width-size)/2;
+
+
+        const sy=
+            (scanCanvas.height-size)/2;
+
+
+
+        const img=
+            scanCtx.getImageData(
+
+                sx,
+                sy,
+                size,
+                size
+
+            );
+
+
+
+        const code=
+            jsQR(
+
+                img.data,
+
+                size,
+
+                size,
+
+                {
+                    inversionAttempts:
+                    "attemptBoth"
+                }
+
+            );
+
+
+
+        if(code){
+
+
+            scanning=false;
+
+
+            stopCamera();
+
+
+            handleAnswerQR(
+                code.data
+            );
+
+
+            return;
+
+        }
+
+
+    }
+
+
+
+    requestAnimationFrame(scan);
+
+
 }
+
+
+
+
+
+function stopCamera(){
+
+
+    if(video.srcObject){
+
+
+        video.srcObject
+        .getTracks()
+        .forEach(
+            t=>t.stop()
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+// ---------------- HANDLE ANSWER ----------------
+
+
+
+async function handleAnswerQR(text){
+
+
+    if(!text.startsWith("WG:ANSWER:")){
+
+
+        document.getElementById("status").innerHTML=
+            "Invalid QR";
+
+
+        scanning=true;
+
+        scan();
+
+
+        return;
+
+    }
+
+
+
+
+    try{
+
+
+        const raw=
+            text.split(
+                "WG:ANSWER:"
+            )[1];
+
+
+
+        const answer=
+            JSON.parse(
+                atob(raw)
+            );
+
+
+
+        await pc.setRemoteDescription(
+            answer
+        );
+
+
+
+        document.getElementById("status").innerHTML=
+            "CONNECTED 🎮";
+
+
+
+    }catch(e){
+
+
+        console.error(e);
+
+
+        document.getElementById("status").innerHTML=
+            "Decode error";
+
+
+    }
+
+
+}
+
+
+
+
+// ---------------- CONNECTION EVENTS ----------------
+
+
+
+pc.onconnectionstatechange=()=>{
+
+
+    if(
+        pc.connectionState==="connected"
+    ){
+
+        connected=true;
+
+
+        document.getElementById("status").innerHTML=
+            "CONNECTED 🎮";
+
+
+    }
+
+
+};
+
+
+
+pc.oniceconnectionstatechange=()=>{
+
+
+    console.log(
+        "ICE:",
+        pc.iceConnectionState
+    );
+
+
+};
+
+// ---------------- GAME LOOP ----------------
+
+
+function loop(){
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    ctx.fillStyle="lime";
+
+
+    ctx.fillRect(
+        x,
+        y,
+        40,
+        40
+    );
+
+
+    requestAnimationFrame(
+        loop
+    );
+
+
+}
+
+
+loop();
+
+
 
 </script>
 
