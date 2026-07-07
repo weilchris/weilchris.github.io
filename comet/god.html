@@ -940,25 +940,10 @@ loop = function(){
 
     }
 
-// ======================================
-// TOUCH + KEYBOARD HYBRID CONTROL
-// ======================================
-
-if (touch.active) {
-
-    const nx = (touch.x / innerWidth) * 2 - 1;
-    const ny = -(touch.y / innerHeight) * 2 + 1;
-
-    tx = nx * 25;
-    ty = ny * 12;
-
-} else {
-
     if(keys.a||keys.arrowleft)tx-=.4;
     if(keys.d||keys.arrowright)tx+=.4;
     if(keys.w||keys.arrowup)ty+=.25;
     if(keys.s||keys.arrowdown)ty-=.25;
-}
 
     tx=Math.max(-25,Math.min(25,tx));
     ty=Math.max(-12,Math.min(12,ty));
@@ -1780,88 +1765,85 @@ Sound.engine=function(speed){
 // MOBILE + GAMEPAD SUPPORT
 // ======================================
 
-// ======================================
-// MOBILE TOUCH CONTROL
-// ONE FINGER STEERING + DOUBLE TAP AUTOFIRE
-// ======================================
-
 const touch = {
-    active: false,
-    x: innerWidth / 2,
-    y: innerHeight / 2,
-    lastTap: 0
+
+    active:false,
+    startX:0,
+    startY:0
+
 };
 
-let autoFire = false;
-
-
 // ----------------------
-// TOUCH START
+// TOUCH
 // ----------------------
-window.addEventListener("touchstart", (e) => {
 
-    touch.active = true;
+window.addEventListener("touchstart",e=>{
 
-    const now = Date.now();
+    touch.active=true;
 
-    // DOUBLE TAP → toggle auto fire
-    if (now - touch.lastTap < 300) {
+    touch.startX=e.touches[0].clientX;
+    touch.startY=e.touches[0].clientY;
 
-        autoFire = !autoFire;
+},{passive:true});
 
-        if (autoFire) {
-            feedback("🚀 AUTO FIRE ON", "#55ff55");
-        } else {
-            feedback("🛑 AUTO FIRE OFF", "#ffffff");
-        }
+window.addEventListener("touchmove",e=>{
 
-    }
+    if(!touch.active) return;
 
-    touch.lastTap = now;
+    const x=e.touches[0].clientX;
+    const y=e.touches[0].clientY;
 
+    const dx=x-touch.startX;
+    const dy=y-touch.startY;
 
-    touch.x = e.touches[0].clientX;
-    touch.y = e.touches[0].clientY;
+    keys.arrowleft  = dx<-30;
+    keys.arrowright = dx>30;
 
-}, { passive: true });
+    keys.arrowup    = dy<-30;
+    keys.arrowdown  = dy>30;
 
+},{passive:true});
 
-// ----------------------
-// TOUCH MOVE
-// SHIP FOLLOWS FINGER
-// ----------------------
-window.addEventListener("touchmove", (e) => {
+window.addEventListener("touchend",()=>{
 
-    if (!touch.active) return;
+    touch.active=false;
 
-
-    touch.x = e.touches[0].clientX;
-    touch.y = e.touches[0].clientY;
-
-
-}, { passive: true });
-
-
-// ----------------------
-// TOUCH END
-// ----------------------
-window.addEventListener("touchend", () => {
-
-    touch.active = false;
+    keys.arrowleft=false;
+    keys.arrowright=false;
+    keys.arrowup=false;
+    keys.arrowdown=false;
 
 });
 
-
 // ----------------------
-// AUTO FIRE LOOP
+// DOUBLE TAP = SHOOT
 // ----------------------
-setInterval(() => {
 
-    if (autoFire) {
+let lastTap=0;
+
+window.addEventListener("touchend",e=>{
+
+    const now=Date.now();
+
+    if(now-lastTap<250){
+
         shoot();
+
     }
 
-}, 150);
+    lastTap=now;
+
+});
+
+// ----------------------
+// TWO FINGERS = BOOST
+// ----------------------
+
+window.addEventListener("touchmove",e=>{
+
+    keys.shift=e.touches.length>=2;
+
+},{passive:true});
 
 // ======================================
 // GAMEPAD
