@@ -940,25 +940,10 @@ loop = function(){
 
     }
 
-// ======================================
-// TOUCH + KEYBOARD HYBRID CONTROL
-// ======================================
-
-if (touch.active) {
-
-    const nx = (touch.x / innerWidth) * 2 - 1;
-    const ny = -(touch.y / innerHeight) * 2 + 1;
-
-    tx = nx * 25;
-    ty = ny * 12;
-
-} else {
-
     if(keys.a||keys.arrowleft)tx-=.4;
     if(keys.d||keys.arrowright)tx+=.4;
     if(keys.w||keys.arrowup)ty+=.25;
     if(keys.s||keys.arrowdown)ty-=.25;
-}
 
     tx=Math.max(-25,Math.min(25,tx));
     ty=Math.max(-12,Math.min(12,ty));
@@ -1777,15 +1762,22 @@ Sound.engine=function(speed){
 </script>
 <script>
 // ======================================
-// MOBILE TOUCH CONTROL v2
+// MOBILE + GAMEPAD SUPPORT
+// ======================================
+
+// ======================================
+// MOBILE TOUCH CONTROL
+// ONE FINGER STEERING + DOUBLE TAP AUTOFIRE
 // ======================================
 
 const touch = {
     active: false,
-    fireLock: false,
     x: innerWidth / 2,
-    y: innerHeight / 2
+    y: innerHeight / 2,
+    lastTap: 0
 };
+
+let autoFire = false;
 
 
 // ----------------------
@@ -1795,11 +1787,23 @@ window.addEventListener("touchstart", (e) => {
 
     touch.active = true;
 
-    // Second finger added → shoot once
-    if (e.touches.length >= 2 && !touch.fireLock) {
-        shoot();
-        touch.fireLock = true;
+    const now = Date.now();
+
+    // DOUBLE TAP → toggle auto fire
+    if (now - touch.lastTap < 300) {
+
+        autoFire = !autoFire;
+
+        if (autoFire) {
+            feedback("🚀 AUTO FIRE ON", "#55ff55");
+        } else {
+            feedback("🛑 AUTO FIRE OFF", "#ffffff");
+        }
+
     }
+
+    touch.lastTap = now;
+
 
     touch.x = e.touches[0].clientX;
     touch.y = e.touches[0].clientY;
@@ -1808,32 +1812,17 @@ window.addEventListener("touchstart", (e) => {
 
 
 // ----------------------
-// TOUCH MOVE (FOLLOW FINGER)
+// TOUCH MOVE
+// SHIP FOLLOWS FINGER
 // ----------------------
 window.addEventListener("touchmove", (e) => {
 
     if (!touch.active) return;
 
-    if (e.touches.length >= 2) {
-
-        keys.shift = true;
-
-        // If browser skipped the second touchstart,
-        // fire here once.
-        if (!touch.fireLock) {
-            shoot();
-            touch.fireLock = true;
-        }
-
-        return;
-    }
-
-    // Back to one finger
-    touch.fireLock = false;
-    keys.shift = false;
 
     touch.x = e.touches[0].clientX;
     touch.y = e.touches[0].clientY;
+
 
 }, { passive: true });
 
@@ -1841,23 +1830,23 @@ window.addEventListener("touchmove", (e) => {
 // ----------------------
 // TOUCH END
 // ----------------------
-window.addEventListener("touchend", (e) => {
+window.addEventListener("touchend", () => {
 
-    if (e.touches.length < 2) {
-        touch.fireLock = false;
-        keys.shift = false;
-    }
-
-    if (e.touches.length === 0) {
-        touch.active = false;
-    }
+    touch.active = false;
 
 });
 
-// ======================================
-// APPLY TOUCH TO SHIP (PUT INSIDE LOOP)
-// ======================================
-// REPLACE keyboard tx/ty logic with this:
+
+// ----------------------
+// AUTO FIRE LOOP
+// ----------------------
+setInterval(() => {
+
+    if (autoFire) {
+        shoot();
+    }
+
+}, 150);
 
 // ======================================
 // GAMEPAD
