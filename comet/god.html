@@ -1776,9 +1776,9 @@ Sound.engine=function(speed){
 }
 </script>
 <script>
-// ======================================================
-// MOBILE TOUCH CONTROL (FINGER FOLLOW + TWO-FINGER FIRE)
-// ======================================================
+// ======================================
+// MOBILE TOUCH CONTROL v2
+// ======================================
 
 const touch = {
     active: false,
@@ -1787,6 +1787,7 @@ const touch = {
     y: innerHeight / 2
 };
 
+
 // ----------------------
 // TOUCH START
 // ----------------------
@@ -1794,11 +1795,10 @@ window.addEventListener("touchstart", (e) => {
 
     touch.active = true;
 
-    // if two fingers → fire
-    if (e.touches.length >= 2) {
+    // Second finger added → shoot once
+    if (e.touches.length >= 2 && !touch.fireLock) {
         shoot();
         touch.fireLock = true;
-        return;
     }
 
     touch.x = e.touches[0].clientX;
@@ -1814,12 +1814,22 @@ window.addEventListener("touchmove", (e) => {
 
     if (!touch.active) return;
 
-    // two fingers = boost mode, no steering
     if (e.touches.length >= 2) {
+
         keys.shift = true;
+
+        // If browser skipped the second touchstart,
+        // fire here once.
+        if (!touch.fireLock) {
+            shoot();
+            touch.fireLock = true;
+        }
+
         return;
     }
 
+    // Back to one finger
+    touch.fireLock = false;
     keys.shift = false;
 
     touch.x = e.touches[0].clientX;
@@ -1833,14 +1843,16 @@ window.addEventListener("touchmove", (e) => {
 // ----------------------
 window.addEventListener("touchend", (e) => {
 
-    if (e.touches.length === 0) {
-        touch.active = false;
+    if (e.touches.length < 2) {
         touch.fireLock = false;
         keys.shift = false;
     }
 
-});
+    if (e.touches.length === 0) {
+        touch.active = false;
+    }
 
+});
 
 // ======================================
 // APPLY TOUCH TO SHIP (PUT INSIDE LOOP)
