@@ -56,6 +56,8 @@ object-fit:cover!important;
 }
 
 
+/* remove default scanner graphics */
+
 #qr-shaded-region{
 
 display:none!important;
@@ -168,13 +170,14 @@ border-radius:20px;
 
 </style>
 
-
 </head>
 
 
 <body>
 
 
+
+<!-- STATE 1 : SCAN -->
 
 <div id="scan">
 
@@ -195,6 +198,8 @@ SCAN DESKTOP QR
 
 
 
+<!-- STATE 2 : ANSWER QR -->
+
 <div id="answer">
 
 
@@ -212,12 +217,15 @@ SCAN WITH DESKTOP
 
 
 
+<!-- STATE 3 : CONTROLLER -->
+
 <div id="controller">
 
 
 <h1>
 RETRO CONTROLLER
 </h1>
+
 
 
 <div>
@@ -227,6 +235,7 @@ RETRO CONTROLLER
 </button>
 
 </div>
+
 
 
 <div>
@@ -245,7 +254,9 @@ RETRO CONTROLLER
 ▶
 </button>
 
+
 </div>
+
 
 
 <button ontouchstart="send('FIRE')">
@@ -254,6 +265,7 @@ A
 
 
 </div>
+
 
 
 
@@ -283,8 +295,9 @@ channel.send(command);
 
 
 
+
 // -------------------------
-// FORCE REAR CAMERA
+// CAMERA SCANNER
 // -------------------------
 
 
@@ -296,24 +309,70 @@ new Html5Qrcode("reader");
 async function startScanner(){
 
 
+const cameras =
+await Html5Qrcode.getCameras();
+
+
+
+if(!cameras.length){
+
+alert("No camera found");
+
+return;
+
+}
+
+
+
+let cameraId =
+cameras[cameras.length-1].id;
+
+
+
+// Prefer rear camera
+
+for(const cam of cameras){
+
+
+const label =
+(cam.label || "")
+.toLowerCase();
+
+
+
+if(
+label.includes("back") ||
+label.includes("rear") ||
+label.includes("environment")
+){
+
+cameraId = cam.id;
+break;
+
+}
+
+}
+
+
+
+
+
 await scanner.start(
 
-{
-    facingMode:{
-        exact:"environment"
-    }
-},
+cameraId,
 
 {
 
 fps:15,
 
 qrbox:{
-    width:280,
-    height:280
+width:280,
+height:280
 },
 
-aspectRatio:1
+aspectRatio:1,
+
+disableFlip:true
 
 },
 
@@ -334,12 +393,11 @@ error=>{}
 
 
 // -------------------------
-// QR RECEIVED
+// QR FOUND
 // -------------------------
 
 
 async function qrFound(text){
-
 
 
 await scanner.stop();
@@ -373,6 +431,7 @@ pc.ondatachannel=e=>{
 channel=e.channel;
 
 
+
 channel.onopen=()=>{
 
 showController();
@@ -389,7 +448,6 @@ showController();
 await pc.setRemoteDescription(
 offer
 );
-
 
 
 
@@ -415,12 +473,11 @@ waitForICE();
 
 
 // -------------------------
-// WAIT ANSWER QR
+// CREATE ANSWER QR
 // -------------------------
 
 
 function waitForICE(){
-
 
 
 if(
@@ -445,7 +502,6 @@ pc.iceGatheringState==="complete"
 showAnswer();
 
 }
-
 
 };
 
@@ -512,6 +568,7 @@ document
 
 
 }
+
 
 
 
