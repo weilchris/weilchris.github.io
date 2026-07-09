@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Retro WebRTC Arcade Desktop</title>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+
+<style>
+
+html,body{
+
+margin:0;
+width:100%;
+height:100%;
+background:#000;
+color:#00ff55;
+font-family:monospace;
+overflow:hidden;
+text-align:center;
+
+}
+
+
+/* OFFER SCREEN */
+
+#offerScreen{
+
+width:100%;
+height:100%;
+
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+
+}
+
+
+#offerQR{
+
+background:white;
+padding:20px;
+
+}
+
+
+
+/* ANSWER SCANNER */
+
+#scannerScreen{
+
+display:none;
+
+width:100%;
+height:100%;
+
+align-items:center;
+justify-content:center;
+flex-direction:column;
+
+}
+
+
+
+#reader{
+
+width:100%;
+}
+
+
+
+#status{
+
+font-size:22px;
+
+}
+
+
+
+
+/* GAME */
+
+#game{
+
+display:none;
+
+position:relative;
+
+width:100%;
+height:100%;
+
+background:#050505;
+
+}
+
+
+
+#player{
+
+position:absolute;
+
+width:50px;
+height:50px;
+
+background:#00ff55;
+
+box-shadow:
+0 0 20px #00ff55;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+<!-- FIRST STATE -->
+
+<div id="offerScreen">
+
+<h1>
+SCAN WITH PHONE
+</h1>
+
+
+<div id="offerQR"></div>
+
+
+<div id="status">
+Creating connection...
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- SECOND STATE -->
+
+<div id="scannerScreen">
+
+
+<h1>
+SCAN PHONE QR
+</h1>
+
+
+<div id="reader"></div>
+
+
+</div>
+
+
+
+
+
+<!-- THIRD STATE -->
+
+<div id="game">
+
+
+<div id="player"></div>
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+
+let pc;
+
+let channel;
+
+
+
+let player =
+document.getElementById("player");
+
+
+let x=300;
+
+let y=200;
+
+
+
+function move(dx,dy){
+
+x+=dx;
+y+=dy;
+
+
+player.style.left=x+"px";
+player.style.top=y+"px";
+
+
+}
+
+
+
+
+
+// --------------------------
+// CAMERA
+// --------------------------
+
+
+let cameras=[];
+
+
+async function getCamera(){
+
+
+await navigator.mediaDevices
+.getUserMedia({
+
+video:true,
+
+audio:false
+
+});
+
+
+
+cameras =
+await Html5Qrcode.getCameras();
+
+
+return cameras[0].id;
+
+
+}
+
+
+
+
+
+// --------------------------
+// CREATE OFFER
+// --------------------------
+
+
+async function createConnection(){
+
+
+
+pc =
+new RTCPeerConnection({
+
+iceServers:[]
+
+});
+
+
+
+channel =
+pc.createDataChannel(
+"arcade"
+);
+
+
+
+channel.onopen=()=>{
+
+startGame();
+
+};
+
+
+
+channel.onmessage=e=>{
+
+
+switch(e.data){
+
+case "UP":
+move(0,-20);
+break;
+
+case "DOWN":
+move(0,20);
+break;
+
+case "LEFT":
+move(-20,0);
+break;
+
+case "RIGHT":
+move(20,0);
+break;
+
+}
+
+
+};
+
+
+
+
+
+await pc.setLocalDescription(
+
+await pc.createOffer()
+
+);
+
+
+
+pc.onicecandidate=e=>{
+
+
+if(!e.candidate){
+
+
+showOfferQR();
+
+
+}
+
+};
+
+
+}
+
+
+
+
+function showOfferQR(){
+
+
+new QRCode(
+
+document.getElementById("offerQR"),
+
+{
+
+text:
+JSON.stringify(
+pc.localDescription
+),
+
+width:300,
+
+height:300
+
+}
+
+);
+
+
+
+document
+.getElementById("status")
+.innerHTML=
+"Waiting for phone...";
+
+
+
+}
+
+
+
+
+
+// --------------------------
+// START ANSWER SCANNER
+// --------------------------
+
+
+async function startScanner(){
+
+
+
+document
+.getElementById("offerScreen")
+.style.display="none";
+
+
+
+document
+.getElementById("scannerScreen")
+.style.display="flex";
+
+
+
+let scanner =
+new Html5Qrcode("reader");
+
+
+
+let cameraId =
+cameras[0].id;
+
+
+
+
+scanner.start(
+
+cameraId,
+
+{
+
+fps:10,
+
+qrbox:{
+width:300,
+height:300
+}
+
+},
+
+
+async text=>{
+
+
+await scanner.stop();
+
+
+
+let answer =
+JSON.parse(text);
+
+
+
+await pc.setRemoteDescription(
+answer
+);
+
+
+
+},
+
+
+error=>{}
+
+
+
+);
+
+
+
+}
+
+
+
+
+
+// Phone scan detected:
+// switch to answer scanner
+
+document
+.getElementById("offerQR")
+.addEventListener(
+"click",
+startScanner
+);
+
+
+
+// --------------------------
+// GAME
+// --------------------------
+
+
+function startGame(){
+
+
+document
+.getElementById("scannerScreen")
+.style.display="none";
+
+
+document
+.getElementById("game")
+.style.display="block";
+
+
+}
+
+
+
+
+async function init(){
+
+
+await getCamera();
+
+
+await createConnection();
+
+
+
+/*
+Temporary:
+click QR to activate scanner.
+Later we replace this with
+automatic state detection.
+*/
+
+
+}
+
+
+
+init();
+
+
+
+</script>
+
+
+</body>
+
+</html>
