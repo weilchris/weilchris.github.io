@@ -14,156 +14,137 @@
 <style>
 
 html,body{
-
-margin:0;
-width:100%;
-height:100%;
-background:#000;
-color:#00ff55;
-font-family:monospace;
-overflow:hidden;
-text-align:center;
-
+    margin:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    color:#00ff55;
+    font-family:monospace;
+    overflow:hidden;
+    text-align:center;
 }
 
 
-/* CAMERA SCAN */
+/* SCAN */
 
 #scan{
-
-position:relative;
-width:100%;
-height:100%;
-
+    position:relative;
+    width:100%;
+    height:100%;
 }
 
 
 #reader{
-
-width:100%;
-height:100%;
-
+    width:100%;
+    height:100%;
 }
 
 
 #reader video{
 
-width:100%!important;
-height:100%!important;
+    width:100%!important;
+    height:100%!important;
 
-object-fit:cover!important;
+    object-fit:cover!important;
 
 }
 
-
-/* remove default scanner graphics */
 
 #qr-shaded-region{
-
-display:none!important;
-
+    display:none!important;
 }
-
 
 
 .scan-frame{
 
-position:absolute;
+    position:absolute;
 
-top:50%;
-left:50%;
+    top:50%;
+    left:50%;
 
-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%);
 
-width:280px;
-height:280px;
+    width:280px;
+    height:280px;
 
-border:4px solid #00ff55;
+    border:4px solid #00ff55;
 
-box-shadow:
-0 0 30px #00ff55;
+    box-shadow:
+    0 0 30px #00ff55;
 
-z-index:10;
+    z-index:10;
 
 }
-
 
 
 .title{
 
-position:absolute;
+    position:absolute;
 
-top:30px;
+    top:30px;
 
-width:100%;
+    width:100%;
 
-font-size:22px;
+    font-size:22px;
 
-z-index:20;
+    z-index:20;
 
 }
 
 
 
-
-/* ANSWER QR */
-
+/* ANSWER */
 
 #answer{
 
-display:none;
+    display:none;
 
-width:100%;
-height:100%;
+    width:100%;
+    height:100%;
 
-align-items:center;
-justify-content:center;
-flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
 
 }
-
 
 
 #answerQR{
 
-background:white;
-
-padding:20px;
+    background:white;
+    padding:20px;
 
 }
-
 
 
 
 /* CONTROLLER */
 
-
 #controller{
 
-display:none;
+    display:none;
 
-height:100%;
+    height:100%;
 
 }
 
 
-
 button{
 
-width:90px;
-height:90px;
+    width:90px;
+    height:90px;
 
-margin:10px;
+    margin:10px;
 
-font-size:45px;
+    font-size:45px;
 
-background:#111;
+    background:#111;
 
-border:3px solid #00ff55;
+    border:3px solid #00ff55;
 
-color:#00ff55;
+    color:#00ff55;
 
-border-radius:20px;
+    border-radius:20px;
 
 }
 
@@ -176,8 +157,6 @@ border-radius:20px;
 <body>
 
 
-
-<!-- STATE 1 : SCAN -->
 
 <div id="scan">
 
@@ -197,19 +176,13 @@ SCAN DESKTOP QR
 
 
 
-
-<!-- STATE 2 : ANSWER QR -->
-
 <div id="answer">
-
 
 <h1>
 SCAN WITH DESKTOP
 </h1>
 
-
 <div id="answerQR"></div>
-
 
 </div>
 
@@ -217,15 +190,11 @@ SCAN WITH DESKTOP
 
 
 
-<!-- STATE 3 : CONTROLLER -->
-
 <div id="controller">
-
 
 <h1>
 RETRO CONTROLLER
 </h1>
-
 
 
 <div>
@@ -235,7 +204,6 @@ RETRO CONTROLLER
 </button>
 
 </div>
-
 
 
 <div>
@@ -258,14 +226,12 @@ RETRO CONTROLLER
 </div>
 
 
-
 <button ontouchstart="send('FIRE')">
 A
 </button>
 
 
 </div>
-
 
 
 
@@ -283,22 +249,17 @@ let channel;
 
 function send(command){
 
-if(channel &&
-channel.readyState==="open"){
+    if(channel &&
+       channel.readyState==="open"){
 
-channel.send(command);
+        channel.send(command);
+
+    }
 
 }
 
-}
 
 
-
-
-
-// -------------------------
-// CAMERA SCANNER
-// -------------------------
 
 
 const scanner =
@@ -306,84 +267,39 @@ new Html5Qrcode("reader");
 
 
 
+
+
 async function startScanner(){
 
 
-const cameras =
-await Html5Qrcode.getCameras();
+    await scanner.start(
+
+        {
+            facingMode:"environment"
+        },
 
 
+        {
+            fps:10,
 
-if(!cameras.length){
-
-alert("No camera found");
-
-return;
-
-}
-
-
-
-let cameraId =
-cameras[cameras.length-1].id;
+            qrbox:{
+                width:280,
+                height:280
+            }
+        },
 
 
-
-// Prefer rear camera
-
-for(const cam of cameras){
+        qrFound,
 
 
-const label =
-(cam.label || "")
-.toLowerCase();
+        errorMessage=>{
+
+            // ignore normal scan errors
+
+        }
 
 
-
-if(
-label.includes("back") ||
-label.includes("rear") ||
-label.includes("environment")
-){
-
-cameraId = cam.id;
-break;
-
-}
-
-}
-
-
-
-
-
-await scanner.start(
-
-cameraId,
-
-{
-
-fps:15,
-
-qrbox:{
-width:280,
-height:280
-},
-
-aspectRatio:1,
-
-disableFlip:true
-
-},
-
-
-qrFound,
-
-
-error=>{}
-
-
-);
+    );
 
 
 }
@@ -392,77 +308,70 @@ error=>{}
 
 
 
-// -------------------------
-// QR FOUND
-// -------------------------
 
 
 async function qrFound(text){
 
 
-await scanner.stop();
+    await scanner.stop();
 
 
 
-document
-.getElementById("scan")
-.style.display="none";
+    document
+    .getElementById("scan")
+    .style.display="none";
 
 
 
-let offer =
-JSON.parse(text);
+    let offer =
+    JSON.parse(text);
 
 
 
-pc =
-new RTCPeerConnection({
+    pc =
+    new RTCPeerConnection({
 
-iceServers:[]
+        iceServers:[]
 
-});
-
-
-
-
-pc.ondatachannel=e=>{
-
-
-channel=e.channel;
-
-
-
-channel.onopen=()=>{
-
-showController();
-
-};
-
-
-};
+    });
 
 
 
 
 
-await pc.setRemoteDescription(
-offer
-);
+    pc.ondatachannel = e=>{
+
+
+        channel=e.channel;
+
+
+        channel.onopen=()=>{
+
+            showController();
+
+        };
+
+
+    };
 
 
 
-let answer =
-await pc.createAnswer();
+
+
+    await pc.setRemoteDescription(offer);
 
 
 
-await pc.setLocalDescription(
-answer
-);
+    let answer =
+    await pc.createAnswer();
 
 
 
-waitForICE();
+    await pc.setLocalDescription(answer);
+
+
+
+    waitForICE();
 
 
 
@@ -472,41 +381,41 @@ waitForICE();
 
 
 
-// -------------------------
-// CREATE ANSWER QR
-// -------------------------
 
 
 function waitForICE(){
 
 
-if(
-pc.iceGatheringState==="complete"
-){
+    if(
+        pc.iceGatheringState==="complete"
+    ){
 
-showAnswer();
+        showAnswer();
 
-return;
+        return;
+
+    }
+
+
+
+    pc.onicecandidate=()=>{
+
+
+        if(
+            pc.iceGatheringState==="complete"
+        ){
+
+            showAnswer();
+
+        }
+
+
+    };
+
 
 }
 
 
-
-pc.onicecandidate=()=>{
-
-
-if(
-pc.iceGatheringState==="complete"
-){
-
-showAnswer();
-
-}
-
-};
-
-
-}
 
 
 
@@ -515,32 +424,30 @@ showAnswer();
 function showAnswer(){
 
 
-
-document
-.getElementById("answer")
-.style.display="flex";
-
+    document
+    .getElementById("answer")
+    .style.display="flex";
 
 
-new QRCode(
 
-document.getElementById("answerQR"),
+    new QRCode(
 
-{
+        document.getElementById("answerQR"),
 
-text:
-JSON.stringify(
-pc.localDescription
-),
+        {
 
-width:300,
+            text:
+            JSON.stringify(
+                pc.localDescription
+            ),
 
-height:300
+            width:300,
 
-}
+            height:300
 
-);
+        }
 
+    );
 
 
 }
@@ -549,25 +456,23 @@ height:300
 
 
 
-// -------------------------
-// CONTROLLER
-// -------------------------
 
 
 function showController(){
 
 
-document
-.getElementById("answer")
-.style.display="none";
+    document
+    .getElementById("answer")
+    .style.display="none";
 
 
-document
-.getElementById("controller")
-.style.display="block";
+    document
+    .getElementById("controller")
+    .style.display="block";
 
 
 }
+
 
 
 
