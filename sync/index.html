@@ -33,8 +33,6 @@ text-align:center;
 }
 
 
-/* OFFER */
-
 #offerScreen{
 
 width:100%;
@@ -117,14 +115,6 @@ object-fit:cover!important;
 
 
 
-#qr-shaded-region{
-
-display:none!important;
-
-}
-
-
-
 .scan-frame{
 
 position:absolute;
@@ -136,9 +126,9 @@ transform:
 translate(-50%,-50%);
 
 
-width:400px;
+width:500px;
 
-height:400px;
+height:500px;
 
 
 border:4px solid #00ff55;
@@ -215,9 +205,6 @@ box-shadow:
 
 
 
-<!-- OFFER QR -->
-
-
 <div id="offerScreen">
 
 
@@ -248,9 +235,6 @@ SCAN PHONE QR
 
 
 
-<!-- SCAN ANSWER -->
-
-
 <div id="scannerScreen">
 
 
@@ -273,9 +257,6 @@ SCAN PHONE QR
 
 
 
-
-
-<!-- GAME -->
 
 
 <div id="game">
@@ -322,10 +303,6 @@ player.style.top=y+"px";
 
 
 
-// -------------------------
-// CREATE OFFER
-// -------------------------
-
 
 async function createConnection(){
 
@@ -349,6 +326,8 @@ pc.createDataChannel("arcade");
 
 
 channel.onopen=()=>{
+
+console.log("CONNECTED");
 
 startGame();
 
@@ -423,6 +402,12 @@ function showOfferQR(){
 
 
 
+document
+.getElementById("offerQR")
+.innerHTML="";
+
+
+
 new QRCode(
 
 document.getElementById("offerQR"),
@@ -465,16 +450,11 @@ document
 
 
 
-// -------------------------
-// SCAN PHONE ANSWER
-// -------------------------
 
 
 async function startAnswerScanner(){
 
 
-
-// request camera permission
 
 await navigator.mediaDevices.getUserMedia({
 
@@ -493,6 +473,7 @@ document
 .style.display="none";
 
 
+
 document
 .getElementById("scannerScreen")
 .style.display="block";
@@ -508,38 +489,64 @@ new Html5Qrcode("reader");
 
 
 
+
+
 await scanner.start(
 
 
 {
-    facingMode:"environment"
+
+facingMode:"user"
+
 },
+
+
 
 
 {
 
-fps:15,
+
+fps:20,
 
 
 qrbox:{
-width:400,
-height:400
-}
+
+width:600,
+
+height:600
+
+},
+
+
+aspectRatio:1.0
+
 
 
 },
+
 
 
 
 async text=>{
 
 
+console.log(
+"ANSWER QR RECEIVED:",
+text.length
+);
+
+
+
 await scanner.stop();
+
+
 
 
 
 let answer =
 JSON.parse(text);
+
+
 
 
 
@@ -567,10 +574,6 @@ error=>{}
 
 
 
-
-// -------------------------
-// GAME
-// -------------------------
 
 
 function startGame(){
