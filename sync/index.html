@@ -29,7 +29,7 @@ text-align:center;
 }
 
 
-/* OFFER SCREEN */
+/* OFFER */
 
 #offerScreen{
 
@@ -44,6 +44,7 @@ flex-direction:column;
 }
 
 
+
 #offerQR{
 
 background:white;
@@ -55,16 +56,18 @@ padding:20px;
 
 /* ANSWER SCANNER */
 
+
 #scannerScreen{
 
 display:none;
+
+position:relative;
 
 width:100%;
 height:100%;
 
 align-items:center;
 justify-content:center;
-flex-direction:column;
 
 }
 
@@ -73,20 +76,75 @@ flex-direction:column;
 #reader{
 
 width:100%;
+height:100%;
+
+}
+
+
+
+#reader video{
+
+width:100%!important;
+height:100%!important;
+
+object-fit:cover!important;
+
 }
 
 
 
-#status{
+#qr-shaded-region{
 
-font-size:22px;
+display:none!important;
 
 }
+
+
+
+.scan-frame{
+
+position:absolute;
+
+top:50%;
+left:50%;
+
+transform:
+translate(-50%,-50%);
+
+width:400px;
+height:400px;
+
+border:4px solid #00ff55;
+
+box-shadow:
+0 0 30px #00ff55;
+
+z-index:10;
+
+}
+
+
+
+.scan-title{
+
+position:absolute;
+
+top:30px;
+
+width:100%;
+
+font-size:24px;
+
+z-index:20;
+
+}
+
 
 
 
 
 /* GAME */
+
 
 #game{
 
@@ -121,7 +179,6 @@ box-shadow:
 
 </style>
 
-
 </head>
 
 
@@ -129,9 +186,11 @@ box-shadow:
 
 
 
-<!-- FIRST STATE -->
+<!-- STEP 1 -->
+
 
 <div id="offerScreen">
+
 
 <h1>
 SCAN WITH PHONE
@@ -141,9 +200,9 @@ SCAN WITH PHONE
 <div id="offerQR"></div>
 
 
-<div id="status">
+<h2 id="status">
 Creating connection...
-</div>
+</h2>
 
 
 </div>
@@ -152,26 +211,31 @@ Creating connection...
 
 
 
-<!-- SECOND STATE -->
+<!-- STEP 2 -->
+
 
 <div id="scannerScreen">
 
 
-<h1>
+<div class="scan-title">
 SCAN PHONE QR
-</h1>
+</div>
 
 
 <div id="reader"></div>
 
 
+<div class="scan-frame"></div>
+
+
 </div>
 
 
 
 
 
-<!-- THIRD STATE -->
+<!-- STEP 3 -->
+
 
 <div id="game">
 
@@ -190,7 +254,6 @@ SCAN PHONE QR
 <script>
 
 
-
 let pc;
 
 let channel;
@@ -202,8 +265,8 @@ document.getElementById("player");
 
 
 let x=300;
-
 let y=200;
+
 
 
 
@@ -214,6 +277,7 @@ y+=dy;
 
 
 player.style.left=x+"px";
+
 player.style.top=y+"px";
 
 
@@ -223,44 +287,11 @@ player.style.top=y+"px";
 
 
 
-// --------------------------
-// CAMERA
-// --------------------------
 
 
-let cameras=[];
-
-
-async function getCamera(){
-
-
-await navigator.mediaDevices
-.getUserMedia({
-
-video:true,
-
-audio:false
-
-});
-
-
-
-cameras =
-await Html5Qrcode.getCameras();
-
-
-return cameras[0].id;
-
-
-}
-
-
-
-
-
-// --------------------------
+// ----------------------
 // CREATE OFFER
-// --------------------------
+// ----------------------
 
 
 async function createConnection(){
@@ -276,10 +307,14 @@ iceServers:[]
 
 
 
+
+
 channel =
 pc.createDataChannel(
 "arcade"
 );
+
+
 
 
 
@@ -291,31 +326,39 @@ startGame();
 
 
 
+
+
 channel.onmessage=e=>{
 
 
 switch(e.data){
 
+
 case "UP":
 move(0,-20);
 break;
+
 
 case "DOWN":
 move(0,20);
 break;
 
+
 case "LEFT":
 move(-20,0);
 break;
+
 
 case "RIGHT":
 move(20,0);
 break;
 
+
 }
 
 
 };
+
 
 
 
@@ -329,11 +372,12 @@ await pc.createOffer()
 
 
 
+
+
 pc.onicecandidate=e=>{
 
 
 if(!e.candidate){
-
 
 showOfferQR();
 
@@ -343,12 +387,17 @@ showOfferQR();
 };
 
 
+
 }
 
 
 
 
+
+
+
 function showOfferQR(){
+
 
 
 new QRCode(
@@ -358,17 +407,26 @@ document.getElementById("offerQR"),
 {
 
 text:
+
 JSON.stringify(
 pc.localDescription
 ),
 
-width:300,
 
-height:300
+width:500,
+
+height:500,
+
+
+correctLevel:
+QRCode.CorrectLevel.L
+
 
 }
 
 );
+
+
 
 
 
@@ -379,18 +437,30 @@ document
 
 
 
+// automatically prepare scanner
+
+setTimeout(()=>{
+
+startAnswerScanner();
+
+},3000);
+
+
+
 }
 
 
 
 
 
-// --------------------------
-// START ANSWER SCANNER
-// --------------------------
 
 
-async function startScanner(){
+// ----------------------
+// SCAN PHONE ANSWER
+// ----------------------
+
+
+async function startAnswerScanner(){
 
 
 
@@ -406,31 +476,37 @@ document
 
 
 
-let scanner =
+
+const scanner =
 new Html5Qrcode("reader");
 
 
 
-let cameraId =
-cameras[0].id;
 
 
+await scanner.start(
 
-
-scanner.start(
-
-cameraId,
 
 {
 
-fps:10,
-
-qrbox:{
-width:300,
-height:300
-}
+facingMode:"environment"
 
 },
+
+
+{
+
+fps:15,
+
+
+qrbox:{
+width:400,
+height:400
+}
+
+
+},
+
 
 
 async text=>{
@@ -454,6 +530,7 @@ answer
 },
 
 
+
 error=>{}
 
 
@@ -468,29 +545,21 @@ error=>{}
 
 
 
-// Phone scan detected:
-// switch to answer scanner
-
-document
-.getElementById("offerQR")
-.addEventListener(
-"click",
-startScanner
-);
 
 
-
-// --------------------------
+// ----------------------
 // GAME
-// --------------------------
+// ----------------------
 
 
 function startGame(){
 
 
+
 document
 .getElementById("scannerScreen")
 .style.display="none";
+
 
 
 document
@@ -503,29 +572,10 @@ document
 
 
 
-async function init(){
-
-
-await getCamera();
-
-
-await createConnection();
 
 
 
-/*
-Temporary:
-click QR to activate scanner.
-Later we replace this with
-automatic state detection.
-*/
-
-
-}
-
-
-
-init();
+createConnection();
 
 
 
