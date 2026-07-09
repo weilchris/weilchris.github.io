@@ -7,9 +7,7 @@
 
 <title>Retro Arcade Controller</title>
 
-
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 
@@ -29,9 +27,11 @@ text-align:center;
 }
 
 
-/* SCANNER */
+/* SCAN STATE */
 
 #scan{
+
+position:relative;
 
 width:100%;
 height:100%;
@@ -46,6 +46,71 @@ height:100%;
 
 }
 
+
+#reader video{
+
+width:100%!important;
+height:100%!important;
+
+object-fit:cover;
+
+}
+
+
+/* remove default html5-qrcode overlay */
+
+#qr-shaded-region{
+
+display:none!important;
+
+}
+
+
+
+/* our perfect square */
+
+.scan-frame{
+
+position:absolute;
+
+top:50%;
+left:50%;
+
+transform:
+translate(-50%,-50%);
+
+width:280px;
+height:280px;
+
+border:4px solid #00ff55;
+
+box-shadow:
+0 0 25px #00ff55;
+
+z-index:10;
+
+}
+
+
+
+.title{
+
+position:absolute;
+
+top:25px;
+
+width:100%;
+
+font-size:22px;
+
+z-index:20;
+
+}
+
+
+
+
+/* ANSWER QR STATE */
 
 
 #answer{
@@ -66,13 +131,16 @@ flex-direction:column;
 #answerQR{
 
 background:white;
+
 padding:20px;
 
 }
 
 
 
+
 /* CONTROLLER */
+
 
 #controller{
 
@@ -81,6 +149,7 @@ display:none;
 height:100%;
 
 }
+
 
 
 button{
@@ -113,26 +182,41 @@ border-radius:20px;
 
 
 
-<!-- ONLY CAMERA HERE -->
+<!-- CAMERA SCAN ONLY -->
 
 <div id="scan">
 
+
+<div class="title">
+SCAN DESKTOP QR
+</div>
+
+
 <div id="reader"></div>
+
+
+<div class="scan-frame"></div>
+
 
 </div>
 
 
 
 
-<!-- ONLY QR HERE -->
+
+<!-- ANSWER QR ONLY -->
+
 
 <div id="answer">
+
 
 <h1>
 SCAN WITH DESKTOP
 </h1>
 
+
 <div id="answerQR"></div>
+
 
 </div>
 
@@ -140,13 +224,16 @@ SCAN WITH DESKTOP
 
 
 
-<!-- ONLY CONTROLLER HERE -->
+<!-- CONTROLLER -->
+
 
 <div id="controller">
+
 
 <h1>
 RETRO CONTROLLER
 </h1>
+
 
 
 <div>
@@ -156,6 +243,7 @@ RETRO CONTROLLER
 </button>
 
 </div>
+
 
 
 <div>
@@ -177,9 +265,11 @@ RETRO CONTROLLER
 </div>
 
 
+
 <button ontouchstart="send('FIRE')">
 A
 </button>
+
 
 
 </div>
@@ -213,9 +303,9 @@ channel.send(command);
 
 
 
-// --------------------------
+// -------------------------
 // START REAR CAMERA SCANNER
-// --------------------------
+// -------------------------
 
 
 const scanner =
@@ -226,59 +316,27 @@ new Html5Qrcode("reader");
 async function startScanner(){
 
 
-const cameras =
-await Html5Qrcode.getCameras();
+await scanner.start(
 
-
-
-let cameraId;
-
-
-
-for(let cam of cameras){
-
-if(
-cam.label.toLowerCase()
-.includes("back")
-||
-cam.label.toLowerCase()
-.includes("rear")
-){
-
-cameraId=cam.id;
-
-}
-
-}
-
-
-
-if(!cameraId){
-
-cameraId=cameras[0].id;
-
-}
-
-
-
-
-scanner.start(
-
-cameraId,
+{
+    facingMode:{
+        exact:"environment"
+    }
+},
 
 {
 
 fps:10,
 
 qrbox:{
-width:280,
-height:280
+    width:280,
+    height:280
 }
 
 },
 
 
-qrScanned,
+qrFound,
 
 
 error=>{}
@@ -293,12 +351,12 @@ error=>{}
 
 
 
-// --------------------------
+// -------------------------
 // QR FOUND
-// --------------------------
+// -------------------------
 
 
-async function qrScanned(text){
+async function qrFound(text){
 
 
 
@@ -326,6 +384,8 @@ iceServers:[]
 
 
 
+
+
 pc.ondatachannel=e=>{
 
 
@@ -343,9 +403,12 @@ showController();
 
 
 
+
+
 await pc.setRemoteDescription(
 offer
 );
+
 
 
 
@@ -363,15 +426,16 @@ answer
 waitForICE();
 
 
+
 }
 
 
 
 
 
-// --------------------------
-// SHOW ANSWER QR ONLY
-// --------------------------
+// -------------------------
+// CREATE ANSWER QR
+// -------------------------
 
 
 function waitForICE(){
@@ -401,7 +465,6 @@ showAnswer();
 
 }
 
-
 };
 
 
@@ -414,9 +477,11 @@ showAnswer();
 function showAnswer(){
 
 
+
 document
 .getElementById("answer")
 .style.display="flex";
+
 
 
 new QRCode(
@@ -439,17 +504,19 @@ height:300
 );
 
 
+
 }
 
 
 
 
-// --------------------------
-// CONTROLLER
-// --------------------------
+// -------------------------
+// CONNECTED CONTROLLER
+// -------------------------
 
 
 function showController(){
+
 
 
 document
@@ -463,6 +530,7 @@ document
 
 
 }
+
 
 
 
