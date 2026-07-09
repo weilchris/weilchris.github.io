@@ -197,6 +197,16 @@ border-radius:20px;
 
 }
 
+#app{
+
+transform:scale(0.75);
+
+transform-origin:top center;
+
+width:133.333%;
+height:133.333%;
+
+}
 
 </style>
 
@@ -205,7 +215,7 @@ border-radius:20px;
 
 <body>
 
-
+<div id="app">
 
 
 <div id="scan">
@@ -279,11 +289,18 @@ RETRO CONTROLLER
 </button>
 
 
+<button ontouchstart="send('FIRE')">
+A
+</button>
+
+
 
 <button ontouchstart="send('DOWN')">
 ▼
 </button>
 
+
+</div>
 
 
 <button ontouchstart="send('RIGHT')">
@@ -291,22 +308,11 @@ RETRO CONTROLLER
 </button>
 
 
-
 </div>
 
 
 
-<button ontouchstart="send('FIRE')">
-A
-</button>
-
-
 </div>
-
-
-
-
-
 
 
 <script>
