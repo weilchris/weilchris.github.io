@@ -36,13 +36,11 @@ text-align:center;
 
 /* SCAN */
 
-
 #scan{
 
 position:relative;
 
 width:100%;
-
 height:100%;
 
 }
@@ -52,7 +50,6 @@ height:100%;
 #reader{
 
 width:100%;
-
 height:100%;
 
 }
@@ -71,15 +68,6 @@ object-fit:cover!important;
 
 
 
-#qr-shaded-region{
-
-display:none!important;
-
-}
-
-
-
-
 .scan-frame{
 
 position:absolute;
@@ -90,7 +78,6 @@ left:50%;
 
 
 transform:
-
 translate(-50%,-50%);
 
 
@@ -99,9 +86,9 @@ width:75vw;
 height:75vw;
 
 
-max-width:400px;
+max-width:500px;
 
-max-height:400px;
+max-height:500px;
 
 
 
@@ -116,6 +103,7 @@ box-shadow:
 z-index:10;
 
 }
+
 
 
 
@@ -135,7 +123,8 @@ z-index:20;
 
 
 
-/* ANSWER */
+
+/* ANSWER QR */
 
 
 #answer{
@@ -145,6 +134,7 @@ display:none;
 width:100%;
 
 height:100%;
+
 
 align-items:center;
 
@@ -163,6 +153,7 @@ background:white;
 padding:20px;
 
 }
+
 
 
 
@@ -188,6 +179,7 @@ height:90px;
 
 margin:10px;
 
+
 font-size:45px;
 
 
@@ -202,11 +194,11 @@ color:#00ff55;
 
 border-radius:20px;
 
+
 }
 
 
 </style>
-
 
 </head>
 
@@ -214,9 +206,6 @@ border-radius:20px;
 <body>
 
 
-
-
-<!-- SCAN DESKTOP -->
 
 
 <div id="scan">
@@ -242,16 +231,12 @@ SCAN DESKTOP QR
 
 
 
-<!-- ANSWER QR -->
-
 
 <div id="answer">
 
 
 <h1>
-
 SCAN WITH DESKTOP
-
 </h1>
 
 
@@ -265,16 +250,12 @@ SCAN WITH DESKTOP
 
 
 
-<!-- CONTROLLER -->
-
 
 <div id="controller">
 
 
 <h1>
-
 RETRO CONTROLLER
-
 </h1>
 
 
@@ -282,9 +263,7 @@ RETRO CONTROLLER
 <div>
 
 <button ontouchstart="send('UP')">
-
 ▲
-
 </button>
 
 </div>
@@ -294,25 +273,23 @@ RETRO CONTROLLER
 
 <div>
 
+
 <button ontouchstart="send('LEFT')">
-
 ◀
-
 </button>
+
 
 
 <button ontouchstart="send('DOWN')">
-
 ▼
-
 </button>
+
 
 
 <button ontouchstart="send('RIGHT')">
-
 ▶
-
 </button>
+
 
 
 </div>
@@ -320,9 +297,7 @@ RETRO CONTROLLER
 
 
 <button ontouchstart="send('FIRE')">
-
 A
-
 </button>
 
 
@@ -347,33 +322,31 @@ let channel;
 
 function send(command){
 
-
 if(channel &&
 channel.readyState==="open"){
 
-
 channel.send(command);
 
+}
 
 }
 
 
-}
 
 
 
 
+let scanner;
 
 
 
-// -------------------------
-// REQUEST CAMERA + START
-// -------------------------
 
 
 async function startScanner(){
 
 
+
+// camera permission
 
 await navigator.mediaDevices.getUserMedia({
 
@@ -396,8 +369,7 @@ audio:false
 
 
 
-
-const scanner =
+scanner =
 new Html5Qrcode("reader");
 
 
@@ -419,31 +391,23 @@ facingMode:"environment"
 {
 
 
-fps:15,
+fps:20,
 
 
-qrbox:function(w,h){
+qrbox:{
+
+width:500,
+
+height:500
+
+},
 
 
-let size =
-Math.min(w,h)*0.75;
-
-
-return{
-
-width:size,
-
-height:size
-
-};
-
-
-}
+aspectRatio:1.0
 
 
 
 },
-
 
 
 
@@ -468,18 +432,7 @@ error=>{}
 
 
 
-
-// -------------------------
-// OFFER RECEIVED
-// -------------------------
-
-
 async function qrFound(text){
-
-
-
-const scanner =
-new Html5Qrcode("reader");
 
 
 
@@ -497,8 +450,6 @@ await scanner.stop();
 document
 .getElementById("scan")
 .style.display="none";
-
-
 
 
 
@@ -524,7 +475,6 @@ iceServers:[]
 
 
 
-
 pc.ondatachannel=e=>{
 
 
@@ -533,9 +483,7 @@ channel=e.channel;
 
 channel.onopen=()=>{
 
-
 showController();
-
 
 };
 
@@ -555,7 +503,6 @@ await pc.setRemoteDescription(offer);
 
 
 
-
 let answer =
 await pc.createAnswer();
 
@@ -564,9 +511,7 @@ await pc.createAnswer();
 
 
 
-
 await pc.setLocalDescription(answer);
-
 
 
 
@@ -585,12 +530,6 @@ waitForICE();
 
 
 
-
-
-
-// -------------------------
-// ANSWER QR
-// -------------------------
 
 
 function waitForICE(){
@@ -619,14 +558,12 @@ if(
 pc.iceGatheringState==="complete"
 ){
 
-
 showAnswer();
-
 
 }
 
-
 };
+
 
 
 }
@@ -658,13 +595,11 @@ document.getElementById("answerQR"),
 
 {
 
-
 text:
 
 JSON.stringify(
 pc.localDescription
 ),
-
 
 
 width:500,
@@ -689,12 +624,6 @@ QRCode.CorrectLevel.L
 
 
 
-
-
-
-// -------------------------
-// CONTROLLER
-// -------------------------
 
 
 function showController(){
