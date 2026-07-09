@@ -27,7 +27,7 @@ text-align:center;
 }
 
 
-/* SCAN STATE */
+/* SCANNER */
 
 #scan{
 
@@ -52,12 +52,10 @@ height:100%;
 width:100%!important;
 height:100%!important;
 
-object-fit:cover;
+object-fit:cover!important;
 
 }
 
-
-/* remove default html5-qrcode overlay */
 
 #qr-shaded-region{
 
@@ -67,8 +65,6 @@ display:none!important;
 
 
 
-/* our perfect square */
-
 .scan-frame{
 
 position:absolute;
@@ -76,8 +72,7 @@ position:absolute;
 top:50%;
 left:50%;
 
-transform:
-translate(-50%,-50%);
+transform:translate(-50%,-50%);
 
 width:280px;
 height:280px;
@@ -110,7 +105,7 @@ z-index:20;
 
 
 
-/* ANSWER QR STATE */
+/* ANSWER QR */
 
 
 #answer{
@@ -172,20 +167,20 @@ border-radius:20px;
 }
 
 
-
 </style>
 
 </head>
+
 
 
 <body>
 
 
 
-<!-- CAMERA SCAN ONLY -->
+
+<!-- CAMERA STATE -->
 
 <div id="scan">
-
 
 <div class="title">
 SCAN DESKTOP QR
@@ -204,7 +199,7 @@ SCAN DESKTOP QR
 
 
 
-<!-- ANSWER QR ONLY -->
+<!-- ANSWER QR STATE -->
 
 
 <div id="answer">
@@ -224,7 +219,7 @@ SCAN WITH DESKTOP
 
 
 
-<!-- CONTROLLER -->
+<!-- CONTROLLER STATE -->
 
 
 <div id="controller">
@@ -235,7 +230,6 @@ RETRO CONTROLLER
 </h1>
 
 
-
 <div>
 
 <button ontouchstart="send('UP')">
@@ -243,7 +237,6 @@ RETRO CONTROLLER
 </button>
 
 </div>
-
 
 
 <div>
@@ -269,7 +262,6 @@ RETRO CONTROLLER
 <button ontouchstart="send('FIRE')">
 A
 </button>
-
 
 
 </div>
@@ -302,9 +294,8 @@ channel.send(command);
 
 
 
-
 // -------------------------
-// START REAR CAMERA SCANNER
+// CAMERA QR SCANNER
 // -------------------------
 
 
@@ -316,22 +307,78 @@ new Html5Qrcode("reader");
 async function startScanner(){
 
 
+const cameras =
+await Html5Qrcode.getCameras();
+
+
+
+console.log(cameras);
+
+
+
+if(!cameras.length){
+
+alert("No camera found");
+
+return;
+
+}
+
+
+
+let cameraId =
+cameras[0].id;
+
+
+
+// find rear camera
+
+for(let cam of cameras){
+
+
+let label =
+(cam.label || "")
+.toLowerCase();
+
+
+
+if(
+
+label.includes("back") ||
+
+label.includes("rear") ||
+
+label.includes("environment")
+
+){
+
+cameraId =
+cam.id;
+
+break;
+
+}
+
+
+}
+
+
+
+
 await scanner.start(
 
-{
-    facingMode:{
-        exact:"environment"
-    }
-},
+cameraId,
 
 {
 
-fps:10,
+fps:15,
 
 qrbox:{
-    width:280,
-    height:280
-}
+width:280,
+height:280
+},
+
+aspectRatio:1
 
 },
 
@@ -340,7 +387,6 @@ qrFound,
 
 
 error=>{}
-
 
 );
 
@@ -357,7 +403,6 @@ error=>{}
 
 
 async function qrFound(text){
-
 
 
 await scanner.stop();
@@ -434,7 +479,7 @@ waitForICE();
 
 
 // -------------------------
-// CREATE ANSWER QR
+// ANSWER QR
 // -------------------------
 
 
@@ -465,6 +510,7 @@ showAnswer();
 
 }
 
+
 };
 
 
@@ -473,9 +519,7 @@ showAnswer();
 
 
 
-
 function showAnswer(){
-
 
 
 document
@@ -510,13 +554,13 @@ height:300
 
 
 
+
 // -------------------------
-// CONNECTED CONTROLLER
+// CONTROLLER
 // -------------------------
 
 
 function showController(){
-
 
 
 document
@@ -530,7 +574,6 @@ document
 
 
 }
-
 
 
 
