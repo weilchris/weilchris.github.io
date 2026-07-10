@@ -178,23 +178,24 @@ background:#050505;
 }
 
 
-#player{
+#game{
 
-position:absolute;
+display:none;
 
-width:50px;
-
-height:50px;
-
-background:#00ff55;
-
-box-shadow:
-
-0 0 20px #00ff55;
+width:100%;
+height:100%;
 
 }
 
 
+canvas{
+
+width:100%;
+height:100%;
+
+image-rendering:pixelated;
+
+}
 
 </style>
 
@@ -261,7 +262,7 @@ SCAN PHONE QR
 
 <div id="game">
 
-<div id="player"></div>
+<canvas id="screen"></canvas>
 
 </div>
 
@@ -277,31 +278,6 @@ SCAN PHONE QR
 let pc;
 
 let channel;
-
-
-
-let player =
-document.getElementById("player");
-
-
-let x=300;
-let y=200;
-
-
-
-function move(dx,dy){
-
-x+=dx;
-y+=dy;
-
-player.style.left=x+"px";
-player.style.top=y+"px";
-
-}
-
-
-
-
 
 
 async function createConnection(){
@@ -331,6 +307,8 @@ console.log("CONNECTED");
 
 startGame();
 
+startGameEngine();
+
 };
 
 
@@ -339,24 +317,9 @@ startGame();
 
 channel.onmessage=e=>{
 
+if(window.gameInput){
 
-switch(e.data){
-
-case "UP":
-move(0,-20);
-break;
-
-case "DOWN":
-move(0,20);
-break;
-
-case "LEFT":
-move(-20,0);
-break;
-
-case "RIGHT":
-move(20,0);
-break;
+gameInput(e.data);
 
 }
 
@@ -601,6 +564,446 @@ document
 
 createConnection();
 
+
+
+</script>
+
+
+<script>
+
+// =================================
+// RETRO COMPUTER DUNGEON ENGINE
+// LEVEL 01
+// =================================
+
+
+const canvas =
+document.getElementById("screen");
+
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+canvas.width=320;
+canvas.height=180;
+
+
+ctx.imageSmoothingEnabled=false;
+
+
+
+
+// -------------------------------
+// PLAYER
+// -------------------------------
+
+
+const player={
+
+x:40,
+
+y:90,
+
+size:12,
+
+speed:2
+
+};
+
+
+
+
+
+// -------------------------------
+// INPUT FROM PHONE
+// -------------------------------
+
+
+let input={};
+
+
+
+function gameInput(command){
+
+input[command]=true;
+
+
+setTimeout(()=>{
+
+input[command]=false;
+
+},100);
+
+
+}
+
+
+
+
+
+// -------------------------------
+// LEVEL SYSTEM
+// -------------------------------
+
+
+let level=0;
+
+
+
+const levels=[
+
+
+{
+
+name:"BOOT SECTOR",
+
+portal:{
+x:280,
+y:150,
+size:20
+}
+
+},
+
+
+
+{
+
+name:"BIOS CHAMBER",
+
+portal:{
+x:40,
+y:40,
+size:20
+}
+
+},
+
+
+
+{
+
+name:"RAM FOREST",
+
+portal:{
+x:280,
+y:40,
+size:20
+}
+
+}
+
+
+];
+
+
+
+
+
+
+function loadLevel(){
+
+
+player.x=40;
+
+player.y=90;
+
+
+console.log(
+"ENTERING:",
+levels[level].name
+);
+
+
+}
+
+
+
+
+
+
+
+// -------------------------------
+// UPDATE
+// -------------------------------
+
+
+function update(){
+
+
+
+if(input.LEFT)
+
+player.x-=player.speed;
+
+
+
+if(input.RIGHT)
+
+player.x+=player.speed;
+
+
+
+if(input.UP)
+
+player.y-=player.speed;
+
+
+
+if(input.DOWN)
+
+player.y+=player.speed;
+
+
+
+
+
+// screen wrap
+
+
+if(player.x < 0)
+
+player.x=canvas.width-player.size;
+
+
+
+if(player.x > canvas.width)
+
+player.x=0;
+
+
+
+if(player.y < 0)
+
+player.y=canvas.height-player.size;
+
+
+
+if(player.y > canvas.height)
+
+player.y=0;
+
+
+
+
+
+
+// portal collision
+
+
+let p=
+levels[level].portal;
+
+
+
+if(
+
+player.x < p.x+p.size &&
+
+player.x+player.size > p.x &&
+
+player.y < p.y+p.size &&
+
+player.y+player.size > p.y
+
+){
+
+
+level++;
+
+
+if(level>=levels.length)
+
+level=0;
+
+
+
+loadLevel();
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// -------------------------------
+// DRAW
+// -------------------------------
+
+
+function draw(){
+
+
+
+ctx.fillStyle="#050505";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+
+
+// grid
+
+ctx.strokeStyle="#003300";
+
+
+for(let x=0;x<320;x+=16){
+
+ctx.beginPath();
+
+ctx.moveTo(x,0);
+
+ctx.lineTo(x,180);
+
+ctx.stroke();
+
+}
+
+
+
+for(let y=0;y<180;y+=16){
+
+ctx.beginPath();
+
+ctx.moveTo(0,y);
+
+ctx.lineTo(320,y);
+
+ctx.stroke();
+
+}
+
+
+
+
+// portal
+
+
+let p=
+levels[level].portal;
+
+
+ctx.strokeStyle="#00ffff";
+
+ctx.lineWidth=2;
+
+
+ctx.strokeRect(
+
+p.x,
+
+p.y,
+
+p.size,
+
+p.size
+
+);
+
+
+
+
+
+// player
+
+
+ctx.fillStyle="#00ff55";
+
+
+ctx.fillRect(
+
+player.x,
+
+player.y,
+
+player.size,
+
+player.size
+
+);
+
+
+
+
+
+
+// text
+
+
+ctx.fillStyle="#00ff55";
+
+ctx.font="8px monospace";
+
+
+ctx.fillText(
+
+levels[level].name,
+
+5,
+
+10
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+// -------------------------------
+// GAME LOOP
+// -------------------------------
+
+
+function gameLoop(){
+
+
+update();
+
+draw();
+
+
+requestAnimationFrame(gameLoop);
+
+
+}
+
+
+let gameStarted=false;
+
+
+function startGameEngine(){
+
+if(!gameStarted){
+
+gameStarted=true;
+
+gameLoop();
+
+}
+
+}
 
 
 </script>
