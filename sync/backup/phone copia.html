@@ -315,50 +315,37 @@ RETRO CONTROLLER
 
 <div id="controllerPad">
 
-<button 
-ontouchstart="startMove('UP')" 
-ontouchend="stopMove()"
-ontouchcancel="stopMove()">
-▲
-</button>
+    <div>
+        <button ontouchstart="send('UP')">
+        ▲
+        </button>
+    </div>
 
 
     <div>
 
-<button 
-ontouchstart="startMove('LEFT')" 
-ontouchend="stopMove()"
-ontouchcancel="stopMove()">
-◀
-</button>
+        <button ontouchstart="send('LEFT')">
+        ◀
+        </button>
 
 
-<button 
-ontouchstart="startMove('FIRE')" 
-ontouchend="stopMove()"
-ontouchcancel="stopMove()">
-A
-</button>
+        <button ontouchstart="send('FIRE')">
+        A
+        </button>
 
 
-<button 
-ontouchstart="startMove('RIGHT')" 
-ontouchend="stopMove()"
-ontouchcancel="stopMove()">
-▶
-</button>
+        <button ontouchstart="send('RIGHT')">
+        ▶
+        </button>
 
     </div>
 
 
     <div>
 
-<button 
-ontouchstart="startMove('DOWN')" 
-ontouchend="stopMove()"
-ontouchcancel="stopMove()">
-▼
-</button>
+        <button ontouchstart="send('DOWN')">
+        ▼
+        </button>
 
     </div>
 
@@ -378,9 +365,6 @@ let channel;
 
 
 
-let moveTimer=null;
-
-
 function send(command){
 
 if(channel &&
@@ -392,40 +376,6 @@ channel.send(command);
 
 }
 
-
-
-function startMove(command){
-
-stopMove();
-
-
-send(command);
-
-
-// repeat while holding
-
-moveTimer=setInterval(()=>{
-
-send(command);
-
-},80);
-
-
-}
-
-
-
-function stopMove(){
-
-if(moveTimer){
-
-clearInterval(moveTimer);
-
-moveTimer=null;
-
-}
-
-}
 
 
 
