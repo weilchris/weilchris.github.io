@@ -197,16 +197,62 @@ border-radius:20px;
 
 }
 
-#app{
+html, body {
 
-transform:scale(0.75);
-
-transform-origin:top center;
-
-width:133.333%;
-height:133.333%;
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
 
 }
+
+
+body{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+
+
+#app{
+
+    width:100vw;
+    height:100vh;
+
+    transform:scale(0.75);
+
+    transform-origin:center center;
+
+}
+
+
+html, body {
+
+    touch-action:none;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+    -webkit-touch-callout:none;
+
+    overscroll-behavior:none;
+
+}
+
+
+button {
+
+    touch-action:none;
+
+    -webkit-user-select:none;
+
+    user-select:none;
+
+}
+
 
 </style>
 
@@ -290,23 +336,23 @@ RETRO CONTROLLER
 
 
 <button ontouchstart="send('FIRE')">
-A
+X
 </button>
 
-
-
-<button ontouchstart="send('DOWN')">
-▼
-</button>
-
-
-</div>
 
 
 <button ontouchstart="send('RIGHT')">
 ▶
 </button>
 
+
+
+</div>
+
+
+<button ontouchstart="send('DOWN')">
+▼
+</button>
 
 </div>
 
@@ -656,6 +702,65 @@ document
 
 startScanner();
 
+
+
+</script>
+
+
+<script>
+
+// prevent selection
+document.addEventListener("selectstart", e => {
+    e.preventDefault();
+});
+
+
+// prevent long press menu
+document.addEventListener("contextmenu", e => {
+    e.preventDefault();
+});
+
+
+// prevent dragging
+document.addEventListener("dragstart", e => {
+    e.preventDefault();
+});
+
+
+// prevent scrolling / swipe navigation
+document.addEventListener("touchmove", e => {
+    e.preventDefault();
+}, {
+    passive:false
+});
+
+
+// prevent double tap zoom
+let lastTouch = 0;
+
+document.addEventListener("touchend", e => {
+
+    let now = Date.now();
+
+    if(now - lastTouch <= 300){
+
+        e.preventDefault();
+
+    }
+
+    lastTouch = now;
+
+}, {
+    passive:false
+});
+
+
+// prevent pinch zoom
+document.addEventListener("gesturestart", e => {
+
+    e.preventDefault();
+
+});
 
 
 </script>
