@@ -279,9 +279,15 @@
   </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+
 <script type="module">
-import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm";
-import { fetchFile, toBlobURL } from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm";
+import {
+  fetchFile,
+  toBlobURL
+} from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm";
+
+const { FFmpeg } = FFmpegWASM;
 
 const fileInput = document.getElementById("fileInput");
 const dropZone = document.getElementById("dropZone");
@@ -316,21 +322,28 @@ function setStatus(message, type = "") {
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes < 0) return "—";
+
   const units = ["B", "KB", "MB", "GB"];
   let i = 0;
   let n = bytes;
+
   while (n >= 1024 && i < units.length - 1) {
     n /= 1024;
     i++;
   }
+
   return `${n.toFixed(i ? 1 : 0)} ${units[i]}`;
 }
 
 function setProgress(value, text) {
   const pct = Math.max(0, Math.min(100, value));
+
   progressBar.style.width = pct + "%";
   progressPercent.textContent = Math.round(pct) + "%";
-  if (text) progressText.textContent = text;
+
+  if (text) {
+    progressText.textContent = text;
+  }
 }
 
 function resetOutput() {
@@ -346,6 +359,7 @@ function resetOutput() {
 
 function resetAll() {
   selectedFile = null;
+
   resetOutput();
 
   if (previewUrl) {
@@ -363,9 +377,12 @@ function resetAll() {
 
   convertBtn.disabled = true;
   clearBtn.disabled = true;
+
   progressWrap.classList.remove("show");
   setProgress(0, "Preparing…");
+
   setStatus("Select a WebM file to begin.");
+
   fileInput.value = "";
 }
 
@@ -382,20 +399,28 @@ function selectFile(file) {
   }
 
   selectedFile = file;
+
   resetOutput();
 
-  if (previewUrl) URL.revokeObjectURL(previewUrl);
+  if (previewUrl) {
+    URL.revokeObjectURL(previewUrl);
+  }
+
   previewUrl = URL.createObjectURL(file);
 
   preview.src = previewUrl;
   preview.classList.add("show");
 
   fileName.textContent = file.name;
-  fileMeta.textContent = `${formatBytes(file.size)} · ${file.type || "video/webm"}`;
+
+  fileMeta.textContent =
+    `${formatBytes(file.size)} · ${file.type || "video/webm"}`;
+
   fileInfo.classList.add("show");
 
   convertBtn.disabled = false;
   clearBtn.disabled = false;
+
   setStatus("Ready to convert.");
   progressWrap.classList.remove("show");
 }
@@ -427,7 +452,11 @@ dropZone.addEventListener("drop", event => {
 
 ffmpeg.on("progress", ({ progress }) => {
   if (!converting) return;
-  setProgress(progress * 100, "Converting…");
+
+  setProgress(
+    progress * 100,
+    "Converting…"
+  );
 });
 
 ffmpeg.on("log", ({ message }) => {
@@ -438,6 +467,7 @@ async function loadFFmpeg() {
   if (loaded) return;
 
   setStatus("Loading FFmpeg engine…");
+
   progressWrap.classList.add("show");
   setProgress(0, "Loading FFmpeg…");
 
@@ -455,7 +485,7 @@ async function loadFFmpeg() {
   );
 
   await ffmpeg.load({
-    classWorkerURL: "/ffmpeg/worker.js",
+    classWorkerURL: "/webm/ffmpeg/worker.js",
     coreURL,
     wasmURL
   });
@@ -467,9 +497,11 @@ async function convert() {
   if (!selectedFile || converting) return;
 
   converting = true;
+
   convertBtn.disabled = true;
   saveBtn.disabled = true;
   clearBtn.disabled = true;
+
   resetOutput();
 
   progressWrap.classList.add("show");
@@ -482,61 +514,96 @@ async function convert() {
     const outputName = "output.mp4";
 
     setStatus("Reading WebM…");
-    await ffmpeg.writeFile(inputName, await fetchFile(selectedFile));
 
-    setProgress(1, "Encoding H.264 + AAC…");
-    setStatus("Converting locally — this may take a while for large files.");
+    await ffmpeg.writeFile(
+      inputName,
+      await fetchFile(selectedFile)
+    );
+
+    setProgress(
+      1,
+      "Encoding H.264 + AAC…"
+    );
+
+    setStatus(
+      "Converting locally — this may take a while for large files."
+    );
 
     await ffmpeg.exec([
       "-i", inputName,
 
-      // Keep the first video stream and any available audio stream.
       "-map", "0:v:0",
       "-map", "0:a?",
 
-      // Broadly compatible MP4 output.
       "-c:v", "libx264",
       "-preset", "veryfast",
       "-crf", "20",
       "-pix_fmt", "yuv420p",
 
-      // AAC audio; ignored if the input has no audio stream.
       "-c:a", "aac",
       "-b:a", "192k",
 
-      // Better playback/streaming behavior.
       "-movflags", "+faststart",
 
       outputName
     ]);
 
-    setProgress(98, "Preparing MP4…");
+    setProgress(
+      98,
+      "Preparing MP4…"
+    );
 
-    const data = await ffmpeg.readFile(outputName);
+    const data =
+      await ffmpeg.readFile(outputName);
 
-    outputBlob = new Blob([data], { type: "video/mp4" });
-    outputUrl = URL.createObjectURL(outputBlob);
+    outputBlob =
+      new Blob(
+        [data],
+        { type: "video/mp4" }
+      );
+
+    outputUrl =
+      URL.createObjectURL(outputBlob);
 
     saveBtn.disabled = false;
-    setProgress(100, "Complete.");
+
+    setProgress(
+      100,
+      "Complete."
+    );
+
     setStatus(
       `Done — MP4 ready (${formatBytes(outputBlob.size)}).`,
       "ok"
     );
 
-    // Clean FFmpeg's virtual filesystem.
-    try { await ffmpeg.deleteFile(inputName); } catch {}
-    try { await ffmpeg.deleteFile(outputName); } catch {}
+    try {
+      await ffmpeg.deleteFile(inputName);
+    } catch {}
+
+    try {
+      await ffmpeg.deleteFile(outputName);
+    } catch {}
 
   } catch (error) {
+
     console.error(error);
+
     setStatus(
-      "Conversion failed: " + (error?.message || String(error)),
+      "Conversion failed: " +
+      (error?.message || String(error)),
       "error"
     );
-    setProgress(0, "Conversion failed.");
+
+    setProgress(
+      0,
+      "Conversion failed."
+    );
+
   } finally {
+
     converting = false;
+
     convertBtn.disabled = !selectedFile;
     clearBtn.disabled = !selectedFile;
   }
@@ -546,25 +613,50 @@ function saveMP4() {
   if (!outputBlob) return;
 
   const original =
-    selectedFile?.name?.replace(/\.webm$/i, "") || "converted";
+    selectedFile?.name?.replace(
+      /\.webm$/i,
+      ""
+    ) || "converted";
 
-  const a = document.createElement("a");
+  const a =
+    document.createElement("a");
+
   a.href = outputUrl;
   a.download = original + ".mp4";
+
   document.body.appendChild(a);
   a.click();
   a.remove();
 }
 
-convertBtn.addEventListener("click", convert);
-saveBtn.addEventListener("click", saveMP4);
-clearBtn.addEventListener("click", resetAll);
+convertBtn.addEventListener(
+  "click",
+  convert
+);
 
-// Prevent accidental browser navigation when dropping a file outside the drop zone.
-window.addEventListener("dragover", e => e.preventDefault());
-window.addEventListener("drop", e => {
-  if (!dropZone.contains(e.target)) e.preventDefault();
-});
+saveBtn.addEventListener(
+  "click",
+  saveMP4
+);
+
+clearBtn.addEventListener(
+  "click",
+  resetAll
+);
+
+window.addEventListener(
+  "dragover",
+  e => e.preventDefault()
+);
+
+window.addEventListener(
+  "drop",
+  e => {
+    if (!dropZone.contains(e.target)) {
+      e.preventDefault();
+    }
+  }
+);
 </script>
 </body>
 </html>
