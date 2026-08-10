@@ -444,15 +444,20 @@ async function loadFFmpeg() {
   const baseURL =
     "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
 
+  const coreURL = await toBlobURL(
+    `${baseURL}/ffmpeg-core.js`,
+    "text/javascript"
+  );
+
+  const wasmURL = await toBlobURL(
+    `${baseURL}/ffmpeg-core.wasm`,
+    "application/wasm"
+  );
+
   await ffmpeg.load({
-    coreURL: await toBlobURL(
-      `${baseURL}/ffmpeg-core.js`,
-      "text/javascript"
-    ),
-    wasmURL: await toBlobURL(
-      `${baseURL}/ffmpeg-core.wasm`,
-      "application/wasm"
-    )
+    classWorkerURL: "/ffmpeg/worker.js",
+    coreURL,
+    wasmURL
   });
 
   loaded = true;
