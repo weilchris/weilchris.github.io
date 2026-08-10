@@ -444,14 +444,14 @@ async function loadFFmpeg() {
   if (loaded) return;
 
   setStatus("Loading FFmpeg engine…");
-
   progressWrap.classList.add("show");
   setProgress(0, "Loading FFmpeg…");
 
-await ffmpeg.load({
-  coreURL: "/webm/ffmpeg/ffmpeg-core.js",
-  wasmURL: "/webm/ffmpeg/ffmpeg-core.wasm"
-});
+  await ffmpeg.load({
+    classWorkerURL: "/webm/ffmpeg/worker.js",
+    coreURL: "/webm/ffmpeg/ffmpeg-core.js",
+    wasmURL: "/webm/ffmpeg/ffmpeg-core.wasm"
+  });
 
   loaded = true;
 }
@@ -464,6 +464,10 @@ ffmpeg.on("progress", ({ progress }) => {
 ffmpeg.on("log", ({ message }) => {
   console.debug("[FFmpeg]", message);
 });
+
+async function fetchFile(file) {
+  return new Uint8Array(await file.arrayBuffer());
+}
 
 async function convert() {
   if (!selectedFile || converting) return;
