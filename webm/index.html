@@ -448,16 +448,10 @@ async function loadFFmpeg() {
   progressWrap.classList.add("show");
   setProgress(0, "Loading FFmpeg…");
 
-  await ffmpeg.load({
-    classWorkerURL:
-      "/webm/ffmpeg/worker.js",
-
-    coreURL:
-      "/webm/ffmpeg/ffmpeg-core.js",
-
-    wasmURL:
-      "/webm/ffmpeg/ffmpeg-core.wasm"
-  });
+await ffmpeg.load({
+  coreURL: "/webm/ffmpeg/ffmpeg-core.js",
+  wasmURL: "/webm/ffmpeg/ffmpeg-core.wasm"
+});
 
   loaded = true;
 }
