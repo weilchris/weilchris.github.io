@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Retro WebRTC Arcade Desktop</title>
+
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<style>
+
+html,body{
+
+margin:0;
+width:100%;
+height:100%;
+
+background:#000;
+color:#00ff55;
+
+font-family:monospace;
+
+overflow:hidden;
+
+text-align:center;
+
+}
+
+
+#offerScreen{
+
+width:100%;
+height:100%;
+
+display:flex;
+
+align-items:center;
+justify-content:center;
+
+flex-direction:column;
+
+}
+
+
+#offerQR{
+
+background:white;
+
+padding:20px;
+
+}
+
+
+
+button{
+
+margin-top:20px;
+
+padding:15px 25px;
+
+font-size:20px;
+
+background:#111;
+
+color:#00ff55;
+
+border:3px solid #00ff55;
+
+border-radius:10px;
+
+}
+
+
+
+/* SCANNER */
+
+
+#scannerScreen{
+
+display:none;
+
+position:relative;
+
+width:100%;
+height:100%;
+
+}
+
+
+
+#reader{
+
+width:100%;
+height:100%;
+
+}
+
+
+
+#reader video{
+
+width:100%!important;
+
+height:100%!important;
+
+object-fit:cover!important;
+
+}
+
+
+
+.scan-frame{
+
+position:absolute;
+
+top:50%;
+left:50%;
+
+transform:
+translate(-50%,-50%);
+
+
+width:500px;
+
+height:500px;
+
+
+border:4px solid #00ff55;
+
+
+box-shadow:
+
+0 0 30px #00ff55;
+
+
+z-index:10;
+
+}
+
+
+
+.scan-title{
+
+position:absolute;
+
+top:30px;
+
+width:100%;
+
+font-size:24px;
+
+z-index:20;
+
+}
+
+
+
+/* GAME */
+
+
+#game{
+
+display:none;
+
+position:relative;
+
+width:100%;
+height:100%;
+
+background:#050505;
+
+}
+
+
+#game{
+
+display:none;
+
+width:100%;
+height:100%;
+
+}
+
+
+canvas{
+
+width:100%;
+height:100%;
+
+image-rendering:pixelated;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<div id="offerScreen">
+
+
+<h1>
+SCAN WITH PHONE
+</h1>
+
+
+<div id="offerQR"></div>
+
+
+<h2 id="status">
+Creating connection...
+</h2>
+
+
+
+<button onclick="startAnswerScanner()">
+
+SCAN PHONE QR
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div id="scannerScreen">
+
+
+<div class="scan-title">
+
+SCAN PHONE QR
+
+</div>
+
+
+<div id="reader"></div>
+
+
+<div class="scan-frame"></div>
+
+
+</div>
+
+
+
+
+
+
+
+<div id="game">
+
+<canvas id="screen"></canvas>
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+let pc;
+
+let channel;
+
+
+async function createConnection(){
+
+
+
+pc =
+new RTCPeerConnection({
+
+iceServers:[]
+
+});
+
+
+
+
+channel =
+pc.createDataChannel("arcade");
+
+
+
+
+
+channel.onopen=()=>{
+
+console.log("CONNECTED");
+
+startGame();
+
+startGameEngine();
+
+};
+
+
+
+
+
+channel.onmessage=e=>{
+
+if(window.gameInput){
+
+gameInput(e.data);
+
+}
+
+};
+
+
+
+
+
+await pc.setLocalDescription(
+
+await pc.createOffer()
+
+);
+
+
+
+
+
+pc.onicecandidate=e=>{
+
+
+if(!e.candidate){
+
+showOfferQR();
+
+}
+
+
+};
+
+
+
+}
+
+
+
+
+
+
+
+function showOfferQR(){
+
+
+
+document
+.getElementById("offerQR")
+.innerHTML="";
+
+
+
+new QRCode(
+
+document.getElementById("offerQR"),
+
+{
+
+text:
+
+JSON.stringify(
+pc.localDescription
+),
+
+
+width:500,
+
+height:500,
+
+
+correctLevel:
+QRCode.CorrectLevel.L
+
+
+}
+
+);
+
+
+
+document
+.getElementById("status")
+.innerHTML=
+"Waiting for phone...";
+
+
+}
+
+
+
+
+
+
+
+
+
+async function startAnswerScanner(){
+
+
+
+await navigator.mediaDevices.getUserMedia({
+
+video:true,
+
+audio:false
+
+});
+
+
+
+
+
+document
+.getElementById("offerScreen")
+.style.display="none";
+
+
+
+document
+.getElementById("scannerScreen")
+.style.display="block";
+
+
+
+
+
+const scanner =
+new Html5Qrcode("reader");
+
+
+
+
+
+
+
+await scanner.start(
+
+
+{
+
+facingMode:"user"
+
+},
+
+
+
+
+{
+
+
+fps:20,
+
+
+qrbox:{
+
+width:600,
+
+height:600
+
+},
+
+
+aspectRatio:1.0
+
+
+
+},
+
+
+
+
+async text=>{
+
+
+console.log(
+"ANSWER QR RECEIVED:",
+text.length
+);
+
+
+
+await scanner.stop();
+
+
+
+
+
+let answer =
+JSON.parse(text);
+
+
+
+
+
+await pc.setRemoteDescription(answer);
+
+
+
+},
+
+
+
+error=>{}
+
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function startGame(){
+
+
+
+document
+.getElementById("scannerScreen")
+.style.display="none";
+
+
+
+document
+.getElementById("game")
+.style.display="block";
+
+
+}
+
+
+
+
+
+
+
+createConnection();
+
+
+
+</script>
+
+
+<script>
+
+// =================================
+// RETRO COMPUTER DUNGEON ENGINE
+// LEVEL 01
+// =================================
+
+
+const canvas =
+document.getElementById("screen");
+
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+canvas.width=320;
+canvas.height=180;
+
+
+ctx.imageSmoothingEnabled=false;
+
+
+
+
+// -------------------------------
+// PLAYER
+// -------------------------------
+
+
+const player={
+
+x:40,
+
+y:90,
+
+size:12,
+
+speed:2
+
+};
+
+
+
+
+
+// -------------------------------
+// INPUT FROM PHONE
+// -------------------------------
+
+
+let input={};
+
+
+
+function gameInput(command){
+
+input[command]=true;
+
+
+setTimeout(()=>{
+
+input[command]=false;
+
+},100);
+
+
+}
+
+
+
+
+
+// -------------------------------
+// LEVEL SYSTEM
+// -------------------------------
+
+
+let level=0;
+
+
+
+const levels=[
+
+
+{
+
+name:"BOOT SECTOR",
+
+portal:{
+x:280,
+y:150,
+size:20
+}
+
+},
+
+
+
+{
+
+name:"BIOS CHAMBER",
+
+portal:{
+x:40,
+y:40,
+size:20
+}
+
+},
+
+
+
+{
+
+name:"RAM FOREST",
+
+portal:{
+x:280,
+y:40,
+size:20
+}
+
+}
+
+
+];
+
+
+
+
+
+
+function loadLevel(){
+
+
+player.x=40;
+
+player.y=90;
+
+
+console.log(
+"ENTERING:",
+levels[level].name
+);
+
+
+}
+
+
+
+
+
+
+
+// -------------------------------
+// UPDATE
+// -------------------------------
+
+
+function update(){
+
+
+
+if(input.LEFT)
+
+player.x-=player.speed;
+
+
+
+if(input.RIGHT)
+
+player.x+=player.speed;
+
+
+
+if(input.UP)
+
+player.y-=player.speed;
+
+
+
+if(input.DOWN)
+
+player.y+=player.speed;
+
+
+
+
+
+// screen wrap
+
+
+if(player.x < 0)
+
+player.x=canvas.width-player.size;
+
+
+
+if(player.x > canvas.width)
+
+player.x=0;
+
+
+
+if(player.y < 0)
+
+player.y=canvas.height-player.size;
+
+
+
+if(player.y > canvas.height)
+
+player.y=0;
+
+
+
+
+
+
+// portal collision
+
+
+let p=
+levels[level].portal;
+
+
+
+if(
+
+player.x < p.x+p.size &&
+
+player.x+player.size > p.x &&
+
+player.y < p.y+p.size &&
+
+player.y+player.size > p.y
+
+){
+
+
+level++;
+
+
+if(level>=levels.length)
+
+level=0;
+
+
+
+loadLevel();
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// -------------------------------
+// DRAW
+// -------------------------------
+
+
+function draw(){
+
+
+
+ctx.fillStyle="#050505";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+
+
+// grid
+
+ctx.strokeStyle="#003300";
+
+
+for(let x=0;x<320;x+=16){
+
+ctx.beginPath();
+
+ctx.moveTo(x,0);
+
+ctx.lineTo(x,180);
+
+ctx.stroke();
+
+}
+
+
+
+for(let y=0;y<180;y+=16){
+
+ctx.beginPath();
+
+ctx.moveTo(0,y);
+
+ctx.lineTo(320,y);
+
+ctx.stroke();
+
+}
+
+
+
+
+// portal
+
+
+let p=
+levels[level].portal;
+
+
+ctx.strokeStyle="#00ffff";
+
+ctx.lineWidth=2;
+
+
+ctx.strokeRect(
+
+p.x,
+
+p.y,
+
+p.size,
+
+p.size
+
+);
+
+
+
+
+
+// player
+
+
+ctx.fillStyle="#00ff55";
+
+
+ctx.fillRect(
+
+player.x,
+
+player.y,
+
+player.size,
+
+player.size
+
+);
+
+
+
+
+
+
+// text
+
+
+ctx.fillStyle="#00ff55";
+
+ctx.font="8px monospace";
+
+
+ctx.fillText(
+
+levels[level].name,
+
+5,
+
+10
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+// -------------------------------
+// GAME LOOP
+// -------------------------------
+
+
+function gameLoop(){
+
+
+update();
+
+draw();
+
+
+requestAnimationFrame(gameLoop);
+
+
+}
+
+
+let gameStarted=false;
+
+
+function startGameEngine(){
+
+if(!gameStarted){
+
+gameStarted=true;
+
+gameLoop();
+
+}
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Retro Arcade Controller</title>
+
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+<style>
+
+html,body{
+
+margin:0;
+width:100%;
+height:100%;
+
+background:#000;
+
+color:#00ff55;
+
+font-family:monospace;
+
+overflow:hidden;
+
+text-align:center;
+
+}
+
+
+/* SCAN */
+
+#scan{
+
+position:relative;
+
+width:100%;
+height:100%;
+
+}
+
+
+
+#reader{
+
+width:100%;
+height:100%;
+
+}
+
+
+
+#reader video{
+
+width:100%!important;
+
+height:100%!important;
+
+object-fit:cover!important;
+
+}
+
+
+
+.scan-frame{
+
+position:absolute;
+
+top:50%;
+
+left:50%;
+
+
+transform:
+translate(-50%,-50%);
+
+
+width:75vw;
+
+height:75vw;
+
+
+max-width:500px;
+
+max-height:500px;
+
+
+
+border:4px solid #00ff55;
+
+
+box-shadow:
+
+0 0 30px #00ff55;
+
+
+z-index:10;
+
+}
+
+
+
+
+.title{
+
+position:absolute;
+
+top:30px;
+
+width:100%;
+
+font-size:24px;
+
+z-index:20;
+
+}
+
+
+
+
+/* ANSWER QR */
+
+
+#answer{
+
+display:none;
+
+width:100%;
+
+height:100%;
+
+
+align-items:center;
+
+justify-content:center;
+
+flex-direction:column;
+
+}
+
+
+
+#answerQR{
+
+background:white;
+
+padding:20px;
+
+}
+
+
+
+
+
+/* CONTROLLER */
+
+
+#controller{
+
+display:none;
+
+height:100%;
+
+}
+
+
+
+button{
+
+width:90px;
+
+height:90px;
+
+margin:10px;
+
+
+font-size:45px;
+
+
+background:#111;
+
+
+border:3px solid #00ff55;
+
+
+color:#00ff55;
+
+
+border-radius:20px;
+
+
+}
+
+body{
+
+transform:scale(0.75);
+transform-origin:center center;
+
+width:133.333%;
+height:133.333%;
+
+position:absolute;
+
+left:-16.666%;
+top:-16.666%;
+
+}
+
+html, body {
+
+    touch-action:none;
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+    -webkit-touch-callout:none;
+
+    overscroll-behavior:none;
+
+}
+
+button {
+
+    touch-action:none;
+
+    -webkit-user-select:none;
+
+    user-select:none;
+
+}
+
+
+#controllerPad{
+
+height:100vh;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+
+<div id="scan">
+
+
+<div class="title">
+
+SCAN DESKTOP QR
+
+</div>
+
+
+<div id="reader"></div>
+
+
+<div class="scan-frame"></div>
+
+
+</div>
+
+
+
+
+
+
+
+<div id="answer">
+
+
+<h1>
+SCAN WITH DESKTOP
+</h1>
+
+
+<div id="answerQR"></div>
+
+
+</div>
+
+
+
+
+
+
+
+<div id="controller">
+
+
+<h1>
+RETRO CONTROLLER
+</h1>
+
+
+
+<div id="controllerPad">
+
+<button 
+ontouchstart="startMove('UP')" 
+ontouchend="stopMove()"
+ontouchcancel="stopMove()">
+▲
+</button>
+
+
+    <div>
+
+<button 
+ontouchstart="startMove('LEFT')" 
+ontouchend="stopMove()"
+ontouchcancel="stopMove()">
+◀
+</button>
+
+
+<button 
+ontouchstart="startMove('FIRE')" 
+ontouchend="stopMove()"
+ontouchcancel="stopMove()">
+A
+</button>
+
+
+<button 
+ontouchstart="startMove('RIGHT')" 
+ontouchend="stopMove()"
+ontouchcancel="stopMove()">
+▶
+</button>
+
+    </div>
+
+
+    <div>
+
+<button 
+ontouchstart="startMove('DOWN')" 
+ontouchend="stopMove()"
+ontouchcancel="stopMove()">
+▼
+</button>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+let pc;
+
+let channel;
+
+
+
+let moveTimer=null;
+
+
+function send(command){
+
+if(channel &&
+channel.readyState==="open"){
+
+channel.send(command);
+
+}
+
+}
+
+
+
+function startMove(command){
+
+stopMove();
+
+
+send(command);
+
+
+// repeat while holding
+
+moveTimer=setInterval(()=>{
+
+send(command);
+
+},80);
+
+
+}
+
+
+
+function stopMove(){
+
+if(moveTimer){
+
+clearInterval(moveTimer);
+
+moveTimer=null;
+
+}
+
+}
+
+
+
+let scanner;
+
+
+
+async function startScanner(){
+
+
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+
+facingMode:{
+
+ideal:"environment"
+
+}
+
+},
+
+audio:false
+
+});
+
+
+
+scanner =
+new Html5Qrcode("reader");
+
+
+
+
+await scanner.start(
+
+{
+facingMode:"environment"
+},
+
+
+{
+
+fps:20,
+
+
+qrbox:{
+
+width:500,
+
+height:500
+
+},
+
+
+aspectRatio:1.0
+
+
+},
+
+
+qrFound,
+
+
+error=>{}
+
+
+);
+
+
+}
+
+
+
+
+
+
+
+
+async function qrFound(text){
+
+
+
+try{
+
+await scanner.stop();
+
+}catch(e){}
+
+
+
+
+
+document
+.getElementById("scan")
+.style.display="none";
+
+
+
+
+let offer =
+JSON.parse(text);
+
+
+
+
+
+pc =
+new RTCPeerConnection({
+
+iceServers:[]
+
+});
+
+
+
+
+
+pc.ondatachannel=e=>{
+
+
+channel=e.channel;
+
+
+channel.onopen=()=>{
+
+showController();
+
+};
+
+
+};
+
+
+
+
+
+
+await pc.setRemoteDescription(offer);
+
+
+
+
+
+
+let answer =
+await pc.createAnswer();
+
+
+
+
+
+
+await pc.setLocalDescription(answer);
+
+
+
+
+
+
+waitForICE();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function waitForICE(){
+
+
+
+if(
+pc.iceGatheringState==="complete"
+){
+
+showAnswer();
+
+return;
+
+}
+
+
+
+
+pc.addEventListener(
+
+"icegatheringstatechange",
+
+()=>{
+
+
+if(
+pc.iceGatheringState==="complete"
+){
+
+showAnswer();
+
+}
+
+
+}
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function showAnswer(){
+
+
+
+document
+.getElementById("answer")
+.style.display="flex";
+
+
+
+
+let answerData =
+JSON.stringify(
+pc.localDescription
+);
+
+
+
+console.log(
+"ANSWER QR LENGTH:",
+answerData.length
+);
+
+
+
+
+
+document
+.getElementById("answerQR")
+.innerHTML="";
+
+
+
+
+
+new QRCode(
+
+document.getElementById("answerQR"),
+
+{
+
+
+text:answerData,
+
+
+width:500,
+
+
+height:500,
+
+
+correctLevel:
+QRCode.CorrectLevel.L
+
+
+
+}
+
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function showController(){
+
+
+
+document
+.getElementById("answer")
+.style.display="none";
+
+
+
+document
+.getElementById("controller")
+.style.display="block";
+
+
+}
+
+
+
+
+
+
+
+startScanner();
+
+
+
+</script>
+
+
+
+
+<script>
+
+// prevent selection
+document.addEventListener("selectstart", e => {
+    e.preventDefault();
+});
+
+
+// prevent long press menu
+document.addEventListener("contextmenu", e => {
+    e.preventDefault();
+});
+
+
+// prevent dragging
+document.addEventListener("dragstart", e => {
+    e.preventDefault();
+});
+
+
+// prevent scrolling / swipe navigation
+document.addEventListener("touchmove", e => {
+    e.preventDefault();
+}, {
+    passive:false
+});
+
+
+// prevent double tap zoom
+let lastTouch = 0;
+
+document.addEventListener("touchend", e => {
+
+    let now = Date.now();
+
+    if(now - lastTouch <= 300){
+
+        e.preventDefault();
+
+    }
+
+    lastTouch = now;
+
+}, {
+    passive:false
+});
+
+
+// prevent pinch zoom
+document.addEventListener("gesturestart", e => {
+
+    e.preventDefault();
+
+});
+
+
+</script>
+
+
+</body>
+
+</html>
