@@ -279,14 +279,10 @@
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
 
-<script type="module">
-import {
-  fetchFile,
-  toBlobURL
-} from "https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm";
+<script src="/webm/ffmpeg/ffmpeg.js"></script>
 
+<script>
 const { FFmpeg } = FFmpegWASM;
 
 const fileInput = document.getElementById("fileInput");
@@ -341,9 +337,7 @@ function setProgress(value, text) {
   progressBar.style.width = pct + "%";
   progressPercent.textContent = Math.round(pct) + "%";
 
-  if (text) {
-    progressText.textContent = text;
-  }
+  if (text) progressText.textContent = text;
 }
 
 function resetOutput() {
@@ -359,7 +353,6 @@ function resetOutput() {
 
 function resetAll() {
   selectedFile = null;
-
   resetOutput();
 
   if (previewUrl) {
@@ -399,7 +392,6 @@ function selectFile(file) {
   }
 
   selectedFile = file;
-
   resetOutput();
 
   if (previewUrl) {
@@ -412,7 +404,6 @@ function selectFile(file) {
   preview.classList.add("show");
 
   fileName.textContent = file.name;
-
   fileMeta.textContent =
     `${formatBytes(file.size)} · ${file.type || "video/webm"}`;
 
@@ -446,21 +437,7 @@ fileInput.addEventListener("change", () => {
 });
 
 dropZone.addEventListener("drop", event => {
-  const file = event.dataTransfer.files[0];
-  selectFile(file);
-});
-
-ffmpeg.on("progress", ({ progress }) => {
-  if (!converting) return;
-
-  setProgress(
-    progress * 100,
-    "Converting…"
-  );
-});
-
-ffmpeg.on("log", ({ message }) => {
-  console.debug("[FFmpeg]", message);
+  selectFile(event.dataTransfer.files[0]);
 });
 
 async function loadFFmpeg() {
@@ -471,27 +448,28 @@ async function loadFFmpeg() {
   progressWrap.classList.add("show");
   setProgress(0, "Loading FFmpeg…");
 
-  const baseURL =
-    "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd";
-
-  const coreURL = await toBlobURL(
-    `${baseURL}/ffmpeg-core.js`,
-    "text/javascript"
-  );
-
-  const wasmURL = await toBlobURL(
-    `${baseURL}/ffmpeg-core.wasm`,
-    "application/wasm"
-  );
-
   await ffmpeg.load({
-    classWorkerURL: "https://chrisweil.com/webm/ffmpeg/worker.js",
-    coreURL,
-    wasmURL
+    classWorkerURL:
+      "/webm/ffmpeg/worker.js",
+
+    coreURL:
+      "/webm/ffmpeg/ffmpeg-core.js",
+
+    wasmURL:
+      "/webm/ffmpeg/ffmpeg-core.wasm"
   });
 
   loaded = true;
 }
+
+ffmpeg.on("progress", ({ progress }) => {
+  if (!converting) return;
+  setProgress(progress * 100, "Converting…");
+});
+
+ffmpeg.on("log", ({ message }) => {
+  console.debug("[FFmpeg]", message);
+});
 
 async function convert() {
   if (!selectedFile || converting) return;
@@ -515,9 +493,13 @@ async function convert() {
 
     setStatus("Reading WebM…");
 
+    const data = new Uint8Array(
+      await selectedFile.arrayBuffer()
+    );
+
     await ffmpeg.writeFile(
       inputName,
-      await fetchFile(selectedFile)
+      data
     );
 
     setProgress(
@@ -548,29 +530,22 @@ async function convert() {
       outputName
     ]);
 
-    setProgress(
-      98,
-      "Preparing MP4…"
-    );
+    setProgress(98, "Preparing MP4…");
 
-    const data =
+    const output =
       await ffmpeg.readFile(outputName);
 
-    outputBlob =
-      new Blob(
-        [data],
-        { type: "video/mp4" }
-      );
+    outputBlob = new Blob(
+      [output.buffer],
+      { type: "video/mp4" }
+    );
 
     outputUrl =
       URL.createObjectURL(outputBlob);
 
     saveBtn.disabled = false;
 
-    setProgress(
-      100,
-      "Complete."
-    );
+    setProgress(100, "Complete.");
 
     setStatus(
       `Done — MP4 ready (${formatBytes(outputBlob.size)}).`,
@@ -595,10 +570,7 @@ async function convert() {
       "error"
     );
 
-    setProgress(
-      0,
-      "Conversion failed."
-    );
+    setProgress(0, "Conversion failed.");
 
   } finally {
 
@@ -613,13 +585,11 @@ function saveMP4() {
   if (!outputBlob) return;
 
   const original =
-    selectedFile?.name?.replace(
-      /\.webm$/i,
-      ""
-    ) || "converted";
+    selectedFile?.name
+      ?.replace(/\.webm$/i, "") ||
+    "converted";
 
-  const a =
-    document.createElement("a");
+  const a = document.createElement("a");
 
   a.href = outputUrl;
   a.download = original + ".mp4";
@@ -629,20 +599,9 @@ function saveMP4() {
   a.remove();
 }
 
-convertBtn.addEventListener(
-  "click",
-  convert
-);
-
-saveBtn.addEventListener(
-  "click",
-  saveMP4
-);
-
-clearBtn.addEventListener(
-  "click",
-  resetAll
-);
+convertBtn.addEventListener("click", convert);
+saveBtn.addEventListener("click", saveMP4);
+clearBtn.addEventListener("click", resetAll);
 
 window.addEventListener(
   "dragover",
@@ -658,5 +617,6 @@ window.addEventListener(
   }
 );
 </script>
+
 </body>
 </html>
