@@ -485,7 +485,7 @@ async function loadFFmpeg() {
   );
 
   await ffmpeg.load({
-    classWorkerURL: "/webm/ffmpeg/worker.js",
+    classWorkerURL: "https://chrisweil.com/webm/ffmpeg/worker.js",
     coreURL,
     wasmURL
   });
