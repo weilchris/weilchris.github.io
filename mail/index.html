@@ -1982,14 +1982,20 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
     <form class="sc-generated-form sc-form-style-stacked" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact">
       <fieldset class="uk-fieldset" >
         <div class="sc-form-row sc-form-control-row sc-form-row-type-text">
-      <label class="uk-form-label" for="scform-field-mt07wm3j-1">Name *</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt07wm3j-1" name="Name" placeholder="Name" required></div>
+      <label class="uk-form-label" for="scform-field-mt08q41e-1">Name *</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt08q41e-1" name="Name" placeholder="Name" required></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-phone">
-      <label class="uk-form-label" for="scform-field-mt07wruy-4">Phone</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" inputmode="numeric" pattern="[0-9]*" id="scform-field-mt07wruy-4" name="Phone" placeholder="Phone"></div>
+      <label class="uk-form-label" for="scform-field-mt08q8rq-4">Phone</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" inputmode="numeric" pattern="[0-9]*" id="scform-field-mt08q8rq-4" name="Phone" placeholder="Phone"></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-url">
+      <label class="uk-form-label" for="scform-field-mt08q9d2-5">URL</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="url" id="scform-field-mt08q9d2-5" name="URL" placeholder="URL"></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-textarea">
-      <label class="uk-form-label" for="scform-field-mt07wm3j-2">Message *</label>
-      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt07wm3j-2" name="Message" placeholder="Message" required></textarea></div>
+      <label class="uk-form-label" for="scform-field-mt08q41e-2">Message *</label>
+      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt08q41e-2" name="Message" placeholder="Message" required></textarea></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-date">
+      <label class="uk-form-label" for="scform-field-mt08qax3-6">Date</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="date" id="scform-field-mt08qax3-6" name="Date" placeholder="Date"></div>
     </div><div class="sc-form-submit-wrap uk-text-right"><button class="sc-core-cta sc-core-cta-custom uk-border-pill" style="--sc-btn-bg:#ff7a00;--sc-btn-text:#ffffff;--sc-btn-border:#ff7a00;" type="submit">Send</button></div>
       </fieldset>
       
@@ -2001,97 +2007,130 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
 <script id="sc-protected-mail-runtime">
 (function(){
   var KEY=0x5A;
-
   function decode(hex){
     try{
       var bytes=[];
-      String(hex||'').replace(/../g,function(pair){
-        bytes.push((parseInt(pair,16)^KEY)&255);
-        return pair;
-      });
+      String(hex||'').replace(/../g,function(pair){bytes.push((parseInt(pair,16)^KEY)&255);return pair;});
       if(window.TextDecoder) return new TextDecoder().decode(new Uint8Array(bytes));
-      var bin='';
-      for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+      var bin=''; for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
       try{return decodeURIComponent(escape(bin));}catch(_){return bin;}
     }catch(_){return '';}
   }
 
+  function fieldLabel(el){
+    var id=el.id||'';
+    var label=id ? document.querySelector('label[for="'+CSS.escape(id)+'"]') : null;
+    var txt=label ? label.textContent.replace(/s**s*$/,'').trim() : '';
+    return txt || el.name || el.getAttribute('placeholder') || id || 'Field';
+  }
+
   function collectMailBody(form){
-    var fd=new FormData(form);
     var lines=[];
-    fd.forEach(function(value,key){
-      if(value instanceof File){
-        if(value && value.name) lines.push(key+': '+value.name);
-      }else{
-        lines.push(key+': '+String(value));
+    var handledRadio=new Set();
+
+    form.querySelectorAll('input, textarea, select').forEach(function(el){
+      if(el.disabled || el.type==='submit' || el.type==='button' || el.type==='hidden') return;
+
+      var key=fieldLabel(el);
+
+      if(el.type==='radio'){
+        var group=el.name||key;
+        if(handledRadio.has(group)) return;
+        handledRadio.add(group);
+        var selected=form.querySelector('input[type="radio"][name="'+CSS.escape(el.name||'')+'"]:checked');
+        lines.push(key+': '+(selected ? selected.value : 'No selection'));
+        return;
       }
+
+      if(el.type==='checkbox'){
+        lines.push(key+': '+(el.checked ? (el.value && el.value!=='on' ? el.value : 'Yes') : 'No'));
+        return;
+      }
+
+      if(el.type==='file'){
+        var names=el.files && el.files.length
+          ? Array.from(el.files).map(function(f){return f.name;}).join(', ')
+          : 'No file selected';
+        lines.push(key+': '+names);
+        return;
+      }
+
+      var value=String(el.value||'').trim();
+      lines.push(key+': '+value);
     });
-    return lines.join('\n');
+
+    return lines.join('
+');
+  }
+
+  function composeMail(form){
+    if(!form) return false;
+    if(typeof form.reportValidity==='function' && !form.reportValidity()) return false;
+
+    var email=decode(form.getAttribute('data-sc-protected-mail'));
+    if(!email) return false;
+
+    var subject=form.getAttribute('data-sc-mail-subject')||'Contact';
+    var body=collectMailBody(form);
+    var mailto='mailto:'+email
+      +'?subject='+encodeURIComponent(subject)
+      +'&body='+encodeURIComponent(body);
+
+    /* Direct user-gesture launch. Anchor click is more reliable than form action. */
+    var a=document.createElement('a');
+    a.href=mailto;
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    return false;
   }
 
   function bindMailtoForm(form){
     if(!form || form.dataset.scMailBound==='1') return;
     form.dataset.scMailBound='1';
+    form.removeAttribute('action');
+    form.removeAttribute('method');
+
+    form.addEventListener('click',function(ev){
+      var btn=ev.target.closest('button[type="submit"],input[type="submit"]');
+      if(!btn || !form.contains(btn)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      composeMail(form);
+    });
 
     form.addEventListener('submit',function(ev){
       ev.preventDefault();
       ev.stopPropagation();
-
-      var email=decode(form.getAttribute('data-sc-protected-mail'));
-      if(!email) return false;
-
-      var subject=form.getAttribute('data-sc-mail-subject')||'';
-      var body=collectMailBody(form);
-
-      window.location.href='mailto:'+email
-        +'?subject='+encodeURIComponent(subject)
-        +'&body='+encodeURIComponent(body);
-
+      composeMail(form);
       return false;
     });
   }
 
   function activate(root){
-    root=root||document;
-
-    root.querySelectorAll('[data-sc-protected-mail]').forEach(function(el){
+    (root||document).querySelectorAll('[data-sc-protected-mail]').forEach(function(el){
       var email=decode(el.getAttribute('data-sc-protected-mail'));
       if(!email) return;
-
       if(el.matches('a')){
-        el.setAttribute('href','mailto:'+email);
-        var target=el.querySelector('[data-sc-protected-mail-text]');
-        if(target) target.textContent=email;
-      }
-
-      if(el.matches('form[data-sc-delivery="mailto"]')){
-        el.removeAttribute('action');
-        el.removeAttribute('method');
+        el.href='mailto:'+email;
+        var text=el.querySelector('[data-sc-protected-mail-text]');
+        if(text) text.textContent=email;
+      }else if(el.matches('form[data-sc-delivery="mailto"]')){
         bindMailtoForm(el);
       }
     });
   }
-
   function boot(){
     activate(document);
-
     if(window.MutationObserver){
-      var observer=new MutationObserver(function(records){
-        records.forEach(function(record){
-          record.addedNodes.forEach(function(node){
-            if(node && node.nodeType===1) activate(node);
-          });
-        });
-      });
-      observer.observe(document.documentElement,{childList:true,subtree:true});
+      new MutationObserver(function(records){
+        records.forEach(function(r){r.addedNodes.forEach(function(n){if(n&&n.nodeType===1) activate(n);});});
+      }).observe(document.documentElement,{childList:true,subtree:true});
     }
   }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',boot,{once:true});
-  }else{
-    boot();
-  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
 })();
 </script>
 <script id="sc-form-file-runtime">
