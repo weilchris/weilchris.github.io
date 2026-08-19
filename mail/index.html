@@ -1979,14 +1979,17 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
   <div class="uk-container uk-container-small">
     <h2 class="live-heading uk-heading-medium uk-text-center" style="color:#000000">Get in Touch</h2>
     <div class="live-subtitle sub-md uk-text-center" style="color:#000000;margin-bottom:32px;">Contact us</div>
-    <form class="sc-generated-form sc-form-style-horizontal" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact" action="#" method="post" enctype="text/plain">
+    <form class="sc-generated-form sc-form-style-stacked" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact">
       <fieldset class="uk-fieldset" >
         <div class="sc-form-row sc-form-control-row sc-form-row-type-text">
-      <label class="uk-form-label" for="scform-field-mt06yw8h-1">Name *</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt06yw8h-1" name="Name" placeholder="Name" required></div>
+      <label class="uk-form-label" for="scform-field-mt07wm3j-1">Name *</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt07wm3j-1" name="Name" placeholder="Name" required></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-phone">
+      <label class="uk-form-label" for="scform-field-mt07wruy-4">Phone</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" inputmode="numeric" pattern="[0-9]*" id="scform-field-mt07wruy-4" name="Phone" placeholder="Phone"></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-textarea">
-      <label class="uk-form-label" for="scform-field-mt06yw8i-2">Message *</label>
-      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt06yw8i-2" name="Message" placeholder="Message" required></textarea></div>
+      <label class="uk-form-label" for="scform-field-mt07wm3j-2">Message *</label>
+      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt07wm3j-2" name="Message" placeholder="Message" required></textarea></div>
     </div><div class="sc-form-submit-wrap uk-text-right"><button class="sc-core-cta sc-core-cta-custom uk-border-pill" style="--sc-btn-bg:#ff7a00;--sc-btn-text:#ffffff;--sc-btn-border:#ff7a00;" type="submit">Send</button></div>
       </fieldset>
       
@@ -2013,6 +2016,41 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
     }catch(_){return '';}
   }
 
+  function collectMailBody(form){
+    var fd=new FormData(form);
+    var lines=[];
+    fd.forEach(function(value,key){
+      if(value instanceof File){
+        if(value && value.name) lines.push(key+': '+value.name);
+      }else{
+        lines.push(key+': '+String(value));
+      }
+    });
+    return lines.join('\n');
+  }
+
+  function bindMailtoForm(form){
+    if(!form || form.dataset.scMailBound==='1') return;
+    form.dataset.scMailBound='1';
+
+    form.addEventListener('submit',function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      var email=decode(form.getAttribute('data-sc-protected-mail'));
+      if(!email) return false;
+
+      var subject=form.getAttribute('data-sc-mail-subject')||'';
+      var body=collectMailBody(form);
+
+      window.location.href='mailto:'+email
+        +'?subject='+encodeURIComponent(subject)
+        +'&body='+encodeURIComponent(body);
+
+      return false;
+    });
+  }
+
   function activate(root){
     root=root||document;
 
@@ -2026,9 +2064,10 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
         if(target) target.textContent=email;
       }
 
-      if(el.matches('form')){
-        var subject=el.getAttribute('data-sc-mail-subject')||'';
-        el.setAttribute('action','mailto:'+email+(subject?'?subject='+encodeURIComponent(subject):''));
+      if(el.matches('form[data-sc-delivery="mailto"]')){
+        el.removeAttribute('action');
+        el.removeAttribute('method');
+        bindMailtoForm(el);
       }
     });
   }
@@ -2040,10 +2079,7 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
       var observer=new MutationObserver(function(records){
         records.forEach(function(record){
           record.addedNodes.forEach(function(node){
-            if(node && node.nodeType===1){
-              if(node.matches && node.matches('[data-sc-protected-mail]')) activate(node.parentNode||node);
-              else if(node.querySelector) activate(node);
-            }
+            if(node && node.nodeType===1) activate(node);
           });
         });
       });
