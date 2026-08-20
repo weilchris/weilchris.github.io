@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "type": "sacrisoft-core-global-drop-menu",
+  "dropMenu": {
+    "enabled": true,
+    "align": "center",
+    "bg": "#ffffff",
+    "text": "#000000",
+    "items": [
+      {
+        "_scParentId": "menu-b9zlfe82",
+        "title": "New Parent",
+        "url": "#",
+        "children": []
+      },
+      {
+        "_scParentId": "menu-8swx9a2u",
+        "title": "New Parent",
+        "url": "#",
+        "newTab": false,
+        "lightbox": false,
+        "children": []
+      }
+    ]
+  }
+}
