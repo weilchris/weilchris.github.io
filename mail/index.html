@@ -214,14 +214,14 @@
 
 .sc-generated-form .sc-core-cta.sc-core-cta-custom,
 .sc-generated-form .sc-core-cta-custom{
-  background:var(--sc-btn-bg,#ff7a00)!important;
+  background:var(--sc-btn-bg,#ff9000)!important;
   color:var(--sc-btn-text,#ffffff)!important;
-  border-color:var(--sc-btn-bg,#ff7a00)!important;
+  border-color:var(--sc-btn-bg,#ff9000)!important;
 }
 .sc-generated-form .sc-core-cta.sc-core-cta-custom:hover,
 .sc-generated-form .sc-core-cta-custom:hover{
   background:var(--sc-btn-text,#ffffff)!important;
-  color:var(--sc-btn-bg,#ff7a00)!important;
+  color:var(--sc-btn-bg,#ff9000)!important;
   border-color:var(--sc-btn-text,#ffffff)!important;
   filter:none!important;
 }
@@ -264,8 +264,8 @@
 }
 .sc-generated-form .sc-core-cta-custom:hover{
   background:var(--sc-btn-text,#ffffff)!important;
-  color:var(--sc-btn-bg,#ff7a00)!important;
-  border:1px solid var(--sc-btn-bg,#ff7a00)!important;
+  color:var(--sc-btn-bg,#ff9000)!important;
+  border:1px solid var(--sc-btn-bg,#ff9000)!important;
   filter:none!important;
 }
 
@@ -338,6 +338,117 @@
     grid-template-columns:1fr!important;
   }
 }
+
+/* ============================================================
+   FORM LABEL POLICY — shared by Editor / Preview / Export
+   ============================================================ */
+
+/* Stacked: normal labels are always visible. */
+.sc-generated-form.sc-form-style-stacked .sc-form-control-row > label{
+  display:block!important;
+  margin:0 0 6px!important;
+}
+
+/* Minimal + Two Columns: no normal labels. These selectors are intentionally
+   as specific as the older horizontal label rule so they override it. */
+.sc-generated-form.sc-form-style-minimal .sc-form-control-row > label,
+.sc-generated-form.sc-form-style-horizontal .sc-form-control-row > label{
+  display:none!important;
+}
+
+/* Controls without a reliable native placeholder keep a visible label. */
+.sc-generated-form.sc-form-style-minimal .sc-form-row-type-date > label,
+.sc-generated-form.sc-form-style-minimal .sc-form-row-type-file > label,
+.sc-generated-form.sc-form-style-minimal .sc-form-row-type-select > label,
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-date > label,
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-file > label,
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-select > label{
+  display:block!important;
+  margin:0 0 6px!important;
+}
+
+/* Date must remain labelled on mobile as native mobile date controls
+   commonly suppress placeholder text completely. */
+@media(max-width:640px){
+  .sc-generated-form .sc-form-row-type-date > label{
+    display:block!important;
+    margin:0 0 6px!important;
+  }
+}
+
+
+/* ============================================================
+   TWO COLUMNS — deterministic shared placement
+   Same CSS is used by Live Editor / Preview / Export.
+   ============================================================ */
+.sc-generated-form.sc-form-style-horizontal fieldset{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  column-gap:24px!important;
+  row-gap:0!important;
+  align-items:stretch!important;
+}
+
+/* Every ordinary control belongs to the left column by default. */
+.sc-generated-form.sc-form-style-horizontal .sc-form-control-row{
+  grid-column:1!important;
+  grid-row:auto!important;
+  width:100%!important;
+  min-width:0!important;
+}
+
+/* Message/Textarea owns the right column independently of field count/order. */
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-textarea{
+  grid-column:2!important;
+  grid-row:1 / span 99!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-self:stretch!important;
+  min-width:0!important;
+}
+
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-textarea > div{
+  display:flex!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  min-height:0!important;
+}
+
+.sc-generated-form.sc-form-style-horizontal .sc-form-row-type-textarea .uk-textarea{
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  flex:1 1 auto!important;
+  resize:vertical!important;
+}
+
+/* Non-control structural rows and Submit span the complete form. */
+.sc-generated-form.sc-form-style-horizontal .sc-form-row:not(.sc-form-control-row),
+.sc-generated-form.sc-form-style-horizontal .sc-form-submit-wrap{
+  grid-column:1 / -1!important;
+  grid-row:auto!important;
+}
+
+/* Mobile returns to normal document order. */
+@media(max-width:640px){
+  .sc-generated-form.sc-form-style-horizontal fieldset{
+    grid-template-columns:1fr!important;
+  }
+
+  .sc-generated-form.sc-form-style-horizontal .sc-form-control-row,
+  .sc-generated-form.sc-form-style-horizontal .sc-form-row-type-textarea,
+  .sc-generated-form.sc-form-style-horizontal .sc-form-row:not(.sc-form-control-row),
+  .sc-generated-form.sc-form-style-horizontal .sc-form-submit-wrap{
+    grid-column:1!important;
+    grid-row:auto!important;
+  }
+
+  .sc-generated-form.sc-form-style-horizontal .sc-form-row-type-textarea .uk-textarea{
+    min-height:180px!important;
+    height:auto!important;
+  }
+}
+
 </style>
 <style id="sc-public-carousel-css">/* Rendered carousels */
 .sc-carousel-section{position:relative;overflow:hidden;}
@@ -476,8 +587,8 @@
 /* FORM — global button + structured controls */
 .sc-generated-form .sc-core-cta-custom:hover{
   background:var(--sc-btn-text,#fff)!important;
-  border-color:var(--sc-btn-bg,#ff7a00)!important;
-  color:var(--sc-btn-bg,#ff7a00)!important;
+  border-color:var(--sc-btn-bg,#ff9000)!important;
+  color:var(--sc-btn-bg,#ff9000)!important;
   filter:none!important;
 }
 
@@ -524,8 +635,8 @@
 /* Use the actual global Custom button behavior: swap background/text on hover */
 .sc-generated-form .sc-core-cta.sc-core-cta-custom:hover{
   background:var(--sc-btn-text,#fff)!important;
-  color:var(--sc-btn-bg,#ff7a00)!important;
-  border-color:var(--sc-btn-bg,#ff7a00)!important;
+  color:var(--sc-btn-bg,#ff9000)!important;
+  border-color:var(--sc-btn-bg,#ff9000)!important;
   filter:none!important;
 }
 
@@ -1207,9 +1318,9 @@ color: #fff;
 
 /* Custom: CSS variables are written inline by makeButtonHtml() */
 .sc-core-cta-custom{
-  --sc-btn-bg:#ff7a00;
+  --sc-btn-bg:#ff9000;
   --sc-btn-text:#ffffff;
-  --sc-btn-border:#ff7a00;
+  --sc-btn-border:#ff9000;
 }
 .sc-core-cta-custom:hover{
   filter:brightness(.92);
@@ -1317,9 +1428,9 @@ color: #fff;
 
 /* Custom: orange / white by default */
 .sc-core-cta.sc-core-cta-custom{
-  background:#ff7a00 !important;
+  background:#ff9000 !important;
   color:#ffffff !important;
-  border:1px solid #ff7a00 !important;
+  border:1px solid #ff9000 !important;
 }
 .sc-core-cta.sc-core-cta-custom:hover{
   filter:brightness(.92);
@@ -1877,6 +1988,114 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
 }
 </style>
 
+
+<style id="sc-outside-modal-close-fix">
+/* v10.10.13 — make UIkit outside modal closes genuinely visible.
+   CORE previously scrolled/clipped the dialog itself; UIkit expects the modal
+   overlay to scroll while dialog overflow remains visible. */
+.uk-modal{
+  overflow-y:auto !important;
+  padding-top:56px !important;
+}
+.uk-modal-dialog{
+  overflow:visible !important;
+  max-height:none !important;
+  transform:none !important;
+  will-change:auto !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:absolute !important;
+  top:-44px !important;
+  right:0 !important;
+  width:36px !important;
+  height:36px !important;
+  margin:0 !important;
+  padding:8px !important;
+  transform:none !important;
+  z-index:2147482000 !important;
+  color:#fff !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  opacity:.9 !important;
+  cursor:pointer !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside:hover{
+  color:#fff !important;
+  opacity:1 !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside svg{
+  width:18px !important;
+  height:18px !important;
+}
+@media(max-width:640px){
+  .uk-modal{padding-top:50px !important;}
+  .uk-modal-dialog > .uk-modal-close-outside{top:-40px !important;}
+}
+</style>
+
+<style id="sc-outside-close-force-fix">
+/* v10.10.14 — force every UIkit outside modal close to remain visibly outside. */
+.uk-modal{
+  overflow-y:auto !important;
+  padding-top:58px !important;
+}
+.uk-modal-dialog{
+  position:relative !important;
+  overflow:visible !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:absolute !important;
+  top:-46px !important;
+  right:0 !important;
+  left:auto !important;
+  width:38px !important;
+  height:38px !important;
+  margin:0 !important;
+  padding:9px !important;
+  z-index:2147483646 !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transform:none !important;
+  background:rgba(0,0,0,.78) !important;
+  color:#fff !important;
+  border:0 !important;
+  border-radius:50% !important;
+  box-shadow:0 3px 14px rgba(0,0,0,.28) !important;
+  cursor:pointer !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside svg{
+  display:block !important;
+  width:18px !important;
+  height:18px !important;
+  color:#fff !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside svg line,
+.uk-modal-dialog > .uk-modal-close-outside svg path{
+  stroke:currentColor !important;
+}
+.uk-modal-dialog > .uk-modal-close-outside:hover{
+  background:#000 !important;
+  color:#fff !important;
+}
+@media(max-width:640px){
+  .uk-modal{padding-top:52px !important;}
+  .uk-modal-dialog > .uk-modal-close-outside{
+    top:-42px !important;
+    right:4px !important;
+    width:34px !important;
+    height:34px !important;
+    padding:8px !important;
+  }
+}
+</style>
 </head>
 <body class="uk-background-muted sc-user-site" id="top">
 <h1 id="site-title-h1" class="visually-hidden">Your Website Title</h1>
@@ -1967,7 +2186,7 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
 
 <nav class="uk-navbar-container sc-dynamic-navbar" style="background:rgba(255,255,255,1);position:sticky !important;top:0 !important;z-index:9000 !important;">
 <ul class="navbar-scroll" data-sc-preview-nav="1" style="color:#000000;">
-<li><a class="sc-page-active" href="index.html">Your Website Title</a></li><li class="sc-page-heading-link"><a href="#get-in-touch">Get in Touch</a></li>
+<li><a class="sc-page-active" href="index.html">Your Website Title</a></li><li class="sc-page-heading-link"><a href="#get-in-touch">Get in Touch</a></li><li class="sc-page-heading-link"><a href="#get-in-touch-2">Get in Touch</a></li>
 </ul>
 </nav>
 
@@ -1979,40 +2198,55 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
   <div class="uk-container uk-container-small">
     <h2 class="live-heading uk-heading-medium uk-text-center" style="color:#000000">Get in Touch</h2>
     <div class="live-subtitle sub-md uk-text-center" style="color:#000000;margin-bottom:32px;">Contact us</div>
-    <form class="sc-generated-form sc-form-style-minimal" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact" data-sc-delivery="mailto" data-sc-protected-mail="33343c351a39322833292d3f333674393537" data-sc-mail-subject="Contact">
+    <form class="sc-generated-form sc-form-style-stacked" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact" data-sc-delivery="mailto" data-sc-protected-mail="33343c351a39322833292d3f333674393537" data-sc-mail-subject="Contact">
       <fieldset class="uk-fieldset" >
         <div class="sc-form-row sc-form-control-row sc-form-row-type-text">
-      <label class="uk-form-label" for="scform-field-mt0cb2b5-1">Name *</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt0cb2b5-1" name="Name" placeholder="Name" required></div>
+      <label class="uk-form-label" for="scform-field-mt1r1stu-1">Name *</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt1r1stu-1" name="Name" placeholder="Name" required></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-textarea">
-      <label class="uk-form-label" for="scform-field-mt0cb2b6-2">Message *</label>
-      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt0cb2b6-2" name="Message" placeholder="Message" required></textarea></div>
+      <label class="uk-form-label" for="scform-field-mt1r1stu-2">Message *</label>
+      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt1r1stu-2" name="Message" placeholder="Message" required></textarea></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-phone">
-      <label class="uk-form-label" for="scform-field-mt0cb62w-4">Phone</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" inputmode="numeric" pattern="[0-9]*" id="scform-field-mt0cb62w-4" name="Phone" placeholder="Phone"></div>
-    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-number">
-      <label class="uk-form-label" for="scform-field-mt0cb71k-5">Number</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="number" id="scform-field-mt0cb71k-5" name="Number" placeholder="Number"></div>
+      <label class="uk-form-label" for="scform-field-mt1r1yh0-4">Phone</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" inputmode="numeric" pattern="[0-9]*" id="scform-field-mt1r1yh0-4" name="Phone" placeholder="Phone"></div>
     </div><div class="sc-form-row sc-form-control-row sc-form-row-type-url">
-      <label class="uk-form-label" for="scform-field-mt0cb7hr-6">URL</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="url" id="scform-field-mt0cb7hr-6" name="URL" placeholder="URL"></div>
-    </div><div class="sc-form-row">
-        <div class="uk-form-label">Choice</div>
-        <div class="uk-grid-small uk-child-width-auto" uk-grid>
-          <label><input class="uk-radio" type="radio" name="Choice" value="Option 1" checked> Option 1</label><label><input class="uk-radio" type="radio" name="Choice" value="Option 2" > Option 2</label>
-        </div>
-      </div><div class="sc-form-row sc-form-control-row sc-form-row-type-select">
-      <label class="uk-form-label" for="scform-field-mt0cb8ot-8">Select</label>
-      <div><select class="uk-select uk-border-rounded uk-text-lighter" id="scform-field-mt0cb8ot-8" name="Select">
-        <option value="">Select</option>
-        <option value="Option 1">Option 1</option><option value="Option 2">Option 2</option>
-      </select></div>
-    </div><div class="sc-form-row">
-        <label><input class="uk-checkbox uk-border-rounded" type="checkbox" id="scform-field-mt0cb98q-9" name="Checkbox"> Checkbox</label>
-      </div><div class="sc-form-row sc-form-control-row sc-form-row-type-date">
-      <label class="uk-form-label" for="scform-field-mt0cba47-10">Date</label>
-      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="date" id="scform-field-mt0cba47-10" name="Date" placeholder="Date"></div>
-    </div><div class="sc-form-submit-wrap uk-text-right"><button class="sc-core-cta sc-core-cta-custom uk-border-pill" style="--sc-btn-bg:#ff7a00;--sc-btn-text:#ffffff;--sc-btn-border:#ff7a00;" type="submit" onclick="return window.scComposeProtectedMailto ? window.scComposeProtectedMailto(this.form) : false;">Send</button></div>
+      <label class="uk-form-label" for="scform-field-mt1r20ex-5">URL</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="url" id="scform-field-mt1r20ex-5" name="URL" placeholder="URL"></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-date">
+      <label class="uk-form-label" for="scform-field-mt1r21gf-6">Date</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="date" id="scform-field-mt1r21gf-6" name="Date" placeholder="Date"></div>
+    </div><div class="sc-form-submit-wrap uk-text-right"><button class="sc-core-cta sc-core-cta-custom uk-border-pill" style="--sc-btn-bg:#ff9000;--sc-btn-text:#ffffff;--sc-btn-border:#ff9000;" type="submit" onclick="return window.scComposeProtectedMailto ? window.scComposeProtectedMailto(this.form) : false;">Send</button></div>
+      </fieldset>
+      
+    </form>
+  </div>
+</section></div>
+</section>
+<section id="get-in-touch-2" class="uk-section uk-section-primary sc-auto-panel" uk-height-viewport="offset-top: true" style="background:#ffffff;min-height:100vh;padding:0;margin:0;display:flex;flex-direction:column;box-sizing:border-box;">
+<div class="sc-panel-content" style="width:100%;margin-top:auto;margin-bottom:auto;">
+<section class="uk-section sc-form-section" style="background:#ffffff;color:#000000;position:relative;">
+  <div class="sc-formspree-local-warning" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:28px;box-sizing:border-box;background:rgba(255,145,0,.92);color:#fff;font-weight:800;font-size:clamp(16px,2vw,28px);line-height:1.25;letter-spacing:.01em;z-index:2147482000;">
+           <div>Formspree is available when the website is online.<br><span style="font-size:.62em;font-weight:600;">Upload the website to a server to use this form.</span></div>
+         </div>
+  <div class="uk-container uk-container-small">
+    <h2 class="live-heading uk-heading-medium uk-text-center" style="color:#000000">Get in Touch</h2>
+    <div class="live-subtitle sub-md uk-text-center" style="color:#000000;margin-bottom:32px;">Contact us</div>
+    <form class="sc-generated-form sc-form-style-minimal" style="--sc-form-accent:#ff9000;--sc-form-field-bg:#ffffff;--sc-form-field-text:#000000;" name="Contact" action="https://formspree.io/f/xbjvweqp" method="post" accept-charset="utf-8">
+      <fieldset class="uk-fieldset" >
+        <div class="sc-form-row sc-form-control-row sc-form-row-type-text">
+      <label class="uk-form-label" for="scform-field-mt1r3uqu-7">Name *</label>
+      <div><input class="uk-input uk-border-rounded uk-text-lighter" type="text" id="scform-field-mt1r3uqu-7" name="Name" placeholder="Name" required></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-textarea">
+      <label class="uk-form-label" for="scform-field-mt1r3uqu-8">Message *</label>
+      <div><textarea class="uk-textarea uk-border-rounded uk-text-lighter" rows="5" id="scform-field-mt1r3uqu-8" name="Message" placeholder="Message" required></textarea></div>
+    </div><div class="sc-form-row sc-form-control-row sc-form-row-type-file">
+      <label class="uk-form-label" for="scform-field-mt1r41en-10">File</label>
+      <div><div class="sc-file-control">
+        <input class="sc-file-native" type="file" id="scform-field-mt1r41en-10" name="File">
+        <label for="scform-field-mt1r41en-10" class="sc-core-cta sc-core-cta-custom sc-file-button uk-border-pill" style="--sc-btn-bg:#ff9000;--sc-btn-text:#ffffff;--sc-btn-border:#ff9000;">File</label>
+        <span class="sc-file-name" data-sc-file-name="scform-field-mt1r41en-10">File</span>
+      </div></div>
+    </div><div class="sc-form-submit-wrap uk-text-right"><button class="sc-core-cta sc-core-cta-custom uk-border-pill" style="--sc-btn-bg:#ff9000;--sc-btn-text:#ffffff;--sc-btn-border:#ff9000;" type="submit">Send</button></div>
       </fieldset>
       
     </form>
@@ -2157,6 +2391,27 @@ nav.uk-navbar-container .navbar-scroll a:has(img),
 
 
 
+<style>
+@media (max-width: 900px) {
+  #site-search-toggle,
+  #site-back-to-top {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
+    padding: 4px !important;
+  }
+  #site-search-toggle > span,
+  #site-back-to-top > span,
+  #site-search-toggle svg,
+  #site-back-to-top svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+</style>
 <button id="site-back-to-top" type="button" aria-label="Back to top"
   style="position:fixed;right:22px;left:auto;transform:none;bottom:22px;z-index:900;width:52px;height:52px;border:0;border-radius:50%;background:#ffffff;color:#000000;box-shadow:0 8px 24px rgba(0,0,0,.22);cursor:pointer;display:grid;place-items:center;">
   <span uk-icon="chevron-up"></span>
