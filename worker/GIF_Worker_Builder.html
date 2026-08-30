@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Sacrisoft GIF Worker Builder™</title>
+<style>
+:root{
+  --bg:#0d0e11; --panel:#15171c; --panel2:#1b1e24; --line:#30343d;
+  --text:#f7f7f8; --muted:#9ba3af; --accent:#7c8cff; --danger:#ff5d73;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select{font:inherit}
+button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:#292d35;color:white}
+button:hover{filter:brightness(1.12)}
+button.primary{background:linear-gradient(120deg,#7c8cff,#aa66ff,#ff5e8a);font-weight:800}
+button.danger{background:#3a2027;color:#ff9aaa}
+input,select{background:#101217;color:white;border:1px solid var(--line);border-radius:9px;padding:8px}
+input[type=range]{padding:0; accent-color:var(--accent)}
+input[type=color]{padding:2px;width:44px;height:34px}
+input[type=file]{max-width:220px}
+#app{height:100%;display:grid;grid-template-rows:auto 1fr 184px}
+#top{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:#121419}
+#top h1{font-size:17px;margin:0 8px 0 auto;white-space:nowrap}
+#main{min-height:0;display:grid;grid-template-columns:310px 1fr 320px}
+.panel{background:var(--panel);overflow:auto;padding:12px}
+#left{border-right:1px solid var(--line)}
+#right{border-left:1px solid var(--line)}
+.group{padding:10px 0;border-bottom:1px solid #252933}
+.group:last-child{border-bottom:0}
+.group h3{font-size:13px;margin:0 0 8px;color:#d9dce3;text-transform:uppercase;letter-spacing:.08em}
+.row{display:flex;gap:7px;align-items:center;margin:7px 0}
+.row>*{min-width:0}
+.row label{font-size:12px;color:var(--muted);min-width:76px}
+.row input[type=number], .row select, .row input[type=text]{width:100%}
+.small{font-size:12px;color:var(--muted);line-height:1.35}
+#stageWrap{position:relative;min-width:0;min-height:0;overflow:hidden;background:
+ linear-gradient(45deg,#17191e 25%,transparent 25%) 0 0/28px 28px,
+ linear-gradient(45deg,transparent 75%,#17191e 75%) 0 0/28px 28px,
+ linear-gradient(45deg,transparent 25%,#17191e 25%) 14px 14px/28px 28px,
+ linear-gradient(45deg,#17191e 75%,transparent 75%) 14px 14px/28px 28px,#101216}
+#preview{width:100%;height:100%;display:block}
+#dropHint{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#768090;font-weight:700;text-align:center;padding:20px}
+#dropHint.hidden{display:none}
+#timeline{border-top:1px solid var(--line);background:#111319;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+#timelineHead{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
+#frames{display:flex;gap:9px;overflow-x:auto;padding:10px;align-items:stretch}
+.frame{position:relative;flex:0 0 132px;background:#191c22;border:2px solid transparent;border-radius:12px;padding:6px;cursor:pointer;user-select:none}
+.frame.active{border-color:var(--accent)}
+.frame.dragover{outline:2px dashed white}
+.thumb{width:100%;height:92px;object-fit:contain;background:#0a0b0e;border-radius:8px}
+.frameMeta{display:flex;justify-content:space-between;gap:5px;margin-top:4px;font-size:11px;color:#adb4bf}
+.frameX{position:absolute;right:7px;top:7px;width:24px;height:24px;border-radius:50%;padding:0;background:rgba(0,0,0,.75)}
+.badge{padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:#cdd3dd;font-size:11px}
+#status{font-size:12px;color:#c4cad4;min-width:125px}
+#progress{width:110px}
+textarea{width:100%;height:74px;background:#101217;color:white;border:1px solid var(--line);border-radius:9px;padding:8px;resize:vertical}
+.sep{height:1px;background:#252933;margin:9px 0}
+@media(max-width:1050px){
+  #main{grid-template-columns:250px 1fr 280px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <input id="imageInput" type="file" accept="image/*" multiple>
+    <button id="addVideo">Add Video</button>
+    <input id="videoInput" type="file" accept="video/*" hidden>
+    <button id="clearAll" class="danger">Clear</button>
+    <button id="playBtn">▶ Preview</button>
+    <progress id="progress" value="0" max="1"></progress>
+    <span id="status">Ready</span>
+    <button id="exportBtn" class="primary">Export GIF</button>
+    <h1>Sacrisoft GIF Worker Builder™</h1>
+  </div>
+
+  <div id="main">
+    <aside id="left" class="panel">
+      <div class="group">
+        <h3>GIF Output</h3>
+        <div class="row"><label>Width</label><input id="outW" type="number" min="16" max="4096" value="800"></div>
+        <div class="row"><label>Height</label><input id="outH" type="number" min="16" max="4096" value="800"></div>
+        <div class="row"><label>Fit</label><select id="fitMode"><option value="contain">Contain</option><option value="cover">Cover / Crop</option><option value="stretch">Stretch</option></select></div>
+        <div class="row"><label>Background</label><input id="bgColor" type="color" value="#000000"><label style="min-width:auto"><input id="transparentBg" type="checkbox"> transparent</label></div>
+        <div class="row"><label>Quality</label><input id="quality" type="range" min="1" max="30" value="10"><span id="qualityVal" class="badge">10</span></div>
+        <div class="row"><label>Dither</label><select id="dither"><option value="">Off</option><option>FloydSteinberg</option><option>FloydSteinberg-serpentine</option><option>Stucki</option><option>Atkinson</option><option>FalseFloydSteinberg</option></select></div>
+        <div class="row"><label>Loop</label><select id="repeat"><option value="0">Forever</option><option value="-1">Once</option><option value="1">2 plays</option><option value="2">3 plays</option></select></div>
+      </div>
+
+      <div class="group">
+        <h3>Selected Frame</h3>
+        <div class="row"><label>Delay ms</label><input id="delay" type="number" min="10" max="60000" step="10" value="120"></div>
+        <div class="row"><label>Rotate</label><input id="rotation" type="number" min="-360" max="360" value="0"></div>
+        <div class="row"><label>Brightness</label><input id="brightness" type="range" min="0" max="200" value="100"><span id="brightnessVal" class="badge">100%</span></div>
+        <div class="row"><label>Contrast</label><input id="contrast" type="range" min="0" max="200" value="100"><span id="contrastVal" class="badge">100%</span></div>
+        <div class="row"><label>Saturation</label><input id="saturation" type="range" min="0" max="200" value="100"><span id="saturationVal" class="badge">100%</span></div>
+        <div class="row"><button id="dupFrame">Duplicate</button><button id="deleteFrame" class="danger">Delete</button></div>
+      </div>
+
+      <div class="group">
+        <h3>Video → GIF Frames</h3>
+        <div class="row"><label>FPS</label><input id="videoFps" type="number" min="1" max="30" value="10"></div>
+        <div class="row"><label>Start sec</label><input id="videoStart" type="number" min="0" step=".1" value="0"></div>
+        <div class="row"><label>End sec</label><input id="videoEnd" type="number" min="0" step=".1" placeholder="full video"></div>
+        <div class="small">Video is decoded locally in the browser. Higher FPS / long videos can consume a lot of RAM.</div>
+      </div>
+    </aside>
+
+    <main id="stageWrap">
+      <canvas id="preview"></canvas>
+      <div id="dropHint">Drop images or a video here<br><span class="small">Images become timeline frames · videos are sampled into GIF frames</span></div>
+    </main>
+
+    <aside id="right" class="panel">
+      <div class="group">
+        <h3>Text Overlay</h3>
+        <textarea id="overlayText" placeholder="Type text…"></textarea>
+        <div class="row"><label>Font</label><input id="fontName" type="text" value="Outfit"></div>
+        <div class="row"><label>Google Font</label><button id="loadFont">Load font</button></div>
+        <div class="small">Enter a Google Fonts family name, e.g. Outfit, Righteous, Dela Gothic One, Rowdies.</div>
+        <div class="row"><label>Size</label><input id="fontSize" type="number" min="6" max="600" value="64"></div>
+        <div class="row"><label>Weight</label><select id="fontWeight"><option>400</option><option>500</option><option>600</option><option selected>700</option><option>800</option><option>900</option></select></div>
+        <div class="row"><label>Color</label><input id="textColor" type="color" value="#ffffff"><label style="min-width:auto">Stroke</label><input id="strokeColor" type="color" value="#000000"></div>
+        <div class="row"><label>Stroke px</label><input id="strokeWidth" type="number" min="0" max="30" value="3"></div>
+        <div class="row"><label>X %</label><input id="textX" type="range" min="0" max="100" value="50"><span id="textXVal" class="badge">50</span></div>
+        <div class="row"><label>Y %</label><input id="textY" type="range" min="0" max="100" value="85"><span id="textYVal" class="badge">85</span></div>
+      </div>
+
+      <div class="group">
+        <h3>Emoji / Symbol Overlay</h3>
+        <div class="row"><label>Symbol</label><input id="emoji" type="text" value=""></div>
+        <div class="row"><label>Size</label><input id="emojiSize" type="number" min="6" max="800" value="100"></div>
+        <div class="row"><label>X %</label><input id="emojiX" type="range" min="0" max="100" value="50"></div>
+        <div class="row"><label>Y %</label><input id="emojiY" type="range" min="0" max="100" value="50"></div>
+      </div>
+
+      <div class="group">
+        <h3>Project</h3>
+        <div class="row"><button id="saveProject">Save Project</button><button id="loadProject">Load Project</button></div>
+        <input id="projectInput" type="file" accept=".json,application/json" hidden>
+        <div class="small">Project JSON stores frame settings and overlays. Image/video binaries are not embedded.</div>
+      </div>
+    </aside>
+  </div>
+
+  <section id="timeline">
+    <div id="timelineHead"><b>Timeline</b><span id="count" class="badge">0 frames</span><span class="small">Drag frames to reorder. Click a frame to edit it.</span></div>
+    <div id="frames"></div>
+  </section>
+</div>
+
+<script src="gif.js"></script>
+<script>
+(() => {
+"use strict";
+
+const $ = id => document.getElementById(id);
+const canvas = $("preview"), ctx = canvas.getContext("2d");
+const stage = $("stageWrap"), framesEl = $("frames");
+let frames = [];
+let selected = -1;
+let playing = false;
+let playToken = 0;
+let nextId = 1;
+
+function setStatus(s){ $("status").textContent=s; }
+function uid(){ return nextId++; }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+function resizeCanvas(){
+  const r=stage.getBoundingClientRect();
+  canvas.width=Math.max(1,Math.round(r.width*devicePixelRatio));
+  canvas.height=Math.max(1,Math.round(r.height*devicePixelRatio));
+  canvas.style.width=r.width+"px"; canvas.style.height=r.height+"px";
+  drawPreview();
+}
+addEventListener("resize",resizeCanvas);
+
+function readImage(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const im=new Image();
+    im.onload=()=>resolve({im,url});
+    im.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("Could not read "+file.name));};
+    im.src=url;
+  });
+}
+
+function frameFromImage(im, url, name, delay=120){
+  return {id:uid(),type:"image",name:name||"image",source:im,url,delay,
+          rotation:0,brightness:100,contrast:100,saturation:100};
+}
+
+async function addImages(fileList){
+  const files=[...fileList].filter(f=>f.type.startsWith("image/"));
+  if(!files.length)return;
+  setStatus("Loading images…");
+  for(const file of files){
+    try{
+      const {im,url}=await readImage(file);
+      frames.push(frameFromImage(im,url,file.name));
+    }catch(e){ console.error(e); }
+  }
+  if(selected<0 && frames.length) selected=0;
+  syncUI(); renderTimeline(); drawPreview(); setStatus("Ready");
+}
+
+function seek(video,time){
+  return new Promise((resolve,reject)=>{
+    const done=()=>{ cleanup(); resolve(); };
+    const fail=()=>{ cleanup(); reject(new Error("Video seek failed")); };
+    const cleanup=()=>{ video.removeEventListener("seeked",done); video.removeEventListener("error",fail); };
+    video.addEventListener("seeked",done,{once:true});
+    video.addEventListener("error",fail,{once:true});
+    video.currentTime=Math.min(Math.max(0,time),Math.max(0,video.duration-.001));
+  });
+}
+
+async function addVideoFile(file){
+  const url=URL.createObjectURL(file);
+  const video=document.createElement("video");
+  video.preload="auto"; video.muted=true; video.playsInline=true; video.src=url;
+  await new Promise((res,rej)=>{
+    video.onloadedmetadata=res; video.onerror=()=>rej(new Error("Cannot decode video"));
+  });
+
+  const fps=clamp(Number($("videoFps").value)||10,1,30);
+  const start=clamp(Number($("videoStart").value)||0,0,video.duration);
+  const requestedEnd=Number($("videoEnd").value);
+  const end=clamp(Number.isFinite(requestedEnd)&&requestedEnd>start?requestedEnd:video.duration,start,video.duration);
+  const step=1/fps;
+  const count=Math.max(1,Math.ceil((end-start)*fps));
+  const temp=document.createElement("canvas");
+  temp.width=video.videoWidth; temp.height=video.videoHeight;
+  const tctx=temp.getContext("2d",{willReadFrequently:true});
+
+  setStatus("Sampling video…");
+  for(let i=0;i<count;i++){
+    const t=Math.min(end-.001,start+i*step);
+    await seek(video,t);
+    tctx.drawImage(video,0,0,temp.width,temp.height);
+    const blob=await new Promise(res=>temp.toBlob(res,"image/png"));
+    const bUrl=URL.createObjectURL(blob);
+    const im=new Image();
+    await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=bUrl;});
+    frames.push(frameFromImage(im,bUrl,file.name+" @ "+t.toFixed(2)+"s",Math.round(1000/fps)));
+    $("progress").value=(i+1)/count;
+    await new Promise(r=>setTimeout(r,0));
+  }
+  URL.revokeObjectURL(url);
+  $("progress").value=0;
+  if(selected<0 && frames.length) selected=0;
+  syncUI(); renderTimeline(); drawPreview(); setStatus("Video added");
+}
+
+function getSelected(){ return frames[selected]||null; }
+
+function drawSource(c, cctx, frame){
+  const W=c.width,H=c.height,im=frame.source;
+  cctx.save();
+  cctx.filter=`brightness(${frame.brightness}%) contrast(${frame.contrast}%) saturate(${frame.saturation}%)`;
+  cctx.translate(W/2,H/2);
+  cctx.rotate((frame.rotation||0)*Math.PI/180);
+
+  const iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height;
+  const mode=$("fitMode").value;
+  let dw=W,dh=H;
+  if(mode!=="stretch"){
+    const s=mode==="cover"?Math.max(W/iw,H/ih):Math.min(W/iw,H/ih);
+    dw=iw*s; dh=ih*s;
+  }
+  cctx.drawImage(im,-dw/2,-dh/2,dw,dh);
+  cctx.restore();
+  cctx.filter="none";
+}
+
+function wrapText(cctx,text,maxWidth){
+  const paras=String(text).split("\n"), lines=[];
+  for(const p of paras){
+    const words=p.split(/\s+/); let line="";
+    for(const word of words){
+      const test=line?line+" "+word:word;
+      if(line && cctx.measureText(test).width>maxWidth){lines.push(line);line=word}
+      else line=test;
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+function renderFrameTo(target, frame){
+  const tctx=target.getContext("2d",{willReadFrequently:true});
+  const W=target.width,H=target.height;
+  tctx.clearRect(0,0,W,H);
+  if(!$("transparentBg").checked){tctx.fillStyle=$("bgColor").value;tctx.fillRect(0,0,W,H);}
+  if(frame) drawSource(target,tctx,frame);
+
+  const text=$("overlayText").value;
+  if(text){
+    const font=$("fontName").value.trim()||"sans-serif";
+    const size=Number($("fontSize").value)||64;
+    const weight=$("fontWeight").value;
+    tctx.font=`${weight} ${size}px "${font}", sans-serif`;
+    tctx.textAlign="center"; tctx.textBaseline="middle";
+    const x=W*(Number($("textX").value)/100), y=H*(Number($("textY").value)/100);
+    const lines=wrapText(tctx,text,W*.9), lh=size*1.1;
+    const y0=y-(lines.length-1)*lh/2;
+    tctx.lineJoin="round";
+    const sw=Number($("strokeWidth").value)||0;
+    lines.forEach((line,i)=>{
+      if(sw>0){tctx.lineWidth=sw*2;tctx.strokeStyle=$("strokeColor").value;tctx.strokeText(line,x,y0+i*lh);}
+      tctx.fillStyle=$("textColor").value;tctx.fillText(line,x,y0+i*lh);
+    });
+  }
+  const emoji=$("emoji").value.trim();
+  if(emoji){
+    tctx.font=`${Number($("emojiSize").value)||100}px Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif`;
+    tctx.textAlign="center";tctx.textBaseline="middle";
+    tctx.fillText(emoji,W*Number($("emojiX").value)/100,H*Number($("emojiY").value)/100);
+  }
+}
+
+function drawPreview(){
+  const r=stage.getBoundingClientRect(), pr=devicePixelRatio;
+  const f=getSelected();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!f){$("dropHint").classList.remove("hidden");return}
+  $("dropHint").classList.add("hidden");
+
+  const out=document.createElement("canvas");
+  out.width=Math.max(16,Number($("outW").value)||800);
+  out.height=Math.max(16,Number($("outH").value)||800);
+  renderFrameTo(out,f);
+
+  const scale=Math.min(canvas.width/out.width,canvas.height/out.height)*.92;
+  const w=out.width*scale,h=out.height*scale;
+  ctx.imageSmoothingQuality="high";
+  ctx.drawImage(out,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+}
+
+function syncUI(){
+  const f=getSelected();
+  $("count").textContent=frames.length+" frame"+(frames.length===1?"":"s");
+  if(!f)return;
+  $("delay").value=f.delay;
+  $("rotation").value=f.rotation;
+  $("brightness").value=f.brightness;
+  $("contrast").value=f.contrast;
+  $("saturation").value=f.saturation;
+  $("brightnessVal").textContent=f.brightness+"%";
+  $("contrastVal").textContent=f.contrast+"%";
+  $("saturationVal").textContent=f.saturation+"%";
+}
+
+function renderTimeline(){
+  framesEl.innerHTML="";
+  frames.forEach((f,i)=>{
+    const el=document.createElement("div");
+    el.className="frame"+(i===selected?" active":"");
+    el.draggable=true; el.dataset.id=f.id;
+    el.innerHTML=`<button class="frameX" title="Delete">×</button><img class="thumb"><div class="frameMeta"><span>#${i+1}</span><span>${f.delay} ms</span></div>`;
+    el.querySelector(".thumb").src=f.url;
+    el.onclick=e=>{ if(e.target.classList.contains("frameX"))return; selected=i;syncUI();renderTimeline();drawPreview(); };
+    el.querySelector(".frameX").onclick=e=>{e.stopPropagation();removeFrame(i)};
+    el.ondragstart=e=>e.dataTransfer.setData("text/plain",String(f.id));
+    el.ondragover=e=>{e.preventDefault();el.classList.add("dragover")};
+    el.ondragleave=()=>el.classList.remove("dragover");
+    el.ondrop=e=>{
+      e.preventDefault();el.classList.remove("dragover");
+      const id=Number(e.dataTransfer.getData("text/plain"));
+      const from=frames.findIndex(x=>x.id===id),to=i;
+      if(from<0||from===to)return;
+      const [m]=frames.splice(from,1);frames.splice(to,0,m);selected=to;renderTimeline();drawPreview();
+    };
+    framesEl.appendChild(el);
+  });
+  $("count").textContent=frames.length+" frame"+(frames.length===1?"":"s");
+}
+
+function removeFrame(i){
+  if(!frames[i])return;
+  try{URL.revokeObjectURL(frames[i].url)}catch{}
+  frames.splice(i,1);
+  selected=frames.length?clamp(i,0,frames.length-1):-1;
+  syncUI();renderTimeline();drawPreview();
+}
+
+async function previewPlay(){
+  if(!frames.length)return;
+  if(playing){playing=false;playToken++;$("playBtn").textContent="▶ Preview";return}
+  playing=true;$("playBtn").textContent="■ Stop";
+  const token=++playToken;
+  let i=selected>=0?selected:0;
+  while(playing&&token===playToken){
+    selected=i;syncUI();renderTimeline();drawPreview();
+    await new Promise(r=>setTimeout(r,Math.max(10,frames[i].delay)));
+    i=(i+1)%frames.length;
+  }
+  $("playBtn").textContent="▶ Preview";
+}
+
+async function loadGoogleFont(){
+  const family=$("fontName").value.trim();
+  if(!family)return;
+  setStatus("Loading font…");
+  const id="gf-"+family.replace(/\W/g,"-");
+  let link=document.getElementById(id);
+  if(!link){
+    link=document.createElement("link");link.id=id;link.rel="stylesheet";
+    link.href="https://fonts.googleapis.com/css2?family="+encodeURIComponent(family).replace(/%20/g,"+")+":wght@100..900&display=swap";
+    document.head.appendChild(link);
+  }
+  try{await document.fonts.load(`700 32px "${family}"`);await document.fonts.ready;setStatus("Font loaded");drawPreview();}
+  catch(e){setStatus("Font may be unavailable");}
+}
+
+async function exportGIF(){
+  if(!frames.length){alert("Add at least one image or video.");return}
+  if(typeof GIF==="undefined"){alert("gif.js was not found beside this HTML file.");return}
+  await document.fonts.ready;
+
+  const W=Math.max(16,Number($("outW").value)||800), H=Math.max(16,Number($("outH").value)||800);
+  const work=document.createElement("canvas");work.width=W;work.height=H;
+  const q=Number($("quality").value)||10;
+  const transparent=$("transparentBg").checked ? 0x000000 : null;
+  const gif=new GIF({
+    workers:Math.max(1,Math.min(4,navigator.hardwareConcurrency||2)),
+    quality:q,width:W,height:H,repeat:Number($("repeat").value),
+    dither:$("dither").value||false,
+    transparent,
+    background:$("bgColor").value,
+    workerScript:"worker.js"
+  });
+
+  $("exportBtn").disabled=true; setStatus("Encoding…"); $("progress").value=0;
+  gif.on("progress",p=>{$("progress").value=p;setStatus("Encoding "+Math.round(p*100)+"%")});
+  gif.on("finished",blob=>{
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download="gif-worker-export.gif";a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),10000);
+    $("progress").value=1;setStatus("Done");$("exportBtn").disabled=false;
+  });
+  gif.on("abort",()=>{$("exportBtn").disabled=false;setStatus("Aborted")});
+
+  for(let i=0;i<frames.length;i++){
+    renderFrameTo(work,frames[i]);
+    gif.addFrame(work,{copy:true,delay:Math.max(10,Number(frames[i].delay)||120)});
+    if(i%8===0) await new Promise(r=>setTimeout(r,0));
+  }
+  gif.render();
+}
+
+$("imageInput").onchange=e=>addImages(e.target.files);
+$("addVideo").onclick=()=>$("videoInput").click();
+$("videoInput").onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{await addVideoFile(f)}catch(err){console.error(err);alert(err.message);setStatus("Video error")}
+  e.target.value="";
+};
+$("clearAll").onclick=()=>{
+  frames.forEach(f=>{try{URL.revokeObjectURL(f.url)}catch{}});
+  frames=[];selected=-1;renderTimeline();drawPreview();setStatus("Cleared");
+};
+$("playBtn").onclick=previewPlay;
+$("exportBtn").onclick=exportGIF;
+$("loadFont").onclick=loadGoogleFont;
+
+["outW","outH","fitMode","bgColor","transparentBg","overlayText","fontName","fontSize","fontWeight","textColor","strokeColor","strokeWidth","textX","textY","emoji","emojiSize","emojiX","emojiY"].forEach(id=>{
+  $(id).addEventListener("input",()=>{ if(id==="textX")$("textXVal").textContent=$(id).value;if(id==="textY")$("textYVal").textContent=$(id).value;drawPreview()});
+  $(id).addEventListener("change",drawPreview);
+});
+$("quality").oninput=()=>{$("qualityVal").textContent=$("quality").value};
+
+["delay","rotation","brightness","contrast","saturation"].forEach(id=>{
+  $(id).addEventListener("input",()=>{
+    const f=getSelected(); if(!f)return;
+    f[id==="delay"?"delay":id]=Number($(id).value);
+    syncUI();renderTimeline();drawPreview();
+  });
+});
+$("dupFrame").onclick=()=>{
+  const f=getSelected();if(!f)return;
+  const copy={...f,id:uid(),name:f.name+" copy"};
+  frames.splice(selected+1,0,copy);selected++;renderTimeline();syncUI();drawPreview();
+};
+$("deleteFrame").onclick=()=>{if(selected>=0)removeFrame(selected)};
+
+function handleDropped(files){
+  const list=[...files], vids=list.filter(f=>f.type.startsWith("video/")), imgs=list.filter(f=>f.type.startsWith("image/"));
+  if(imgs.length)addImages(imgs);
+  if(vids[0])addVideoFile(vids[0]).catch(e=>alert(e.message));
+}
+stage.ondragover=e=>{e.preventDefault()};
+stage.ondrop=e=>{e.preventDefault();handleDropped(e.dataTransfer.files)};
+
+$("saveProject").onclick=()=>{
+  const data={
+    version:2,
+    output:{w:$("outW").value,h:$("outH").value,fit:$("fitMode").value,bg:$("bgColor").value,transparent:$("transparentBg").checked,quality:$("quality").value,dither:$("dither").value,repeat:$("repeat").value},
+    overlay:{text:$("overlayText").value,font:$("fontName").value,size:$("fontSize").value,weight:$("fontWeight").value,color:$("textColor").value,stroke:$("strokeColor").value,strokeWidth:$("strokeWidth").value,x:$("textX").value,y:$("textY").value,emoji:$("emoji").value,emojiSize:$("emojiSize").value,emojiX:$("emojiX").value,emojiY:$("emojiY").value},
+    frames:frames.map(f=>({name:f.name,delay:f.delay,rotation:f.rotation,brightness:f.brightness,contrast:f.contrast,saturation:f.saturation}))
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="gif-worker-project.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+};
+$("loadProject").onclick=()=>$("projectInput").click();
+$("projectInput").onchange=e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result),o=d.output||{},v=d.overlay||{};
+      const set=(id,val)=>{if(val!==undefined)$(id).value=val};
+      set("outW",o.w);set("outH",o.h);set("fitMode",o.fit);set("bgColor",o.bg);$("transparentBg").checked=!!o.transparent;set("quality",o.quality);set("dither",o.dither);set("repeat",o.repeat);
+      set("overlayText",v.text);set("fontName",v.font);set("fontSize",v.size);set("fontWeight",v.weight);set("textColor",v.color);set("strokeColor",v.stroke);set("strokeWidth",v.strokeWidth);set("textX",v.x);set("textY",v.y);set("emoji",v.emoji);set("emojiSize",v.emojiSize);set("emojiX",v.emojiX);set("emojiY",v.emojiY);
+      if(Array.isArray(d.frames)){
+        d.frames.forEach((meta,i)=>{if(frames[i])Object.assign(frames[i],meta)});
+      }
+      syncUI();renderTimeline();drawPreview();loadGoogleFont();setStatus("Project settings loaded");
+    }catch(err){alert("Invalid project JSON")}
+  };
+  reader.readAsText(file);e.target.value="";
+};
+
+resizeCanvas(); renderTimeline(); syncUI();
+})();
+</script>
+</body>
+</html>
