@@ -5,63 +5,153 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Sacrisoft GIF Worker Builder™</title>
+
 <style>
 :root{
-  --bg:#0d0e11; --panel:#15171c; --panel2:#1b1e24; --line:#30343d;
-  --text:#f7f7f8; --muted:#9ba3af; --accent:#7c8cff; --danger:#ff5d73;
+  --bg:#070812;
+  --panel:#0b0b0d;
+  --panel2:#151518;
+  --text:#f7f7f8;
+  --muted:#aeb3bd;
+  --line:rgba(255,255,255,.10);
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-button,input,select{font:inherit}
-button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer;background:#292d35;color:white}
-button:hover{filter:brightness(1.12)}
-button.primary{background:linear-gradient(120deg,#7c8cff,#aa66ff,#ff5e8a);font-weight:800}
-button.danger{background:#3a2027;color:#ff9aaa}
-input,select{background:#101217;color:white;border:1px solid var(--line);border-radius:9px;padding:8px}
-input[type=range]{padding:0; accent-color:var(--accent)}
-input[type=color]{padding:2px;width:44px;height:34px}
-input[type=file]{max-width:220px}
-#app{height:100%;display:grid;grid-template-rows:auto 1fr 184px}
-#top{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line);background:#121419}
-#top h1{font-size:17px;margin:0 8px 0 auto;white-space:nowrap}
-#main{min-height:0;display:grid;grid-template-columns:310px 1fr 320px}
-.panel{background:var(--panel);overflow:auto;padding:12px}
+html,body{margin:0;height:100%;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body{
+  background:
+    radial-gradient(1400px circle at 20% 0%,rgba(255,0,200,.06),transparent 45%),
+    radial-gradient(1200px circle at 100% 20%,rgba(0,200,255,.06),transparent 50%),
+    linear-gradient(180deg,#000 0%,#111 100%);
+}
+@keyframes rainbowFlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+button,input,select,textarea{font:inherit}
+button{
+  border:none;cursor:pointer;font-weight:800;border-radius:999px;min-height:42px;padding:9px 16px;
+  display:inline-flex;align-items:center;justify-content:center;color:#fff;
+  background:linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red);
+  background-size:400% 400%;animation:rainbowFlow 6s ease infinite;
+  box-shadow:0 12px 35px rgba(0,0,0,.35);transition:all .2s ease;
+}
+button:hover{transform:translateY(-1px) scale(1.01)}
+button:active{transform:translateY(1px)}
+button.danger{background:#fff;color:#000;animation:none}
+button.primary{font-weight:900}
+button:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+input[type=file]{
+  max-width:225px;color:#ddd;background:transparent;border:none;padding:0;
+}
+input[type=file]::file-selector-button,
+input[type=file]::-webkit-file-upload-button{
+  border:none;color:#fff;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;
+  background:linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red);
+  background-size:400% 400%;animation:rainbowFlow 6s ease infinite;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+}
+input[type=text],select,textarea{
+  width:100%;font-size:14px;padding:10px 14px;border-radius:14px;border:1px solid transparent;
+  background:
+    linear-gradient(#171718,#171718) padding-box,
+    linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red) border-box;
+  background-size:100% 100%,400% 400%;animation:rainbowFlow 6s ease infinite;
+  color:#fff;outline:none;
+}
+select{appearance:none;-webkit-appearance:none}
+textarea{min-height:78px;resize:vertical}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:999px;
+  background:linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red);
+  background-size:400% 400%;animation:rainbowFlow 6s ease infinite;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #000;
+}
+input[type=range]::-moz-range-thumb{
+  width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #000;
+}
+input[type=color]{
+  -webkit-appearance:none;appearance:none;width:52px;height:52px;min-width:52px;min-height:52px;
+  padding:4px;border:none;border-radius:50%;cursor:pointer;overflow:hidden;background:#fff;transition:transform .18s ease;
+}
+input[type=color]::-webkit-color-swatch-wrapper{padding:4px;border:none;border-radius:50%}
+input[type=color]::-webkit-color-swatch,input[type=color]::-moz-color-swatch{border:none;border-radius:50%}
+input[type=color]:hover{transform:scale(1.05)}
+progress{accent-color:#fff}
+#app{height:100%;display:grid;grid-template-rows:auto 1fr 190px}
+#top{
+  display:flex;gap:9px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(20,20,20,.96),rgba(5,5,5,.98));
+  backdrop-filter:blur(10px);
+}
+#top h1{font-size:17px;margin:0 8px 0 auto;white-space:nowrap;font-weight:300;letter-spacing:.05em;text-transform:uppercase}
+#top h1 strong{font-weight:900}
+#main{min-height:0;display:grid;grid-template-columns:330px 1fr 330px}
+.panel{
+  overflow:auto;padding:13px;
+  background:
+    radial-gradient(140% 120% at 0% 0%,rgba(255,255,255,.035),transparent 40%),
+    radial-gradient(120% 120% at 100% 100%,rgba(255,255,255,.02),transparent 45%),
+    linear-gradient(180deg,rgba(20,20,20,.94),rgba(6,6,6,.98));
+  backdrop-filter:blur(10px)
+}
 #left{border-right:1px solid var(--line)}
 #right{border-left:1px solid var(--line)}
-.group{padding:10px 0;border-bottom:1px solid #252933}
-.group:last-child{border-bottom:0}
-.group h3{font-size:13px;margin:0 0 8px;color:#d9dce3;text-transform:uppercase;letter-spacing:.08em}
-.row{display:flex;gap:7px;align-items:center;margin:7px 0}
-.row>*{min-width:0}
-.row label{font-size:12px;color:var(--muted);min-width:76px}
-.row input[type=number], .row select, .row input[type=text]{width:100%}
-.small{font-size:12px;color:var(--muted);line-height:1.35}
-#stageWrap{position:relative;min-width:0;min-height:0;overflow:hidden;background:
- linear-gradient(45deg,#17191e 25%,transparent 25%) 0 0/28px 28px,
- linear-gradient(45deg,transparent 75%,#17191e 75%) 0 0/28px 28px,
- linear-gradient(45deg,transparent 25%,#17191e 25%) 14px 14px/28px 28px,
- linear-gradient(45deg,#17191e 75%,transparent 75%) 14px 14px/28px 28px,#101216}
-#preview{width:100%;height:100%;display:block}
-#dropHint{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#768090;font-weight:700;text-align:center;padding:20px}
+.group{
+  margin:0 0 11px;padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  background:rgba(255,255,255,.035)
+}
+.group h3{font-size:12px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.12em;font-weight:800}
+.row{display:grid;grid-template-columns:84px 1fr auto;gap:9px;align-items:center;margin:10px 0}
+.row label{font-size:12px;color:#e8e8e8}
+.row button{min-height:38px}
+.value{font-size:11px;min-width:52px;text-align:center;padding:5px 7px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:#0c0c0d}
+.small{font-size:12px;color:var(--muted);line-height:1.4}
+.switchRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}
+.rb-switch{position:relative;display:inline-block;width:46px;height:26px}
+.rb-switch input{opacity:0;width:0;height:0}
+.rb-switch span{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18)}
+.rb-switch span:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:2px;border-radius:999px;background:#fff;transition:.2s}
+.rb-switch input:checked + span{
+  background:linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red);
+  background-size:400% 400%;animation:rainbowFlow 6s ease infinite
+}
+.rb-switch input:checked + span:before{transform:translateX(20px)}
+#stageWrap{
+  position:relative;min-width:0;min-height:0;overflow:hidden;background:#070812;
+}
+#stageWrap:after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.08;mix-blend-mode:overlay;
+  background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.03) 1px,transparent 1px,transparent 3px)
+}
+#preview{width:100%;height:100%;display:block;position:relative;z-index:1}
+#dropHint{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#b9bdc5;font-weight:800;text-align:center;padding:20px;z-index:2}
 #dropHint.hidden{display:none}
-#timeline{border-top:1px solid var(--line);background:#111319;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+#timeline{border-top:1px solid var(--line);background:linear-gradient(180deg,#111,#050505);overflow:hidden;display:grid;grid-template-rows:auto 1fr}
 #timelineHead{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line)}
 #frames{display:flex;gap:9px;overflow-x:auto;padding:10px;align-items:stretch}
-.frame{position:relative;flex:0 0 132px;background:#191c22;border:2px solid transparent;border-radius:12px;padding:6px;cursor:pointer;user-select:none}
-.frame.active{border-color:var(--accent)}
-.frame.dragover{outline:2px dashed white}
-.thumb{width:100%;height:92px;object-fit:contain;background:#0a0b0e;border-radius:8px}
-.frameMeta{display:flex;justify-content:space-between;gap:5px;margin-top:4px;font-size:11px;color:#adb4bf}
-.frameX{position:absolute;right:7px;top:7px;width:24px;height:24px;border-radius:50%;padding:0;background:rgba(0,0,0,.75)}
-.badge{padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:#cdd3dd;font-size:11px}
-#status{font-size:12px;color:#c4cad4;min-width:125px}
-#progress{width:110px}
-textarea{width:100%;height:74px;background:#101217;color:white;border:1px solid var(--line);border-radius:9px;padding:8px;resize:vertical}
-.sep{height:1px;background:#252933;margin:9px 0}
-@media(max-width:1050px){
-  #main{grid-template-columns:250px 1fr 280px}
+.frame{
+  position:relative;flex:0 0 132px;background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:6px;cursor:pointer;user-select:none
 }
+.frame.active{
+  border:2px solid transparent;
+  background:linear-gradient(#171718,#171718) padding-box,
+             linear-gradient(270deg,red,orange,yellow,green,cyan,blue,violet,red) border-box;
+  background-size:100% 100%,400% 400%;animation:rainbowFlow 6s ease infinite
+}
+.frame.dragover{outline:2px dashed #fff}
+.thumb{width:100%;height:92px;object-fit:contain;background:#050505;border-radius:9px}
+.frameMeta{display:flex;justify-content:space-between;gap:5px;margin-top:4px;font-size:11px;color:#cfd2d8}
+.frameX{position:absolute;right:7px;top:7px;width:26px;height:26px;min-height:26px;border-radius:50%;padding:0;background:#fff;color:#000;animation:none;z-index:3}
+.badge{padding:4px 8px;border:1px solid rgba(255,255,255,.14);border-radius:999px;color:#ddd;font-size:11px}
+#status{font-size:12px;color:#d7dae0;min-width:118px}
+#progress{width:105px}
+@media(max-width:1080px){#main{grid-template-columns:270px 1fr 290px}}
 </style>
+
 </head>
 <body>
 <div id="app">
@@ -74,38 +164,39 @@ textarea{width:100%;height:74px;background:#101217;color:white;border:1px solid 
     <progress id="progress" value="0" max="1"></progress>
     <span id="status">Ready</span>
     <button id="exportBtn" class="primary">Export GIF</button>
-    <h1>Sacrisoft GIF Worker Builder™</h1>
+    <h1>Sacrisoft <strong>GIF Worker Builder™</strong></h1>
   </div>
 
   <div id="main">
     <aside id="left" class="panel">
       <div class="group">
         <h3>GIF Output</h3>
-        <div class="row"><label>Width</label><input id="outW" type="number" min="16" max="4096" value="800"></div>
-        <div class="row"><label>Height</label><input id="outH" type="number" min="16" max="4096" value="800"></div>
+        <div class="row"><label>Width</label><input id="outW" type="range" min="64" max="1920" step="16" value="800"><span id="outWVal" class="value">800</span></div>
+        <div class="row"><label>Height</label><input id="outH" type="range" min="64" max="1920" step="16" value="800"><span id="outHVal" class="value">800</span></div>
         <div class="row"><label>Fit</label><select id="fitMode"><option value="contain">Contain</option><option value="cover">Cover / Crop</option><option value="stretch">Stretch</option></select></div>
         <div class="row"><label>Background</label><input id="bgColor" type="color" value="#000000"><label style="min-width:auto"><input id="transparentBg" type="checkbox"> transparent</label></div>
-        <div class="row"><label>Quality</label><input id="quality" type="range" min="1" max="30" value="10"><span id="qualityVal" class="badge">10</span></div>
+        <div class="row"><label>Quality</label><input id="quality" type="range" min="1" max="30" value="10"><span id="qualityVal" class="value">10</span></div>
         <div class="row"><label>Dither</label><select id="dither"><option value="">Off</option><option>FloydSteinberg</option><option>FloydSteinberg-serpentine</option><option>Stucki</option><option>Atkinson</option><option>FalseFloydSteinberg</option></select></div>
         <div class="row"><label>Loop</label><select id="repeat"><option value="0">Forever</option><option value="-1">Once</option><option value="1">2 plays</option><option value="2">3 plays</option></select></div>
       </div>
 
       <div class="group">
         <h3>Selected Frame</h3>
-        <div class="row"><label>Delay ms</label><input id="delay" type="number" min="10" max="60000" step="10" value="120"></div>
-        <div class="row"><label>Rotate</label><input id="rotation" type="number" min="-360" max="360" value="0"></div>
-        <div class="row"><label>Brightness</label><input id="brightness" type="range" min="0" max="200" value="100"><span id="brightnessVal" class="badge">100%</span></div>
-        <div class="row"><label>Contrast</label><input id="contrast" type="range" min="0" max="200" value="100"><span id="contrastVal" class="badge">100%</span></div>
-        <div class="row"><label>Saturation</label><input id="saturation" type="range" min="0" max="200" value="100"><span id="saturationVal" class="badge">100%</span></div>
+        <div class="row"><label>Duration</label><input id="delay" type="range" min="10" max="2000" step="10" value="120"><span id="delayVal" class="value">120 ms</span></div>
+        <div class="row"><label>Rotate</label><input id="rotation" type="range" min="-180" max="180" step="1" value="0"><span id="rotationVal" class="value">0°</span></div>
+        <div class="row"><label>Brightness</label><input id="brightness" type="range" min="0" max="200" value="100"><span id="brightnessVal" class="value">100%</span></div>
+        <div class="row"><label>Contrast</label><input id="contrast" type="range" min="0" max="200" value="100"><span id="contrastVal" class="value">100%</span></div>
+        <div class="row"><label>Saturation</label><input id="saturation" type="range" min="0" max="200" value="100"><span id="saturationVal" class="value">100%</span></div>
         <div class="row"><button id="dupFrame">Duplicate</button><button id="deleteFrame" class="danger">Delete</button></div>
       </div>
 
       <div class="group">
         <h3>Video → GIF Frames</h3>
-        <div class="row"><label>FPS</label><input id="videoFps" type="number" min="1" max="30" value="10"></div>
-        <div class="row"><label>Start sec</label><input id="videoStart" type="number" min="0" step=".1" value="0"></div>
-        <div class="row"><label>End sec</label><input id="videoEnd" type="number" min="0" step=".1" placeholder="full video"></div>
-        <div class="small">Video is decoded locally in the browser. Higher FPS / long videos can consume a lot of RAM.</div>
+        <div class="row"><label>Sampling FPS</label><input id="videoFps" type="range" min="1" max="50" step="1" value="10"><span id="videoFpsVal" class="value">10 fps</span></div>
+        <div class="row"><label>Start</label><input id="videoStart" type="range" min="0" max="60" step=".1" value="0"><span id="videoStartVal" class="value">0.0 s</span></div>
+        <div class="row"><label>End</label><input id="videoEnd" type="range" min="0" max="60" step=".1" value="60"><span id="videoEndVal" class="value">60.0 s</span></div>
+        <div class="switchRow"><span class="small"><b>1:1 Timing</b><br>FPS automatically drives GIF delays</span><label class="rb-switch"><input id="linkTiming" type="checkbox" checked><span></span></label></div>
+        <div class="small">GIF timing uses 10 ms units. For rates such as 24/30 fps, the builder distributes rounded delays across frames so total playback duration stays synchronized instead of drifting.</div>
       </div>
     </aside>
 
@@ -121,20 +212,20 @@ textarea{width:100%;height:74px;background:#101217;color:white;border:1px solid 
         <div class="row"><label>Font</label><input id="fontName" type="text" value="Outfit"></div>
         <div class="row"><label>Google Font</label><button id="loadFont">Load font</button></div>
         <div class="small">Enter a Google Fonts family name, e.g. Outfit, Righteous, Dela Gothic One, Rowdies.</div>
-        <div class="row"><label>Size</label><input id="fontSize" type="number" min="6" max="600" value="64"></div>
+        <div class="row"><label>Size</label><input id="fontSize" type="range" min="6" max="300" step="1" value="64"><span id="fontSizeVal" class="value">64 px</span></div>
         <div class="row"><label>Weight</label><select id="fontWeight"><option>400</option><option>500</option><option>600</option><option selected>700</option><option>800</option><option>900</option></select></div>
         <div class="row"><label>Color</label><input id="textColor" type="color" value="#ffffff"><label style="min-width:auto">Stroke</label><input id="strokeColor" type="color" value="#000000"></div>
-        <div class="row"><label>Stroke px</label><input id="strokeWidth" type="number" min="0" max="30" value="3"></div>
-        <div class="row"><label>X %</label><input id="textX" type="range" min="0" max="100" value="50"><span id="textXVal" class="badge">50</span></div>
-        <div class="row"><label>Y %</label><input id="textY" type="range" min="0" max="100" value="85"><span id="textYVal" class="badge">85</span></div>
+        <div class="row"><label>Stroke</label><input id="strokeWidth" type="range" min="0" max="30" step="1" value="3"><span id="strokeWidthVal" class="value">3 px</span></div>
+        <div class="row"><label>X %</label><input id="textX" type="range" min="0" max="100" value="50"><span id="textXVal" class="value">50%</span></div>
+        <div class="row"><label>Y %</label><input id="textY" type="range" min="0" max="100" value="85"><span id="textYVal" class="value">85%</span></div>
       </div>
 
       <div class="group">
         <h3>Emoji / Symbol Overlay</h3>
         <div class="row"><label>Symbol</label><input id="emoji" type="text" value=""></div>
-        <div class="row"><label>Size</label><input id="emojiSize" type="number" min="6" max="800" value="100"></div>
-        <div class="row"><label>X %</label><input id="emojiX" type="range" min="0" max="100" value="50"></div>
-        <div class="row"><label>Y %</label><input id="emojiY" type="range" min="0" max="100" value="50"></div>
+        <div class="row"><label>Size</label><input id="emojiSize" type="range" min="6" max="400" step="1" value="100"><span id="emojiSizeVal" class="value">100 px</span></div>
+        <div class="row"><label>X</label><input id="emojiX" type="range" min="0" max="100" value="50"><span id="emojiXVal" class="value">50%</span></div>
+        <div class="row"><label>Y</label><input id="emojiY" type="range" min="0" max="100" value="50"><span id="emojiYVal" class="value">50%</span></div>
       </div>
 
       <div class="group">
@@ -219,6 +310,16 @@ function seek(video,time){
   });
 }
 
+
+function balancedGifDelay(index,fps){
+  // GIF stores delay in 1/100 s = 10 ms. Quantize cumulative time, not each frame independently,
+  // so 24/30 fps do not accumulate drift.
+  const quantum=10;
+  const prev=Math.round((index*1000/fps)/quantum)*quantum;
+  const next=Math.round(((index+1)*1000/fps)/quantum)*quantum;
+  return Math.max(quantum,next-prev);
+}
+
 async function addVideoFile(file){
   const url=URL.createObjectURL(file);
   const video=document.createElement("video");
@@ -227,7 +328,12 @@ async function addVideoFile(file){
     video.onloadedmetadata=res; video.onerror=()=>rej(new Error("Cannot decode video"));
   });
 
-  const fps=clamp(Number($("videoFps").value)||10,1,30);
+  const fps=clamp(Number($("videoFps").value)||10,1,50);
+  $("videoStart").max=video.duration.toFixed(1);
+  $("videoEnd").max=video.duration.toFixed(1);
+  if(Number($("videoEnd").value)>video.duration || Number($("videoEnd").value)<=0) $("videoEnd").value=video.duration.toFixed(1);
+  $("videoStartVal").textContent=Number($("videoStart").value).toFixed(1)+" s";
+  $("videoEndVal").textContent=Number($("videoEnd").value).toFixed(1)+" s";
   const start=clamp(Number($("videoStart").value)||0,0,video.duration);
   const requestedEnd=Number($("videoEnd").value);
   const end=clamp(Number.isFinite(requestedEnd)&&requestedEnd>start?requestedEnd:video.duration,start,video.duration);
@@ -246,7 +352,8 @@ async function addVideoFile(file){
     const bUrl=URL.createObjectURL(blob);
     const im=new Image();
     await new Promise((res,rej)=>{im.onload=res;im.onerror=rej;im.src=bUrl;});
-    frames.push(frameFromImage(im,bUrl,file.name+" @ "+t.toFixed(2)+"s",Math.round(1000/fps)));
+    const gifDelay=$("linkTiming").checked ? balancedGifDelay(i,fps) : Math.max(10,Math.round(1000/fps/10)*10);
+    frames.push(frameFromImage(im,bUrl,file.name+" @ "+t.toFixed(2)+"s",gifDelay));
     $("progress").value=(i+1)/count;
     await new Promise(r=>setTimeout(r,0));
   }
@@ -353,6 +460,8 @@ function syncUI(){
   $("brightnessVal").textContent=f.brightness+"%";
   $("contrastVal").textContent=f.contrast+"%";
   $("saturationVal").textContent=f.saturation+"%";
+  $("delayVal").textContent=f.delay+" ms";
+  $("rotationVal").textContent=f.rotation+"°";
 }
 
 function renderTimeline(){
@@ -469,15 +578,31 @@ $("exportBtn").onclick=exportGIF;
 $("loadFont").onclick=loadGoogleFont;
 
 ["outW","outH","fitMode","bgColor","transparentBg","overlayText","fontName","fontSize","fontWeight","textColor","strokeColor","strokeWidth","textX","textY","emoji","emojiSize","emojiX","emojiY"].forEach(id=>{
-  $(id).addEventListener("input",()=>{ if(id==="textX")$("textXVal").textContent=$(id).value;if(id==="textY")$("textYVal").textContent=$(id).value;drawPreview()});
+  $(id).addEventListener("input",()=>{
+    if(id==="outW")$("outWVal").textContent=$(id).value;
+    if(id==="outH")$("outHVal").textContent=$(id).value;
+    if(id==="fontSize")$("fontSizeVal").textContent=$(id).value+" px";
+    if(id==="strokeWidth")$("strokeWidthVal").textContent=$(id).value+" px";
+    if(id==="textX")$("textXVal").textContent=$(id).value+"%";
+    if(id==="textY")$("textYVal").textContent=$(id).value+"%";
+    if(id==="emojiSize")$("emojiSizeVal").textContent=$(id).value+" px";
+    if(id==="emojiX")$("emojiXVal").textContent=$(id).value+"%";
+    if(id==="emojiY")$("emojiYVal").textContent=$(id).value+"%";
+    drawPreview();
+  });
   $(id).addEventListener("change",drawPreview);
 });
 $("quality").oninput=()=>{$("qualityVal").textContent=$("quality").value};
+$("videoFps").oninput=()=>{$("videoFpsVal").textContent=$("videoFps").value+" fps"};
+$("videoStart").oninput=()=>{$("videoStartVal").textContent=Number($("videoStart").value).toFixed(1)+" s"};
+$("videoEnd").oninput=()=>{$("videoEndVal").textContent=Number($("videoEnd").value).toFixed(1)+" s"};
 
 ["delay","rotation","brightness","contrast","saturation"].forEach(id=>{
   $(id).addEventListener("input",()=>{
     const f=getSelected(); if(!f)return;
     f[id==="delay"?"delay":id]=Number($(id).value);
+    if(id==="delay") $("delayVal").textContent=$(id).value+" ms";
+    if(id==="rotation") $("rotationVal").textContent=$(id).value+"°";
     syncUI();renderTimeline();drawPreview();
   });
 });
@@ -525,6 +650,16 @@ $("projectInput").onchange=e=>{
   reader.readAsText(file);e.target.value="";
 };
 
+$("outWVal").textContent=$("outW").value;
+$("outHVal").textContent=$("outH").value;
+$("fontSizeVal").textContent=$("fontSize").value+" px";
+$("strokeWidthVal").textContent=$("strokeWidth").value+" px";
+$("videoFpsVal").textContent=$("videoFps").value+" fps";
+$("videoStartVal").textContent=Number($("videoStart").value).toFixed(1)+" s";
+$("videoEndVal").textContent=Number($("videoEnd").value).toFixed(1)+" s";
+$("emojiSizeVal").textContent=$("emojiSize").value+" px";
+$("emojiXVal").textContent=$("emojiX").value+"%";
+$("emojiYVal").textContent=$("emojiY").value+"%";
 resizeCanvas(); renderTimeline(); syncUI();
 })();
 </script>
