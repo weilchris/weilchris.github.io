@@ -7,13 +7,9 @@
 <title>Material Symbols SVG Extractor</title>
 
 <style>
+*{box-sizing:border-box}
 
-*{
-  box-sizing:border-box;
-}
-
-html,
-body{
+html,body{
   margin:0;
   width:100%;
   height:100%;
@@ -30,10 +26,7 @@ body{
   grid-template-columns:330px 1fr;
 }
 
-
-/* =========================================================
-   SIDEBAR
-========================================================= */
+/* ================= SIDEBAR ================= */
 
 .sidebar{
   background:#181818;
@@ -79,10 +72,7 @@ input[type="text"]:focus{
   border-color:#777;
 }
 
-
-/* =========================================================
-   STYLE
-========================================================= */
+/* ================= STYLE ================= */
 
 .style-buttons{
   display:grid;
@@ -105,10 +95,7 @@ input[type="text"]:focus{
   border-color:#eee;
 }
 
-
-/* =========================================================
-   RANGES
-========================================================= */
+/* ================= RANGES ================= */
 
 .range-row{
   display:grid;
@@ -130,10 +117,7 @@ input[type="range"]{
   font-size:12px;
 }
 
-
-/* =========================================================
-   SELECTED
-========================================================= */
+/* ================= SELECTED ================= */
 
 .selected-panel{
   margin-top:22px;
@@ -200,10 +184,7 @@ input[type="range"]{
   line-height:1.4;
 }
 
-
-/* =========================================================
-   MAIN
-========================================================= */
+/* ================= MAIN ================= */
 
 .main{
   min-width:0;
@@ -289,10 +270,7 @@ input[type="range"]{
   text-align:center;
 }
 
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+/* ================= RESPONSIVE ================= */
 
 @media(max-width:700px){
 
@@ -312,30 +290,21 @@ input[type="range"]{
   .sidebar.open{
     transform:translateX(0);
   }
-
 }
-
 </style>
 </head>
-
 
 <body>
 
 <div class="app">
-
-
-<!-- =======================================================
-     SIDEBAR
-======================================================= -->
 
 <aside class="sidebar">
 
 <h1>Material Symbols → SVG</h1>
 
 <div class="subtitle">
-Official Google Material Symbols SVG extractor
+Google Material Symbols SVG extractor
 </div>
-
 
 <label>Search</label>
 
@@ -346,29 +315,23 @@ Official Google Material Symbols SVG extractor
   autocomplete="off"
 >
 
-
 <label>Style</label>
 
 <div class="style-buttons">
 
-<button
-  class="active"
-  data-style="Outlined">
+<button class="active" data-style="Outlined">
 Outlined
 </button>
 
-<button
-  data-style="Rounded">
+<button data-style="Rounded">
 Rounded
 </button>
 
-<button
-  data-style="Sharp">
+<button data-style="Sharp">
 Sharp
 </button>
 
 </div>
-
 
 <label>Fill</label>
 
@@ -383,14 +346,9 @@ Sharp
   value="0"
 >
 
-<div
-  id="fillValue"
-  class="value">
-0
-</div>
+<div id="fillValue" class="value">0</div>
 
 </div>
-
 
 <label>Weight</label>
 
@@ -405,14 +363,9 @@ Sharp
   value="400"
 >
 
-<div
-  id="weightValue"
-  class="value">
-400
-</div>
+<div id="weightValue" class="value">400</div>
 
 </div>
-
 
 <label>Grade</label>
 
@@ -427,14 +380,9 @@ Sharp
   value="0"
 >
 
-<div
-  id="gradeValue"
-  class="value">
-0
-</div>
+<div id="gradeValue" class="value">0</div>
 
 </div>
-
 
 <label>Optical Size</label>
 
@@ -449,36 +397,23 @@ Sharp
   value="24"
 >
 
-<div
-  id="opszValue"
-  class="value">
-24
-</div>
+<div id="opszValue" class="value">24</div>
 
 </div>
-
 
 <div class="selected-panel">
 
-<div
-  id="selectedName"
-  class="selected-name">
+<div id="selectedName" class="selected-name">
 No icon selected
 </div>
 
-<div
-  id="selectedMeta"
-  class="selected-meta">
+<div id="selectedMeta" class="selected-meta">
 Select an icon from the grid.
 </div>
 
-
 <div class="preview">
-
 <div id="previewIcon"></div>
-
 </div>
-
 
 <div class="actions">
 
@@ -492,20 +427,12 @@ COPY PATH
 
 </div>
 
-
-<div
-  id="status"
-  class="status">
-</div>
+<div id="status" class="status"></div>
 
 </div>
 
 </aside>
 
-
-<!-- =======================================================
-     MAIN
-======================================================= -->
 
 <main class="main">
 
@@ -515,21 +442,16 @@ COPY PATH
 Google Material Symbols
 </div>
 
-<div
-  id="count"
-  class="count">
+<div id="count" class="count">
 Loading…
 </div>
 
 </div>
 
-
-<div
-  id="grid"
-  class="grid">
+<div id="grid" class="grid">
 
 <div class="loading">
-Loading Google icon catalogue…
+Loading icon catalogue…
 </div>
 
 </div>
@@ -542,11 +464,33 @@ Loading Google icon catalogue…
 <script>
 
 /* =========================================================
-   GOOGLE METADATA
+   NO GOOGLE METADATA API
+   NO fonts.google.com
+   NO CORS PROBLEM FROM GOOGLE METADATA
 ========================================================= */
 
-const METADATA_URL =
-  'https://fonts.google.com/metadata/icons?incomplete=1&key=material_symbols';
+
+/*
+  Google's official Material Symbols codepoints file.
+
+  This contains the icon names and their Unicode codepoints.
+*/
+
+const CATALOGUE_URL =
+  'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsOutlined%5BFILL%2CGRAD%2Copsz%2Cwght%5D.codepoints';
+
+
+/*
+  Official Google SVG CDN.
+*/
+
+const SVG_HOST =
+  'https://fonts.gstatic.com/s/i/short-term/release/';
+
+
+let icons = [];
+
+let selectedIcon = null;
 
 
 /* =========================================================
@@ -566,13 +510,6 @@ const state = {
   opsz:24
 
 };
-
-
-let icons = [];
-
-let selectedIcon = null;
-
-let googleHost = null;
 
 
 /* =========================================================
@@ -602,7 +539,7 @@ const status =
 
 
 /* =========================================================
-   METADATA LOADER
+   LOAD CATALOGUE
 ========================================================= */
 
 async function loadCatalogue(){
@@ -610,14 +547,14 @@ async function loadCatalogue(){
   try{
 
     status.textContent =
-      'Loading Google metadata…';
+      'Loading icon catalogue…';
 
 
     const response =
       await fetch(
-        METADATA_URL,
+        CATALOGUE_URL,
         {
-          cache:'no-store'
+          cache:'force-cache'
         }
       );
 
@@ -625,60 +562,95 @@ async function loadCatalogue(){
     if(!response.ok){
 
       throw new Error(
-        'Metadata request failed: HTTP ' +
+        'Catalogue HTTP ' +
         response.status
       );
 
     }
 
 
-    let text =
+    const text =
       await response.text();
 
 
     /*
-      Google's updater explicitly removes
-      the first five characters.
+      Format:
+
+      icon_name e145
+      icon_name e146
+
     */
 
-    text =
-      text.slice(5);
+    icons =
+      text
+        .split(/\r?\n/)
+        .map(
+          line => {
+
+            const parts =
+              line.trim()
+                .split(/\s+/);
 
 
-    const data =
-      JSON.parse(text);
+            if(
+              parts.length < 2
+            ){
+
+              return null;
+
+            }
+
+
+            return {
+
+              name:parts[0],
+
+              codepoint:parts[1]
+
+            };
+
+          }
+        )
+        .filter(Boolean);
 
 
     /*
-      THIS IS IMPORTANT:
-
-      Do not hard-code fonts.gstatic.com.
-
-      Google supplies the host in metadata.
+      Remove duplicate names.
     */
 
-    googleHost =
-      data.host;
-
-
-    if(!googleHost){
-
-      throw new Error(
-        'Google metadata did not provide an asset host.'
-      );
-
-    }
+    const seen =
+      new Set();
 
 
     icons =
-      Array.isArray(data.icons)
-        ? data.icons
-        : [];
+      icons.filter(
+        icon => {
+
+          if(
+            seen.has(
+              icon.name
+            )
+          ){
+
+            return false;
+
+          }
+
+          seen.add(
+            icon.name
+          );
+
+          return true;
+
+        }
+      );
 
 
     icons.sort(
       (a,b) =>
-        a.name.localeCompare(b.name)
+        a.name.localeCompare(
+          b.name
+        )
     );
 
 
@@ -688,7 +660,7 @@ async function loadCatalogue(){
 
 
     status.textContent =
-      'Google catalogue loaded.';
+      'Catalogue loaded.';
 
 
     renderGrid();
@@ -697,21 +669,25 @@ async function loadCatalogue(){
   }catch(error){
 
     console.error(
-      'Material Symbols loader:',
       error
     );
 
 
     grid.innerHTML = '';
 
-    const errorBox =
-      document.createElement('div');
 
-    errorBox.className =
+    const box =
+      document.createElement(
+        'div'
+      );
+
+
+    box.className =
       'loading';
 
-    errorBox.innerHTML =
-      'Could not load Google icon catalogue.' +
+
+    box.innerHTML =
+      'Could not load icon catalogue.' +
       '<br><br>' +
       escapeHTML(
         error.message
@@ -719,7 +695,7 @@ async function loadCatalogue(){
 
 
     grid.appendChild(
-      errorBox
+      box
     );
 
 
@@ -775,11 +751,6 @@ function assetStyle(){
 
   /*
     Grade
-
-    Google publishes:
-      gradN25
-      default/empty
-      grad200
   */
 
   if(
@@ -821,53 +792,46 @@ function assetStyle(){
 
 
 /* =========================================================
-   OPTICAL SIZE
+   OPTICAL SIZE → OFFICIAL SVG SIZE
 ========================================================= */
 
 function svgSize(){
 
-  /*
-    Google publishes SVGs at:
-      20
-      24
-      40
-      48
-
-    Convert the continuous control to the nearest
-    official SVG size.
-  */
-
-  const values =
+  const sizes =
     [20,24,40,48];
 
 
   let closest =
-    values[0];
+    sizes[0];
 
 
-  let distance =
+  let difference =
     Math.abs(
-      state.opsz - closest
+      state.opsz -
+      closest
     );
 
 
   for(
-    const value of values
+    const size of sizes
   ){
 
     const d =
       Math.abs(
-        state.opsz - value
+        state.opsz -
+        size
       );
 
 
-    if(d < distance){
-
-      distance =
-        d;
+    if(
+      d < difference
+    ){
 
       closest =
-        value;
+        size;
+
+      difference =
+        d;
 
     }
 
@@ -885,44 +849,17 @@ function svgSize(){
 
 function googleSvgURL(icon){
 
-  if(!googleHost){
-
-    throw new Error(
-      'Google asset host has not loaded yet.'
-    );
-
-  }
-
-
-  const family =
-    styleSlug();
-
-
-  const name =
+  return (
+    SVG_HOST +
+    styleSlug() +
+    '/' +
     encodeURIComponent(
       icon.name
-    );
-
-
-  const style =
-    assetStyle();
-
-
-  const size =
-    svgSize();
-
-
-  return (
-    'https://' +
-    googleHost +
-    '/s/i/short-term/release/' +
-    family +
+    ) +
     '/' +
-    name +
+    assetStyle() +
     '/' +
-    style +
-    '/' +
-    size +
+    svgSize() +
     'px.svg'
   );
 
@@ -935,42 +872,28 @@ function googleSvgURL(icon){
 
 function matchesSearch(icon){
 
-  const query =
+  const q =
     search.value
       .trim()
       .toLowerCase();
 
 
-  if(!query)
+  if(!q)
     return true;
 
 
-  const searchable =
-    [
-      icon.name || '',
-      ...(icon.tags || []),
-      ...(icon.categories || [])
-    ]
-    .join(' ')
-    .toLowerCase();
-
-
-  return searchable.includes(
-    query
-  );
+  return icon.name
+    .toLowerCase()
+    .includes(q);
 
 }
 
 
 /* =========================================================
-   RENDER GRID
+   GRID
 ========================================================= */
 
 function renderGrid(){
-
-  if(!googleHost)
-    return;
-
 
   const filtered =
     icons.filter(
@@ -982,116 +905,125 @@ function renderGrid(){
     '';
 
 
+  /*
+    Virtual-ish rendering:
+
+    only create the first 600 visible
+    search results at once.
+  */
+
+  const visible =
+    filtered.slice(
+      0,
+      600
+    );
+
+
   const fragment =
     document.createDocumentFragment();
 
 
-  /*
-    Keep the initial grid responsive.
+  visible.forEach(
+    icon => {
 
-    Search can narrow the catalogue immediately.
-  */
-
-  filtered
-    .slice(0,1000)
-    .forEach(
-      icon => {
-
-        const card =
-          document.createElement(
-            'div'
-          );
-
-
-        card.className =
-          'card';
-
-
-        if(
-          selectedIcon &&
-          selectedIcon.name ===
-          icon.name
-        ){
-
-          card.classList.add(
-            'selected'
-          );
-
-        }
-
-
-        const img =
-          document.createElement(
-            'img'
-          );
-
-
-        img.alt =
-          icon.name;
-
-
-        img.src =
-          googleSvgURL(
-            icon
-          );
-
-
-        img.onerror =
-          () => {
-
-            /*
-              If an individual asset isn't
-              available, don't kill the grid.
-            */
-
-            img.style.visibility =
-              'hidden';
-
-          };
-
-
-        const name =
-          document.createElement(
-            'div'
-          );
-
-
-        name.className =
-          'card-name';
-
-
-        name.textContent =
-          icon.name;
-
-
-        card.appendChild(
-          img
+      const card =
+        document.createElement(
+          'div'
         );
 
 
-        card.appendChild(
-          name
-        );
+      card.className =
+        'card';
 
 
-        card.addEventListener(
-          'click',
-          () => {
+      if(
+        selectedIcon &&
+        selectedIcon.name ===
+        icon.name
+      ){
 
-            selectIcon(
-              icon
-            );
-
-          }
-        );
-
-
-        fragment.appendChild(
-          card
+        card.classList.add(
+          'selected'
         );
 
       }
-    );
+
+
+      const img =
+        document.createElement(
+          'img'
+        );
+
+
+      img.alt =
+        icon.name;
+
+
+      /*
+        Important:
+
+        <img> does NOT trigger browser CORS
+        restrictions in the same way fetch() does.
+
+        Therefore the SVG preview works from
+        chrisweil.com even when Google does not
+        permit cross-origin fetches.
+      */
+
+      img.src =
+        googleSvgURL(
+          icon
+        );
+
+
+      img.onerror =
+        () => {
+
+          img.style.opacity =
+            '.15';
+
+        };
+
+
+      const name =
+        document.createElement(
+          'div'
+        );
+
+
+      name.className =
+        'card-name';
+
+
+      name.textContent =
+        icon.name;
+
+
+      card.appendChild(
+        img
+      );
+
+
+      card.appendChild(
+        name
+      );
+
+
+      card.addEventListener(
+        'click',
+        () =>
+          selectIcon(
+            icon
+          )
+      );
+
+
+      fragment.appendChild(
+        card
+      );
+
+    }
+  );
 
 
   grid.appendChild(
@@ -1108,7 +1040,7 @@ function renderGrid(){
 
 
 /* =========================================================
-   SELECT ICON
+   SELECT
 ========================================================= */
 
 function selectIcon(icon){
@@ -1124,7 +1056,7 @@ function selectIcon(icon){
   updateSelectedMeta();
 
 
-  loadSelectedPreview();
+  loadPreview();
 
 
   status.textContent =
@@ -1138,7 +1070,7 @@ function selectIcon(icon){
 
 
 /* =========================================================
-   SELECTED META
+   META
 ========================================================= */
 
 function updateSelectedMeta(){
@@ -1164,10 +1096,10 @@ function updateSelectedMeta(){
 
 
 /* =========================================================
-   SELECTED PREVIEW
+   PREVIEW
 ========================================================= */
 
-function loadSelectedPreview(){
+function loadPreview(){
 
   previewIcon.innerHTML =
     '';
@@ -1197,7 +1129,7 @@ function loadSelectedPreview(){
     () => {
 
       status.textContent =
-        'Official Google SVG loaded.';
+        'Google SVG loaded.';
 
     };
 
@@ -1206,7 +1138,7 @@ function loadSelectedPreview(){
     () => {
 
       status.textContent =
-        'This Google SVG variant is unavailable.';
+        'This SVG variant is not available.';
 
     };
 
@@ -1219,7 +1151,7 @@ function loadSelectedPreview(){
 
 
 /* =========================================================
-   FETCH SVG
+   FETCH SVG FOR COPY
 ========================================================= */
 
 async function fetchSVG(){
@@ -1243,11 +1175,23 @@ async function fetchSVG(){
     'Fetching SVG…';
 
 
+  /*
+    IMPORTANT:
+
+    The SVG endpoint may be displayed as an
+    <img> cross-origin, but browser fetch()
+    can still be blocked if Google does not
+    expose CORS headers.
+
+    We therefore first try fetch().
+  */
+
   const response =
     await fetch(
       url,
       {
-        cache:'no-store'
+        mode:'cors',
+        cache:'force-cache'
       }
     );
 
@@ -1255,33 +1199,14 @@ async function fetchSVG(){
   if(!response.ok){
 
     throw new Error(
-      'SVG request failed: HTTP ' +
-      response.status +
-      ' — ' +
-      url
+      'SVG HTTP ' +
+      response.status
     );
 
   }
 
 
-  const text =
-    await response.text();
-
-
-  if(
-    !/<svg[\s>]/i.test(
-      text
-    )
-  ){
-
-    throw new Error(
-      'Google returned something other than SVG.'
-    );
-
-  }
-
-
-  return text;
+  return await response.text();
 
 }
 
@@ -1290,7 +1215,7 @@ async function fetchSVG(){
    CLEAN SVG
 ========================================================= */
 
-function cleanSVG(svgText){
+function cleanSVG(text){
 
   const parser =
     new DOMParser();
@@ -1298,7 +1223,7 @@ function cleanSVG(svgText){
 
   const doc =
     parser.parseFromString(
-      svgText,
+      text,
       'image/svg+xml'
     );
 
@@ -1308,12 +1233,13 @@ function cleanSVG(svgText){
 
 
   if(
-    svg.nodeName.toLowerCase() !==
+    svg.nodeName
+      .toLowerCase() !==
     'svg'
   ){
 
     throw new Error(
-      'Invalid SVG document.'
+      'Invalid SVG returned.'
     );
 
   }
@@ -1338,11 +1264,6 @@ function cleanSVG(svgText){
 
   }
 
-
-  /*
-    Store generator settings as harmless
-    data attributes.
-  */
 
   svg.setAttribute(
     'data-material-symbol',
@@ -1440,8 +1361,7 @@ document
 
 
         status.textContent =
-          'SVG copied to clipboard.';
-
+          'SVG copied.';
 
       }
       catch(error){
@@ -1452,7 +1372,7 @@ document
 
 
         status.textContent =
-          'SVG extraction error: ' +
+          'COPY SVG failed: ' +
           error.message;
 
       }
@@ -1498,7 +1418,7 @@ document
         ){
 
           throw new Error(
-            'No <path> element found.'
+            'No <path> found.'
           );
 
         }
@@ -1507,8 +1427,8 @@ document
         const output =
           paths
             .map(
-              path =>
-                path.getAttribute(
+              p =>
+                p.getAttribute(
                   'd'
                 )
             )
@@ -1523,15 +1443,7 @@ document
 
 
         status.textContent =
-          paths.length +
-          ' SVG path' +
-          (
-            paths.length === 1
-              ? ''
-              : 's'
-          ) +
-          ' copied.';
-
+          'PATH copied.';
 
       }
       catch(error){
@@ -1542,7 +1454,7 @@ document
 
 
         status.textContent =
-          'PATH extraction error: ' +
+          'COPY PATH failed: ' +
           error.message;
 
       }
@@ -1616,11 +1528,9 @@ function updateSettings(){
   updateSelectedMeta();
 
 
-  if(
-    selectedIcon
-  ){
+  if(selectedIcon){
 
-    loadSelectedPreview();
+    loadPreview();
 
   }
 
@@ -1639,14 +1549,11 @@ function updateSettings(){
   'weight',
   'grade',
   'opsz'
-]
-.forEach(
+].forEach(
   id => {
 
     document
-      .getElementById(
-        id
-      )
+      .getElementById(id)
       .addEventListener(
         'input',
         updateSettings
@@ -1695,11 +1602,9 @@ document
           updateSelectedMeta();
 
 
-          if(
-            selectedIcon
-          ){
+          if(selectedIcon){
 
-            loadSelectedPreview();
+            loadPreview();
 
           }
 
@@ -1740,32 +1645,17 @@ search.addEventListener(
 
 
 /* =========================================================
-   ESCAPE HTML
+   ESCAPE
 ========================================================= */
 
 function escapeHTML(value){
 
   return String(value)
-    .replace(
-      /&/g,
-      '&amp;'
-    )
-    .replace(
-      /</g,
-      '&lt;'
-    )
-    .replace(
-      />/g,
-      '&gt;'
-    )
-    .replace(
-      /"/g,
-      '&quot;'
-    )
-    .replace(
-      /'/g,
-      '&#039;'
-    );
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
 
 }
 
