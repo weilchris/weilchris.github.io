@@ -99,7 +99,7 @@ input[type="text"]:focus{
 
 .range-row{
   display:grid;
-  grid-template-columns:1fr 55px;
+  grid-template-columns:1fr 65px;
   gap:8px;
   align-items:center;
 }
@@ -115,6 +115,19 @@ input[type="range"]{
   background:#222;
   text-align:center;
   font-size:12px;
+}
+
+/* ================= SELECT ================= */
+
+select{
+  width:100%;
+  height:35px;
+  padding:0 8px;
+  border:1px solid #3a3a3a;
+  border-radius:6px;
+  background:#222;
+  color:#eee;
+  outline:none;
 }
 
 /* ================= SELECTED ================= */
@@ -270,6 +283,77 @@ input[type="range"]{
   text-align:center;
 }
 
+/* ================= COPY FALLBACK ================= */
+
+.copy-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.72);
+}
+
+.copy-box{
+  width:min(760px,95vw);
+  max-height:90vh;
+  padding:16px;
+  background:#181818;
+  border:1px solid #555;
+  border-radius:10px;
+  box-shadow:0 20px 70px rgba(0,0,0,.7);
+}
+
+.copy-title{
+  margin-bottom:8px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.copy-help{
+  margin-bottom:10px;
+  color:#888;
+  font-size:11px;
+}
+
+.copy-textarea{
+  width:100%;
+  height:260px;
+  resize:vertical;
+  padding:10px;
+  border:1px solid #3a3a3a;
+  border-radius:6px;
+  outline:none;
+  background:#101010;
+  color:#eee;
+  font-family:monospace;
+  font-size:11px;
+  line-height:1.45;
+}
+
+.copy-buttons{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+  margin-top:9px;
+}
+
+.copy-buttons button{
+  height:36px;
+  padding:0 14px;
+  border:1px solid #444;
+  border-radius:6px;
+  background:#252525;
+  color:#fff;
+  cursor:pointer;
+}
+
+.copy-buttons button:hover{
+  background:#303030;
+}
+
 /* ================= RESPONSIVE ================= */
 
 @media(max-width:700px){
@@ -371,16 +455,11 @@ Sharp
 
 <div class="range-row">
 
-<input
-  id="grade"
-  type="range"
-  min="-25"
-  max="200"
-  step="25"
-  value="0"
->
-
-<div id="gradeValue" class="value">0</div>
+<select id="grade">
+  <option value="-25">-25</option>
+  <option value="0" selected>0</option>
+  <option value="200">200</option>
+</select>
 
 </div>
 
@@ -388,16 +467,12 @@ Sharp
 
 <div class="range-row">
 
-<input
-  id="opsz"
-  type="range"
-  min="20"
-  max="48"
-  step="1"
-  value="24"
->
-
-<div id="opszValue" class="value">24</div>
+<select id="opsz">
+  <option value="20">20</option>
+  <option value="24" selected>24</option>
+  <option value="40">40</option>
+  <option value="48">48</option>
+</select>
 
 </div>
 
@@ -464,28 +539,34 @@ Loading icon catalogue…
 <script>
 
 /* =========================================================
-   NO GOOGLE METADATA API
-   NO fonts.google.com
-   NO CORS PROBLEM FROM GOOGLE METADATA
+   MATERIAL SYMBOLS SVG EXTRACTOR
 ========================================================= */
 
 
-/*
-  Google's official Material Symbols codepoints file.
-
-  This contains the icon names and their Unicode codepoints.
-*/
+/* =========================================================
+   OFFICIAL GOOGLE CATALOGUE
+========================================================= */
 
 const CATALOGUE_URL =
   'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsOutlined%5BFILL%2CGRAD%2Copsz%2Cwght%5D.codepoints';
 
 
-/*
-  Official Google SVG CDN.
-*/
+/* =========================================================
+   GOOGLE SVG CDN
+   Used for visual previews.
+========================================================= */
 
 const SVG_HOST =
   'https://fonts.gstatic.com/s/i/short-term/release/';
+
+
+/* =========================================================
+   OFFICIAL GOOGLE GITHUB SVG REPOSITORY
+   Used for SVG extraction / COPY.
+========================================================= */
+
+const GITHUB_SVG_HOST =
+  'https://raw.githubusercontent.com/google/material-design-icons/master/symbols/web/';
 
 
 let icons = [];
@@ -572,14 +653,6 @@ async function loadCatalogue(){
     const text =
       await response.text();
 
-
-    /*
-      Format:
-
-      icon_name e145
-      icon_name e146
-
-    */
 
     icons =
       text
@@ -726,8 +799,33 @@ function styleSlug(){
 
 
 /* =========================================================
-   SVG VARIANT
+   STYLE DIRECTORY
 ========================================================= */
+
+function githubStyleDirectory(){
+
+  return styleSlug();
+
+}
+
+
+/* =========================================================
+   VARIANT SUFFIX
+========================================================= */
+
+/*
+  Google stores generated Material Symbol SVGs
+  using filenames such as:
+
+  home_24px.svg
+  home_fill1_24px.svg
+  home_wght500_24px.svg
+  home_gradN25_24px.svg
+  home_wght500grad200fill1_24px.svg
+
+  The ordering follows Google's generated
+  short-term SVG naming.
+*/
 
 function assetStyle(){
 
@@ -786,68 +884,33 @@ function assetStyle(){
   }
 
 
-  return result || 'default';
+  return result;
 
 }
 
 
 /* =========================================================
-   OPTICAL SIZE → OFFICIAL SVG SIZE
+   OPTICAL SIZE
 ========================================================= */
 
 function svgSize(){
 
-  const sizes =
-    [20,24,40,48];
-
-
-  let closest =
-    sizes[0];
-
-
-  let difference =
-    Math.abs(
-      state.opsz -
-      closest
-    );
-
-
-  for(
-    const size of sizes
-  ){
-
-    const d =
-      Math.abs(
-        state.opsz -
-        size
-      );
-
-
-    if(
-      d < difference
-    ){
-
-      closest =
-        size;
-
-      difference =
-        d;
-
-    }
-
-  }
-
-
-  return closest;
+  return Number(
+    state.opsz
+  );
 
 }
 
 
 /* =========================================================
-   GOOGLE SVG URL
+   GOOGLE CDN URL
 ========================================================= */
 
 function googleSvgURL(icon){
+
+  const variant =
+    assetStyle();
+
 
   return (
     SVG_HOST +
@@ -857,10 +920,49 @@ function googleSvgURL(icon){
       icon.name
     ) +
     '/' +
-    assetStyle() +
+    (
+      variant ||
+      'default'
+    ) +
     '/' +
     svgSize() +
     'px.svg'
+  );
+
+}
+
+
+/* =========================================================
+   GITHUB RAW SVG URL
+========================================================= */
+
+function githubSvgURL(icon){
+
+  const variant =
+    assetStyle();
+
+
+  const filename =
+    icon.name +
+    (
+      variant
+        ? '_' + variant
+        : ''
+    ) +
+    '_' +
+    svgSize() +
+    'px.svg';
+
+
+  return (
+    GITHUB_SVG_HOST +
+    encodeURIComponent(
+      icon.name
+    ) +
+    '/' +
+    githubStyleDirectory() +
+    '/' +
+    filename
   );
 
 }
@@ -906,10 +1008,8 @@ function renderGrid(){
 
 
   /*
-    Virtual-ish rendering:
-
-    only create the first 600 visible
-    search results at once.
+    Render the first 600 results.
+    The complete catalogue remains searchable.
   */
 
   const visible =
@@ -960,14 +1060,9 @@ function renderGrid(){
 
 
       /*
-        Important:
-
-        <img> does NOT trigger browser CORS
-        restrictions in the same way fetch() does.
-
-        Therefore the SVG preview works from
-        chrisweil.com even when Google does not
-        permit cross-origin fetches.
+        Preview uses Google's CDN.
+        <img> is allowed cross-origin
+        without exposing the response to JS.
       */
 
       img.src =
@@ -979,8 +1074,32 @@ function renderGrid(){
       img.onerror =
         () => {
 
-          img.style.opacity =
-            '.15';
+          /*
+            If Google CDN preview fails,
+            try the official GitHub SVG.
+          */
+
+          if(
+            img.dataset.githubFallback !==
+            '1'
+          ){
+
+            img.dataset.githubFallback =
+              '1';
+
+            img.src =
+              githubSvgURL(
+                icon
+              );
+
+          }
+
+          else{
+
+            img.style.opacity =
+              '.15';
+
+          }
 
         };
 
@@ -1079,6 +1198,10 @@ function updateSelectedMeta(){
     return;
 
 
+  const actualSize =
+    svgSize();
+
+
   selectedMeta.innerHTML =
     'Style: ' +
     state.style +
@@ -1089,8 +1212,11 @@ function updateSelectedMeta(){
     state.weight +
     ' · Grade: ' +
     state.grade +
-    ' · Optical Size: ' +
-    state.opsz;
+    '<br>' +
+    'Optical Size: ' +
+    state.opsz +
+    'px';
+
 
 }
 
@@ -1137,8 +1263,31 @@ function loadPreview(){
   img.onerror =
     () => {
 
-      status.textContent =
-        'This SVG variant is not available.';
+      /*
+        GitHub fallback.
+      */
+
+      if(
+        img.dataset.githubFallback !==
+        '1'
+      ){
+
+        img.dataset.githubFallback =
+          '1';
+
+        img.src =
+          githubSvgURL(
+            selectedIcon
+          );
+
+      }
+
+      else{
+
+        status.textContent =
+          'This SVG variant is not available.';
+
+      }
 
     };
 
@@ -1151,7 +1300,7 @@ function loadPreview(){
 
 
 /* =========================================================
-   FETCH SVG FOR COPY
+   FETCH SVG
 ========================================================= */
 
 async function fetchSVG(){
@@ -1165,48 +1314,97 @@ async function fetchSVG(){
   }
 
 
-  const url =
-    googleSvgURL(
+  /*
+    IMPORTANT:
+
+    We fetch the SVG directly from the
+    official Google Material Design Icons
+    GitHub repository.
+
+    This avoids the Google Fonts CDN
+    CORS restriction encountered on Safari.
+  */
+
+  const githubURL =
+    githubSvgURL(
       selectedIcon
     );
 
 
   status.textContent =
-    'Fetching SVG…';
+    'Fetching official SVG…';
 
 
-  /*
-    IMPORTANT:
+  try{
 
-    The SVG endpoint may be displayed as an
-    <img> cross-origin, but browser fetch()
-    can still be blocked if Google does not
-    expose CORS headers.
-
-    We therefore first try fetch().
-  */
-
-  const response =
-    await fetch(
-      url,
-      {
-        mode:'cors',
-        cache:'force-cache'
-      }
-    );
+    const response =
+      await fetch(
+        githubURL,
+        {
+          mode:'cors',
+          cache:'force-cache'
+        }
+      );
 
 
-  if(!response.ok){
+    if(
+      response.ok
+    ){
+
+      return await response.text();
+
+    }
+
 
     throw new Error(
-      'SVG HTTP ' +
+      'GitHub SVG HTTP ' +
       response.status
     );
 
   }
+  catch(githubError){
+
+    console.warn(
+      'GitHub SVG fetch failed:',
+      githubError
+    );
 
 
-  return await response.text();
+    /*
+      Secondary fallback:
+      try the Google SVG CDN.
+    */
+
+    const googleURL =
+      googleSvgURL(
+        selectedIcon
+      );
+
+
+    const response =
+      await fetch(
+        googleURL,
+        {
+          mode:'cors',
+          cache:'force-cache'
+        }
+      );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        'SVG could not be fetched. ' +
+        'GitHub: ' +
+        githubError.message
+      );
+
+    }
+
+
+    return await response.text();
+
+  }
 
 }
 
@@ -1226,6 +1424,21 @@ function cleanSVG(text){
       text,
       'image/svg+xml'
     );
+
+
+  const parserError =
+    doc.querySelector(
+      'parsererror'
+    );
+
+
+  if(parserError){
+
+    throw new Error(
+      'Invalid SVG returned.'
+    );
+
+  }
 
 
   const svg =
@@ -1307,7 +1520,7 @@ function cleanSVG(text){
 
 
 /* =========================================================
-   SERIALIZE
+   SERIALIZE SVG
 ========================================================= */
 
 function serializeSVG(svg){
@@ -1320,6 +1533,445 @@ function serializeSVG(svg){
       />\s+</g,
       '><'
     );
+
+}
+
+
+/* =========================================================
+   COPY TEXT
+   Safari-safe implementation
+========================================================= */
+
+async function copyText(text){
+
+  /*
+    METHOD 1
+    Modern Clipboard API.
+  */
+
+  try{
+
+    if(
+      navigator.clipboard &&
+      window.isSecureContext
+    ){
+
+      await navigator.clipboard.writeText(
+        text
+      );
+
+      return true;
+
+    }
+
+  }
+  catch(error){
+
+    console.warn(
+      'Clipboard API unavailable:',
+      error
+    );
+
+  }
+
+
+  /*
+    METHOD 2
+    Legacy Safari-compatible copy.
+  */
+
+  const textarea =
+    document.createElement(
+      'textarea'
+    );
+
+
+  textarea.value =
+    text;
+
+
+  textarea.setAttribute(
+    'readonly',
+    ''
+  );
+
+
+  textarea.style.position =
+    'fixed';
+
+  textarea.style.left =
+    '-9999px';
+
+  textarea.style.top =
+    '0';
+
+  textarea.style.width =
+    '1px';
+
+  textarea.style.height =
+    '1px';
+
+  textarea.style.opacity =
+    '0';
+
+
+  document.body.appendChild(
+    textarea
+  );
+
+
+  textarea.focus();
+
+  textarea.select();
+
+  textarea.setSelectionRange(
+    0,
+    textarea.value.length
+  );
+
+
+  let success =
+    false;
+
+
+  try{
+
+    success =
+      document.execCommand(
+        'copy'
+      );
+
+  }
+  catch(error){
+
+    console.warn(
+      'execCommand copy failed:',
+      error
+    );
+
+  }
+
+
+  textarea.remove();
+
+
+  if(success){
+
+    return true;
+
+  }
+
+
+  /*
+    METHOD 3
+    Guaranteed manual-copy fallback.
+  */
+
+  showCopyFallback(
+    text
+  );
+
+
+  return false;
+
+}
+
+
+/* =========================================================
+   MANUAL COPY FALLBACK
+========================================================= */
+
+function showCopyFallback(text){
+
+  const old =
+    document.getElementById(
+      'copyFallback'
+    );
+
+
+  if(old){
+
+    old.remove();
+
+  }
+
+
+  const overlay =
+    document.createElement(
+      'div'
+    );
+
+
+  overlay.id =
+    'copyFallback';
+
+
+  overlay.className =
+    'copy-overlay';
+
+
+  const box =
+    document.createElement(
+      'div'
+    );
+
+
+  box.className =
+    'copy-box';
+
+
+  const title =
+    document.createElement(
+      'div'
+    );
+
+
+  title.className =
+    'copy-title';
+
+
+  title.textContent =
+    'COPY FAILED — TEXT READY';
+
+
+  const help =
+    document.createElement(
+      'div'
+    );
+
+
+  help.className =
+    'copy-help';
+
+
+  help.textContent =
+    'Safari blocked automatic clipboard access. The text is already selected — press ⌘C or Ctrl+C.';
+
+
+  const textarea =
+    document.createElement(
+      'textarea'
+    );
+
+
+  textarea.className =
+    'copy-textarea';
+
+
+  textarea.value =
+    text;
+
+
+  const buttons =
+    document.createElement(
+      'div'
+    );
+
+
+  buttons.className =
+    'copy-buttons';
+
+
+  const copyAgain =
+    document.createElement(
+      'button'
+    );
+
+
+  copyAgain.textContent =
+    'COPY AGAIN';
+
+
+  copyAgain.onclick =
+    async () => {
+
+      try{
+
+        const success =
+          await copyTextWithoutFallback(
+            text
+          );
+
+
+        if(success){
+
+          overlay.remove();
+
+          status.textContent =
+            'Copied.';
+
+        }
+
+      }
+      catch(error){
+
+        console.warn(
+          error
+        );
+
+      }
+
+    };
+
+
+  const close =
+    document.createElement(
+      'button'
+    );
+
+
+  close.textContent =
+    'CLOSE';
+
+
+  close.onclick =
+    () =>
+      overlay.remove();
+
+
+  buttons.appendChild(
+    copyAgain
+  );
+
+
+  buttons.appendChild(
+    close
+  );
+
+
+  box.appendChild(
+    title
+  );
+
+  box.appendChild(
+    help
+  );
+
+  box.appendChild(
+    textarea
+  );
+
+  box.appendChild(
+    buttons
+  );
+
+
+  overlay.appendChild(
+    box
+  );
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  textarea.focus();
+
+  textarea.select();
+
+  textarea.setSelectionRange(
+    0,
+    textarea.value.length
+  );
+
+
+  status.textContent =
+    'Clipboard permission denied — text selected for manual copy.';
+
+}
+
+
+/* =========================================================
+   COPY AGAIN
+   Does NOT recursively open fallback.
+========================================================= */
+
+async function copyTextWithoutFallback(text){
+
+  try{
+
+    if(
+      navigator.clipboard &&
+      window.isSecureContext
+    ){
+
+      await navigator.clipboard.writeText(
+        text
+      );
+
+      return true;
+
+    }
+
+  }
+  catch(error){
+
+    console.warn(
+      error
+    );
+
+  }
+
+
+  const textarea =
+    document.createElement(
+      'textarea'
+    );
+
+
+  textarea.value =
+    text;
+
+
+  textarea.setAttribute(
+    'readonly',
+    ''
+  );
+
+
+  textarea.style.position =
+    'fixed';
+
+  textarea.style.left =
+    '-9999px';
+
+
+  document.body.appendChild(
+    textarea
+  );
+
+
+  textarea.focus();
+
+  textarea.select();
+
+
+  let success =
+    false;
+
+
+  try{
+
+    success =
+      document.execCommand(
+        'copy'
+      );
+
+  }
+  catch(error){
+
+    console.warn(
+      error
+    );
+
+  }
+
+
+  textarea.remove();
+
+
+  return success;
 
 }
 
@@ -1354,14 +2006,18 @@ document
           );
 
 
-        await navigator.clipboard
-          .writeText(
+        const success =
+          await copyText(
             output
           );
 
 
-        status.textContent =
-          'SVG copied.';
+        if(success){
+
+          status.textContent =
+            'SVG copied.';
+
+        }
 
       }
       catch(error){
@@ -1436,14 +2092,18 @@ document
             .join('\n');
 
 
-        await navigator.clipboard
-          .writeText(
+        const success =
+          await copyText(
             output
           );
 
 
-        status.textContent =
-          'PATH copied.';
+        if(success){
+
+          status.textContent =
+            'PATH copied.';
+
+        }
 
       }
       catch(error){
@@ -1513,18 +2173,6 @@ function updateSettings(){
     state.weight;
 
 
-  document.getElementById(
-    'gradeValue'
-  ).textContent =
-    state.grade;
-
-
-  document.getElementById(
-    'opszValue'
-  ).textContent =
-    state.opsz;
-
-
   updateSelectedMeta();
 
 
@@ -1546,7 +2194,26 @@ function updateSettings(){
 
 [
   'fill',
-  'weight',
+  'weight'
+].forEach(
+  id => {
+
+    document
+      .getElementById(id)
+      .addEventListener(
+        'input',
+        updateSettings
+      );
+
+  }
+);
+
+
+/* =========================================================
+   SELECT EVENTS
+========================================================= */
+
+[
   'grade',
   'opsz'
 ].forEach(
@@ -1555,7 +2222,7 @@ function updateSettings(){
     document
       .getElementById(id)
       .addEventListener(
-        'input',
+        'change',
         updateSettings
       );
 
@@ -1651,11 +2318,26 @@ search.addEventListener(
 function escapeHTML(value){
 
   return String(value)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
 
 }
 
