@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Material Symbols SVG Generator</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Material Symbols SVG Extractor</title>
 
 <style>
 *{
   box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
   margin:0;
   width:100%;
   height:100%;
@@ -25,14 +23,15 @@ html,body{
 }
 
 .app{
+  width:100%;
   height:100vh;
   display:grid;
   grid-template-columns:330px 1fr;
 }
 
-/* ==============================
+/* =========================================================
    SIDEBAR
-============================== */
+========================================================= */
 
 .sidebar{
   background:#181818;
@@ -59,24 +58,28 @@ label{
   margin-bottom:6px;
   color:#999;
   font-size:10px;
-  text-transform:uppercase;
   letter-spacing:.08em;
+  text-transform:uppercase;
 }
 
 input[type="text"]{
   width:100%;
   height:38px;
   padding:0 10px;
-  background:#222;
-  border:1px solid #3b3b3b;
+  border:1px solid #3a3a3a;
   border-radius:7px;
-  color:#fff;
   outline:none;
+  background:#222;
+  color:#fff;
 }
 
 input[type="text"]:focus{
   border-color:#777;
 }
+
+/* =========================================================
+   STYLE
+========================================================= */
 
 .style-buttons{
   display:grid;
@@ -85,9 +88,9 @@ input[type="text"]:focus{
 }
 
 .style-buttons button{
-  height:34px;
-  border-radius:6px;
+  height:35px;
   border:1px solid #3b3b3b;
+  border-radius:6px;
   background:#222;
   color:#aaa;
   cursor:pointer;
@@ -98,6 +101,10 @@ input[type="text"]:focus{
   color:#111;
   border-color:#eee;
 }
+
+/* =========================================================
+   RANGES
+========================================================= */
 
 .range-row{
   display:grid;
@@ -111,13 +118,17 @@ input[type="range"]{
 }
 
 .value{
-  border:1px solid #333;
-  background:#222;
-  border-radius:6px;
   padding:6px 3px;
+  border:1px solid #333;
+  border-radius:6px;
+  background:#222;
   text-align:center;
   font-size:12px;
 }
+
+/* =========================================================
+   SELECTED
+========================================================= */
 
 .selected-panel{
   margin-top:22px;
@@ -139,29 +150,20 @@ input[type="range"]{
 }
 
 .preview{
-  margin-top:14px;
   height:155px;
+  margin-top:14px;
   display:flex;
-  justify-content:center;
   align-items:center;
-  background:#101010;
+  justify-content:center;
   border:1px solid #333;
   border-radius:8px;
+  background:#101010;
 }
 
-.preview-icon{
-  font-family:
-    'Material Symbols Outlined',
-    sans-serif;
-
-  font-size:105px;
-  line-height:1;
-
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+.preview svg{
+  width:110px;
+  height:110px;
+  fill:currentColor;
 }
 
 .actions{
@@ -173,10 +175,10 @@ input[type="range"]{
 
 .actions button{
   height:42px;
-  background:#252525;
   border:1px solid #444;
-  color:#fff;
   border-radius:7px;
+  background:#252525;
+  color:#fff;
   cursor:pointer;
   font-weight:bold;
 }
@@ -193,9 +195,9 @@ input[type="range"]{
   line-height:1.4;
 }
 
-/* ==============================
+/* =========================================================
    MAIN
-============================== */
+========================================================= */
 
 .main{
   min-width:0;
@@ -206,10 +208,10 @@ input[type="range"]{
 .topbar{
   height:58px;
   flex:none;
-  padding:0 18px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
   border-bottom:1px solid #333;
   background:#151515;
 }
@@ -235,47 +237,37 @@ input[type="range"]{
 
 .card{
   min-height:115px;
-  background:#181818;
-  border:1px solid #2d2d2d;
-  border-radius:8px;
-  cursor:pointer;
-
+  padding:10px;
   display:flex;
   flex-direction:column;
-  justify-content:center;
   align-items:center;
-
-  padding:10px;
+  justify-content:center;
+  border:1px solid #2d2d2d;
+  border-radius:8px;
+  background:#181818;
+  cursor:pointer;
+  transition:.12s;
 }
 
 .card:hover{
-  background:#222;
   border-color:#555;
+  background:#222;
 }
 
 .card.selected{
-  background:#252525;
   border-color:#aaa;
+  background:#252525;
 }
 
-.card-icon{
-  font-family:
-    'Material Symbols Outlined',
-    sans-serif;
-
-  font-size:42px;
-  line-height:1;
-
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
+.card svg{
+  width:44px;
+  height:44px;
+  fill:currentColor;
 }
 
 .card-name{
-  margin-top:12px;
   width:100%;
+  margin-top:12px;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
@@ -287,13 +279,13 @@ input[type="range"]{
 .loading{
   grid-column:1/-1;
   padding:60px;
-  text-align:center;
   color:#777;
+  text-align:center;
 }
 
-/* ==============================
-   MOBILE
-============================== */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media(max-width:700px){
 
@@ -303,7 +295,7 @@ input[type="range"]{
 
   .sidebar{
     position:absolute;
-    z-index:20;
+    z-index:10;
     width:310px;
     height:100%;
     transform:translateX(-100%);
@@ -321,257 +313,266 @@ input[type="range"]{
 
 <div class="app">
 
-  <aside class="sidebar">
+<!-- =======================================================
+     SIDEBAR
+======================================================= -->
 
-    <h1>Material Symbols → SVG</h1>
+<aside class="sidebar">
 
-    <div class="subtitle">
-      Exact variable-font glyph extraction
-    </div>
+  <h1>Material Symbols → SVG</h1>
 
-    <label>Search</label>
+  <div class="subtitle">
+    Official Google Material Symbols SVG extractor
+  </div>
+
+
+  <label>Search</label>
+
+  <input
+    id="search"
+    type="text"
+    placeholder="home, arrow, game, volume…"
+    autocomplete="off"
+  >
+
+
+  <label>Style</label>
+
+  <div class="style-buttons">
+
+    <button
+      class="active"
+      data-style="Outlined">
+      Outlined
+    </button>
+
+    <button
+      data-style="Rounded">
+      Rounded
+    </button>
+
+    <button
+      data-style="Sharp">
+      Sharp
+    </button>
+
+  </div>
+
+
+  <label>Fill</label>
+
+  <div class="range-row">
 
     <input
-      id="search"
-      type="text"
-      placeholder="home, arrow, game, volume…"
-      autocomplete="off"
+      id="fill"
+      type="range"
+      min="0"
+      max="1"
+      step="1"
+      value="0"
     >
 
-    <label>Style</label>
-
-    <div class="style-buttons">
-
-      <button
-        class="active"
-        data-style="Outlined">
-        Outlined
-      </button>
-
-      <button
-        data-style="Rounded">
-        Rounded
-      </button>
-
-      <button
-        data-style="Sharp">
-        Sharp
-      </button>
-
+    <div
+      id="fillValue"
+      class="value">
+      0
     </div>
 
-    <label>Fill</label>
+  </div>
 
-    <div class="range-row">
 
-      <input
-        id="fill"
-        type="range"
-        min="0"
-        max="1"
-        step="1"
-        value="0"
-      >
+  <label>Weight</label>
 
-      <div
-        class="value"
-        id="fillValue">
-        0
-      </div>
+  <div class="range-row">
 
+    <input
+      id="weight"
+      type="range"
+      min="100"
+      max="700"
+      step="100"
+      value="400"
+    >
+
+    <div
+      id="weightValue"
+      class="value">
+      400
     </div>
 
-    <label>Weight</label>
+  </div>
 
-    <div class="range-row">
 
-      <input
-        id="weight"
-        type="range"
-        min="100"
-        max="700"
-        step="1"
-        value="400"
-      >
+  <label>Grade</label>
 
-      <div
-        class="value"
-        id="weightValue">
-        400
-      </div>
+  <div class="range-row">
 
+    <input
+      id="grade"
+      type="range"
+      min="-25"
+      max="200"
+      step="25"
+      value="0"
+    >
+
+    <div
+      id="gradeValue"
+      class="value">
+      0
     </div>
 
-    <label>Grade</label>
+  </div>
 
-    <div class="range-row">
 
-      <input
-        id="grade"
-        type="range"
-        min="-50"
-        max="200"
-        step="1"
-        value="0"
-      >
+  <label>Optical Size</label>
 
-      <div
-        class="value"
-        id="gradeValue">
-        0
-      </div>
+  <div class="range-row">
 
+    <input
+      id="opsz"
+      type="range"
+      min="20"
+      max="48"
+      step="4"
+      value="24"
+    >
+
+    <div
+      id="opszValue"
+      class="value">
+      24
     </div>
 
-    <label>Optical Size</label>
-
-    <div class="range-row">
-
-      <input
-        id="opsz"
-        type="range"
-        min="20"
-        max="48"
-        step="1"
-        value="24"
-      >
-
-      <div
-        class="value"
-        id="opszValue">
-        24
-      </div>
-
-    </div>
+  </div>
 
 
-    <div class="selected-panel">
+  <!-- =====================================================
+       SELECTED ICON
+  ====================================================== -->
 
-      <div
-        id="selectedName"
-        class="selected-name">
-        No icon selected
-      </div>
+  <div class="selected-panel">
 
-      <div
-        id="selectedMeta"
-        class="selected-meta">
-        Select an icon.
-      </div>
-
-      <div class="preview">
-
-        <span
-          id="previewIcon"
-          class="preview-icon">
-        </span>
-
-      </div>
-
-      <div class="actions">
-
-        <button id="copySvg">
-          COPY SVG
-        </button>
-
-        <button id="copyPath">
-          COPY PATH
-        </button>
-
-      </div>
-
-      <div
-        id="status"
-        class="status">
-      </div>
-
-    </div>
-
-  </aside>
-
-
-  <main class="main">
-
-    <div class="topbar">
-
-      <div class="topbar-title">
-        Google Material Symbols
-      </div>
-
-      <div
-        id="count"
-        class="count">
-        Loading…
-      </div>
-
+    <div
+      id="selectedName"
+      class="selected-name">
+      No icon selected
     </div>
 
     <div
-      id="grid"
-      class="grid">
+      id="selectedMeta"
+      class="selected-meta">
+      Select an icon from the grid.
+    </div>
 
-      <div class="loading">
-        Loading Google icon catalogue…
-      </div>
+
+    <div class="preview">
+
+      <div id="previewIcon"></div>
 
     </div>
 
-  </main>
+
+    <div class="actions">
+
+      <button id="copySvg">
+        COPY SVG
+      </button>
+
+      <button id="copyPath">
+        COPY PATH
+      </button>
+
+    </div>
+
+
+    <div
+      id="status"
+      class="status">
+    </div>
+
+  </div>
+
+</aside>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+  <div class="topbar">
+
+    <div class="topbar-title">
+      Google Material Symbols
+    </div>
+
+    <div
+      id="count"
+      class="count">
+      Loading…
+    </div>
+
+  </div>
+
+
+  <div
+    id="grid"
+    class="grid">
+
+    <div class="loading">
+      Loading icon catalogue…
+    </div>
+
+  </div>
+
+</main>
 
 </div>
 
 
-<!-- =========================================================
-     OPENTYPE.JS
-========================================================= -->
-
-<script src="https://cdn.jsdelivr.net/gh/opentypejs/opentype.js@master/dist/opentype.js"></script>
-
-
 <script>
+
 /* =========================================================
-   GOOGLE DATA
+   GOOGLE OFFICIAL DATA
 ========================================================= */
 
 const METADATA_URL =
   'https://fonts.google.com/metadata/icons?incomplete=1&key=material_symbols';
 
 
-const FONT_URLS = {
+/*
+  Google's own update script uses:
 
-  Outlined:
-    'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsOutlined%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf',
+  https://{host}/s/i/short-term/release/
+    {stylistic_set_snake}/
+    {icon.name}/
+    {style}/
+    {size_px}px.svg
 
-  Rounded:
-    'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsRounded%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf',
+  We reproduce that exact structure.
+*/
 
-  Sharp:
-    'https://raw.githubusercontent.com/google/material-design-icons/master/variablefont/MaterialSymbolsSharp%5BFILL%2CGRAD%2Copsz%2Cwght%5D.ttf'
+
+const state = {
+
+  style: 'Outlined',
+
+  fill: 0,
+
+  weight: 400,
+
+  grade: 0,
+
+  opsz: 24
+
 };
 
-
-/* =========================================================
-   STATE
-========================================================= */
 
 let icons = [];
 
 let selectedIcon = null;
-
-let fontCache = {};
-
-let settings = {
-
-  style:'Outlined',
-
-  fill:0,
-
-  weight:400,
-
-  grade:0,
-
-  opsz:24
-};
 
 
 /* =========================================================
@@ -601,62 +602,141 @@ const status =
 
 
 /* =========================================================
-   GOOGLE FONT CSS
-   Used only for live visual preview.
+   STYLE SLUG
 ========================================================= */
 
-function loadPreviewFont(){
+function styleSlug(){
 
-  const old =
-    document.getElementById('materialPreviewFont');
+  switch(state.style){
 
-  if(old)
-    old.remove();
+    case 'Rounded':
+      return 'materialsymbolsrounded';
 
-  const family =
-    'Material Symbols ' +
-    settings.style;
+    case 'Sharp':
+      return 'materialsymbolssharp';
 
-  const link =
-    document.createElement('link');
+    default:
+      return 'materialsymbolsoutlined';
 
-  link.id =
-    'materialPreviewFont';
+  }
 
-  link.rel =
-    'stylesheet';
-
-  link.href =
-    'https://fonts.googleapis.com/css2?family=' +
-    encodeURIComponent(family) +
-    ':opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
-
-  document.head.appendChild(link);
 }
 
 
 /* =========================================================
-   VARIATIONS
+   GOOGLE SVG STYLE NAME
 ========================================================= */
 
-function variationString(){
+function assetStyle(){
 
-  return [
-    "'FILL' " + settings.fill,
-    "'wght' " + settings.weight,
-    "'GRAD' " + settings.grade,
-    "'opsz' " + settings.opsz
-  ].join(',');
+  /*
+    Google's generator creates:
+
+      default
+      fill1
+      gradN25
+      grad200
+      gradN25fill1
+      grad200fill1
+
+    And weight prefixes:
+
+      wght100
+      wght200
+      wght300
+      [nothing = 400]
+      wght500
+      wght600
+      wght700
+  */
+
+  let result = '';
+
+
+  /* Weight */
+
+  if(state.weight !== 400){
+
+    result +=
+      'wght' +
+      state.weight;
+
+  }
+
+
+  /* Grade */
+
+  if(state.grade === -25){
+
+    result += 'gradN25';
+
+  }
+
+  else if(state.grade === 200){
+
+    result += 'grad200';
+
+  }
+
+
+  /* Fill */
+
+  if(state.fill === 1){
+
+    result += 'fill1';
+
+  }
+
+
+  if(!result){
+
+    return 'default';
+
+  }
+
+
+  return result;
 }
 
 
-function applyVariation(el){
+/* =========================================================
+   GOOGLE SVG URL
+========================================================= */
 
-  if(!el)
-    return;
+function googleSvgURL(){
 
-  el.style.fontVariationSettings =
-    variationString();
+  if(!selectedIcon)
+    throw new Error(
+      'No icon selected.'
+    );
+
+
+  const family =
+    styleSlug();
+
+  const icon =
+    encodeURIComponent(
+      selectedIcon.name
+    );
+
+  const variant =
+    assetStyle();
+
+  const size =
+    state.opsz;
+
+
+  return (
+    'https://fonts.gstatic.com/s/i/short-term/release/' +
+    family +
+    '/' +
+    icon +
+    '/' +
+    variant +
+    '/' +
+    size +
+    'px.svg'
+  );
 }
 
 
@@ -669,56 +749,79 @@ async function loadCatalogue(){
   try{
 
     const response =
-      await fetch(METADATA_URL);
+      await fetch(
+        METADATA_URL,
+        {
+          mode:'cors'
+        }
+      );
 
-    if(!response.ok)
+
+    if(!response.ok){
+
       throw new Error(
-        'Metadata HTTP ' +
+        'Google metadata HTTP ' +
         response.status
       );
+
+    }
+
 
     let text =
       await response.text();
 
+
     /*
-      Google metadata has the anti-XSSI prefix.
+      Google's metadata endpoint starts
+      with the anti-XSSI prefix:
+      )]}'
     */
 
-    if(text.startsWith(")]}'"))
-      text = text.slice(5);
+    if(
+      text.startsWith(")]}'")
+    ){
+
+      text =
+        text.slice(5);
+
+    }
+
 
     const data =
       JSON.parse(text);
+
 
     icons =
       Array.isArray(data.icons)
         ? data.icons
         : [];
 
+
     icons.sort(
       (a,b) =>
         a.name.localeCompare(b.name)
     );
 
+
     renderGrid();
 
-    count.textContent =
-      icons.length.toLocaleString() +
-      ' icons';
 
   }catch(error){
 
     console.error(error);
 
-    grid.innerHTML =
-      '<div class="loading">' +
-      'Could not load Google icons.<br><br>' +
-      error.message +
-      '</div>';
+    grid.innerHTML = `
+      <div class="loading">
+        Could not load icon catalogue.<br><br>
+        ${escapeHTML(error.message)}
+      </div>
+    `;
 
     count.textContent =
-      'Error';
+      'Load error';
+
   }
+
 }
 
 
@@ -726,17 +829,19 @@ async function loadCatalogue(){
    SEARCH
 ========================================================= */
 
-function matches(icon){
+function matchesSearch(icon){
 
-  const q =
+  const query =
     search.value
       .trim()
       .toLowerCase();
 
-  if(!q)
+
+  if(!query)
     return true;
 
-  const text = [
+
+  const searchable = [
 
     icon.name || '',
 
@@ -748,82 +853,202 @@ function matches(icon){
   .join(' ')
   .toLowerCase();
 
-  return text.includes(q);
+
+  return searchable.includes(
+    query
+  );
 }
 
 
 /* =========================================================
-   GRID
+   RENDER GRID
 ========================================================= */
 
 function renderGrid(){
 
   const filtered =
-    icons.filter(matches);
+    icons.filter(
+      matchesSearch
+    );
+
 
   grid.innerHTML = '';
+
 
   const fragment =
     document.createDocumentFragment();
 
-  filtered.forEach(icon => {
 
-    const card =
-      document.createElement('div');
+  /*
+    We render the first 1000 results.
 
-    card.className =
-      'card';
+    This keeps the interface responsive when
+    the complete Google catalogue is displayed.
+  */
 
-    if(
-      selectedIcon &&
-      selectedIcon.name === icon.name
-    ){
-      card.classList.add('selected');
-    }
+  filtered
+    .slice(0,1000)
+    .forEach(icon => {
 
-    const symbol =
-      document.createElement('span');
+      const card =
+        document.createElement(
+          'div'
+        );
 
-    symbol.className =
-      'card-icon';
 
-    symbol.textContent =
-      icon.name;
+      card.className =
+        'card';
 
-    applyVariation(symbol);
 
-    const name =
-      document.createElement('div');
+      if(
+        selectedIcon &&
+        selectedIcon.name ===
+        icon.name
+      ){
 
-    name.className =
-      'card-name';
+        card.classList.add(
+          'selected'
+        );
 
-    name.textContent =
-      icon.name;
+      }
 
-    card.appendChild(symbol);
-    card.appendChild(name);
 
-    card.addEventListener(
-      'click',
-      () => selectIcon(icon)
-    );
+      const svg =
+        document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'svg'
+        );
 
-    fragment.appendChild(card);
 
-  });
+      svg.setAttribute(
+        'viewBox',
+        '0 0 24 24'
+      );
 
-  grid.appendChild(fragment);
+
+      svg.setAttribute(
+        'aria-hidden',
+        'true'
+      );
+
+
+      /*
+        Preview is loaded from Google.
+      */
+
+      const img =
+        document.createElement(
+          'img'
+        );
+
+
+      img.style.width =
+        '44px';
+
+      img.style.height =
+        '44px';
+
+      img.style.objectFit =
+        'contain';
+
+      img.alt = '';
+
+
+      /*
+        Browser preview uses an SVG image
+        from the same official endpoint.
+      */
+
+      img.src =
+        previewURL(
+          icon
+        );
+
+
+      img.onerror =
+        () => {
+
+          img.style.display =
+            'none';
+
+        };
+
+
+      const name =
+        document.createElement(
+          'div'
+        );
+
+
+      name.className =
+        'card-name';
+
+      name.textContent =
+        icon.name;
+
+
+      card.appendChild(img);
+
+      card.appendChild(name);
+
+
+      card.addEventListener(
+        'click',
+        () => {
+
+          selectIcon(icon);
+
+        }
+      );
+
+
+      fragment.appendChild(
+        card
+      );
+
+    });
+
+
+  grid.appendChild(
+    fragment
+  );
+
 
   count.textContent =
     filtered.length.toLocaleString() +
     ' / ' +
     icons.length.toLocaleString();
+
 }
 
 
 /* =========================================================
-   SELECT ICON
+   PREVIEW URL
+========================================================= */
+
+function previewURL(icon){
+
+  const old =
+    selectedIcon;
+
+  selectedIcon =
+    icon;
+
+
+  const url =
+    googleSvgURL();
+
+
+  selectedIcon =
+    old;
+
+
+  return url;
+}
+
+
+/* =========================================================
+   SELECT
 ========================================================= */
 
 function selectIcon(icon){
@@ -831,320 +1056,285 @@ function selectIcon(icon){
   selectedIcon =
     icon;
 
+
   selectedName.textContent =
     icon.name;
 
+
   updateSelectedMeta();
 
-  previewIcon.textContent =
-    icon.name;
 
-  applyVariation(previewIcon);
+  loadPreview();
+
 
   status.textContent =
-    'Selected ' + icon.name;
+    'Selected ' +
+    icon.name;
+
 
   renderGrid();
+
 }
 
+
+/* =========================================================
+   SELECTED INFO
+========================================================= */
 
 function updateSelectedMeta(){
 
   if(!selectedIcon)
     return;
 
+
   selectedMeta.innerHTML =
     'Style: ' +
-    settings.style +
+    state.style +
     '<br>' +
-    'FILL ' +
-    settings.fill +
-    ' · wght ' +
-    settings.weight +
-    ' · GRAD ' +
-    settings.grade +
-    ' · opsz ' +
-    settings.opsz;
+    'Fill: ' +
+    state.fill +
+    ' · Weight: ' +
+    state.weight +
+    ' · Grade: ' +
+    state.grade +
+    ' · Optical Size: ' +
+    state.opsz;
+
 }
 
 
 /* =========================================================
-   LOAD VARIABLE TTF
+   LOAD SELECTED PREVIEW
 ========================================================= */
 
-async function getFont(){
+function loadPreview(){
 
-  const style =
-    settings.style;
+  previewIcon.innerHTML = '';
 
-  if(fontCache[style])
-    return fontCache[style];
-
-  status.textContent =
-    'Loading ' +
-    style +
-    ' variable font…';
-
-  const response =
-    await fetch(
-      FONT_URLS[style]
-    );
-
-  if(!response.ok)
-    throw new Error(
-      'Font HTTP ' +
-      response.status
-    );
-
-  const buffer =
-    await response.arrayBuffer();
-
-  status.textContent =
-    'Parsing variable font…';
-
-  const font =
-    opentype.parse(buffer);
-
-  fontCache[style] =
-    font;
-
-  return font;
-}
-
-
-/* =========================================================
-   VARIABLE GLYPH → PATH
-========================================================= */
-
-async function createExactPath(){
 
   if(!selectedIcon)
+    return;
+
+
+  const img =
+    document.createElement(
+      'img'
+    );
+
+
+  img.style.width =
+    '110px';
+
+  img.style.height =
+    '110px';
+
+  img.style.objectFit =
+    'contain';
+
+
+  img.src =
+    googleSvgURL();
+
+
+  img.onload =
+    () => {
+
+      status.textContent =
+        'Official Google SVG loaded.';
+
+    };
+
+
+  img.onerror =
+    () => {
+
+      status.textContent =
+        'This exact Google SVG variant is not available.';
+
+    };
+
+
+  previewIcon.appendChild(
+    img
+  );
+
+}
+
+
+/* =========================================================
+   FETCH SVG
+========================================================= */
+
+async function fetchSVG(){
+
+  if(!selectedIcon){
+
     throw new Error(
       'Select an icon first.'
     );
 
-  const font =
-    await getFont();
-
-
-  /*
-    IMPORTANT:
-
-    Material Symbols are ligature-based icon fonts.
-
-    The icon name itself is passed to getPath().
-    opentype.js resolves the GSUB ligature and returns
-    the corresponding glyph outline.
-  */
-
-  if(
-    font.variation &&
-    typeof font.variation.set === 'function'
-  ){
-
-    font.variation.set({
-
-      FILL:
-        settings.fill,
-
-      wght:
-        settings.weight,
-
-      GRAD:
-        settings.grade,
-
-      opsz:
-        settings.opsz
-
-    });
-
   }
 
 
-  /*
-    Work at a 24px design size.
-  */
-
-  const size =
-    24;
+  const url =
+    googleSvgURL();
 
 
-  const path =
-    font.getPath(
-      selectedIcon.name,
-      0,
-      21,
-      size,
+  status.textContent =
+    'Fetching official Google SVG…';
+
+
+  const response =
+    await fetch(
+      url,
       {
-        kerning:false
+        mode:'cors'
       }
     );
 
 
-  if(!path)
+  if(!response.ok){
+
     throw new Error(
-      'Could not generate glyph path.'
+      'Google SVG not available for this combination (' +
+      response.status +
+      ').'
     );
 
-
-  return path;
-}
-
-
-/* =========================================================
-   PATH COMMANDS
-========================================================= */
-
-function pathToD(path){
-
-  return path.commands
-    .map(command => {
-
-      switch(command.type){
-
-        case 'M':
-          return (
-            'M ' +
-            clean(command.x) +
-            ' ' +
-            clean(command.y)
-          );
-
-        case 'L':
-          return (
-            'L ' +
-            clean(command.x) +
-            ' ' +
-            clean(command.y)
-          );
-
-        case 'C':
-          return (
-            'C ' +
-            clean(command.x1) +
-            ' ' +
-            clean(command.y1) +
-            ' ' +
-            clean(command.x2) +
-            ' ' +
-            clean(command.y2) +
-            ' ' +
-            clean(command.x) +
-            ' ' +
-            clean(command.y)
-          );
-
-        case 'Q':
-          return (
-            'Q ' +
-            clean(command.x1) +
-            ' ' +
-            clean(command.y1) +
-            ' ' +
-            clean(command.x) +
-            ' ' +
-            clean(command.y)
-          );
-
-        case 'Z':
-          return 'Z';
-
-        default:
-          return '';
-
-      }
-
-    })
-    .filter(Boolean)
-    .join(' ');
-}
-
-
-function clean(number){
-
-  if(
-    typeof number !== 'number' ||
-    !Number.isFinite(number)
-  ){
-    return '0';
   }
 
-  return Number(
-    number.toFixed(4)
-  ).toString();
+
+  const text =
+    await response.text();
+
+
+  if(
+    !text.includes('<svg')
+  ){
+
+    throw new Error(
+      'Google returned an invalid SVG.'
+    );
+
+  }
+
+
+  return text;
+
 }
 
 
 /* =========================================================
-   EXACT SVG
+   CLEAN SVG
 ========================================================= */
 
-async function createExactSVG(){
+function cleanSVG(svgText){
 
-  const path =
-    await createExactPath();
-
-  const d =
-    pathToD(path);
+  const parser =
+    new DOMParser();
 
 
-  if(!d)
-    throw new Error(
-      'Generated path is empty.'
+  const doc =
+    parser.parseFromString(
+      svgText,
+      'image/svg+xml'
     );
+
+
+  const svg =
+    doc.documentElement;
 
 
   /*
-    Material Symbols use a 24 × 24 design grid.
-
-    We keep the SVG completely self-contained.
+    Remove unnecessary metadata.
   */
 
-  return [
-    '<svg',
-    ' xmlns="http://www.w3.org/2000/svg"',
-    ' viewBox="0 0 24 24"',
-    ' width="24"',
-    ' height="24"',
-    ' fill="currentColor"',
-    ' data-material-symbol="' +
-      escapeAttribute(selectedIcon.name) +
-    '"',
-    ' data-style="' +
-      escapeAttribute(settings.style) +
-    '"',
-    ' data-fill="' +
-      settings.fill +
-    '"',
-    ' data-weight="' +
-      settings.weight +
-    '"',
-    ' data-grade="' +
-      settings.grade +
-    '"',
-    ' data-optical-size="' +
-      settings.opsz +
-    '"',
-    '>',
-    '<path d="' +
-      d +
-    '"/>',
-    '</svg>'
-  ].join('');
+  svg
+    .querySelectorAll(
+      'title,desc,metadata,style'
+    )
+    .forEach(
+      element =>
+        element.remove()
+    );
+
+
+  svg.setAttribute(
+    'xmlns',
+    'http://www.w3.org/2000/svg'
+  );
+
+
+  if(
+    !svg.getAttribute(
+      'viewBox'
+    )
+  ){
+
+    svg.setAttribute(
+      'viewBox',
+      '0 0 24 24'
+    );
+
+  }
+
+
+  /*
+    Keep a little provenance information
+    inside the exported SVG.
+  */
+
+  svg.setAttribute(
+    'data-material-symbol',
+    selectedIcon.name
+  );
+
+  svg.setAttribute(
+    'data-material-style',
+    state.style
+  );
+
+  svg.setAttribute(
+    'data-material-fill',
+    state.fill
+  );
+
+  svg.setAttribute(
+    'data-material-weight',
+    state.weight
+  );
+
+  svg.setAttribute(
+    'data-material-grade',
+    state.grade
+  );
+
+  svg.setAttribute(
+    'data-material-opsz',
+    state.opsz
+  );
+
+
+  return svg;
+
 }
 
 
 /* =========================================================
-   ATTRIBUTE ESCAPE
+   SERIALIZE
 ========================================================= */
 
-function escapeAttribute(value){
+function serializeSVG(svg){
 
-  return String(value)
-    .replace(/&/g,'&amp;')
-    .replace(/"/g,'&quot;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;');
+  return new XMLSerializer()
+    .serializeToString(
+      svg
+    )
+    .replace(
+      />\s+</g,
+      '><'
+    );
+
 }
 
 
@@ -1153,33 +1343,50 @@ function escapeAttribute(value){
 ========================================================= */
 
 document
-  .getElementById('copySvg')
+  .getElementById(
+    'copySvg'
+  )
   .addEventListener(
     'click',
     async () => {
 
       try{
 
-        status.textContent =
-          'Generating exact SVG…';
+        const raw =
+          await fetchSVG();
+
 
         const svg =
-          await createExactSVG();
+          cleanSVG(
+            raw
+          );
 
-        await navigator.clipboard.writeText(
-          svg
-        );
+
+        const output =
+          serializeSVG(
+            svg
+          );
+
+
+        await navigator.clipboard
+          .writeText(
+            output
+          );
+
 
         status.textContent =
-          'Exact SVG copied.';
+          'SVG copied to clipboard.';
+
 
       }catch(error){
 
         console.error(error);
 
+
         status.textContent =
-          'SVG extraction failed: ' +
+          'SVG extraction error: ' +
           error.message;
+
       }
 
     }
@@ -1191,36 +1398,78 @@ document
 ========================================================= */
 
 document
-  .getElementById('copyPath')
+  .getElementById(
+    'copyPath'
+  )
   .addEventListener(
     'click',
     async () => {
 
       try{
 
+        const raw =
+          await fetchSVG();
+
+
+        const svg =
+          cleanSVG(
+            raw
+          );
+
+
+        const paths =
+          [
+            ...svg.querySelectorAll(
+              'path'
+            )
+          ];
+
+
+        if(!paths.length){
+
+          throw new Error(
+            'No SVG path found.'
+          );
+
+        }
+
+
+        const output =
+          paths
+            .map(
+              path =>
+                path.getAttribute('d')
+            )
+            .filter(Boolean)
+            .join('\n');
+
+
+        await navigator.clipboard
+          .writeText(
+            output
+          );
+
+
         status.textContent =
-          'Generating exact path…';
+          paths.length +
+          ' path' +
+          (
+            paths.length === 1
+              ? ''
+              : 's'
+          ) +
+          ' copied.';
 
-        const path =
-          await createExactPath();
-
-        const d =
-          pathToD(path);
-
-        await navigator.clipboard.writeText(
-          d
-        );
-
-        status.textContent =
-          'Exact SVG path copied.';
 
       }catch(error){
 
         console.error(error);
 
+
         status.textContent =
-          'Path extraction failed: ' +
+          'PATH extraction error: ' +
           error.message;
+
       }
 
     }
@@ -1233,55 +1482,74 @@ document
 
 function updateSettings(){
 
-  settings.fill =
+  state.fill =
     Number(
-      document.getElementById('fill').value
+      document.getElementById(
+        'fill'
+      ).value
     );
 
-  settings.weight =
+
+  state.weight =
     Number(
-      document.getElementById('weight').value
+      document.getElementById(
+        'weight'
+      ).value
     );
 
-  settings.grade =
+
+  state.grade =
     Number(
-      document.getElementById('grade').value
+      document.getElementById(
+        'grade'
+      ).value
     );
 
-  settings.opsz =
+
+  state.opsz =
     Number(
-      document.getElementById('opsz').value
+      document.getElementById(
+        'opsz'
+      ).value
     );
 
 
-  document.getElementById('fillValue')
-    .textContent =
-      settings.fill;
-
-  document.getElementById('weightValue')
-    .textContent =
-      settings.weight;
-
-  document.getElementById('gradeValue')
-    .textContent =
-      settings.grade;
-
-  document.getElementById('opszValue')
-    .textContent =
-      settings.opsz;
+  document.getElementById(
+    'fillValue'
+  ).textContent =
+    state.fill;
 
 
-  applyVariation(
-    previewIcon
-  );
+  document.getElementById(
+    'weightValue'
+  ).textContent =
+    state.weight;
 
-  document
-    .querySelectorAll('.card-icon')
-    .forEach(
-      applyVariation
-    );
+
+  document.getElementById(
+    'gradeValue'
+  ).textContent =
+    state.grade;
+
+
+  document.getElementById(
+    'opszValue'
+  ).textContent =
+    state.opsz;
+
 
   updateSelectedMeta();
+
+
+  if(selectedIcon){
+
+    loadPreview();
+
+  }
+
+
+  renderGrid();
+
 }
 
 
@@ -1295,67 +1563,81 @@ function updateSettings(){
   'grade',
   'opsz'
 ]
-.forEach(id => {
+.forEach(
+  id => {
 
-  document
-    .getElementById(id)
-    .addEventListener(
-      'input',
-      updateSettings
-    );
+    document
+      .getElementById(id)
+      .addEventListener(
+        'input',
+        updateSettings
+      );
 
-});
+  }
+);
 
 
 /* =========================================================
-   STYLE
+   STYLE EVENTS
 ========================================================= */
 
 document
   .querySelectorAll(
     '.style-buttons button'
   )
-  .forEach(button => {
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      'click',
-      () => {
+      button.addEventListener(
+        'click',
+        () => {
 
-        document
-          .querySelectorAll(
-            '.style-buttons button'
-          )
-          .forEach(
-            b =>
-              b.classList.remove(
-                'active'
-              )
+          document
+            .querySelectorAll(
+              '.style-buttons button'
+            )
+            .forEach(
+              b =>
+                b.classList.remove(
+                  'active'
+                )
+            );
+
+
+          button.classList.add(
+            'active'
           );
 
-        button.classList.add(
-          'active'
-        );
 
-        settings.style =
-          button.dataset.style;
+          state.style =
+            button.dataset.style;
 
-        loadPreviewFont();
 
-        updateSelectedMeta();
+          updateSelectedMeta();
 
-        renderGrid();
 
-      }
-    );
+          if(selectedIcon){
 
-  });
+            loadPreview();
+
+          }
+
+
+          renderGrid();
+
+        }
+      );
+
+    }
+  );
 
 
 /* =========================================================
    SEARCH
 ========================================================= */
 
-let searchTimer;
+let searchTimer = null;
+
 
 search.addEventListener(
   'input',
@@ -1365,10 +1647,11 @@ search.addEventListener(
       searchTimer
     );
 
+
     searchTimer =
       setTimeout(
         renderGrid,
-        60
+        50
       );
 
   }
@@ -1376,10 +1659,39 @@ search.addEventListener(
 
 
 /* =========================================================
-   INITIALIZE
+   HTML ESCAPE
 ========================================================= */
 
-loadPreviewFont();
+function escapeHTML(value){
+
+  return String(value)
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
 
 loadCatalogue();
 
